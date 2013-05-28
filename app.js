@@ -7,7 +7,11 @@ var express = require('express')
   , routes = require('./routes')
   , user = require('./routes/user')
   , http = require('http')
-  , path = require('path');
+  , path = require('path')
+  , socketio = require('socket.io')
+  , userCon = require('./controllers/UserController')
+  , gameCon = require('./controllers/GameController')
+  , appCon = require('./controllers/ApplicationController');
 
 var app = express();
 
@@ -22,7 +26,7 @@ app.use(express.methodOverride());
 app.use(express.cookieParser('your secret here'));
 app.use(express.session());
 app.use(app.router);
-  app.use(require('stylus').middleware(__dirname + '/public'));
+app.use(require('stylus').middleware(__dirname + '/public'));
 app.use(express.static(path.join(__dirname, 'public')));
 
 // development only
@@ -30,9 +34,8 @@ if ('development' == app.get('env')) {
   app.use(express.errorHandler());
 }
 
-app.get('/', routes.index);
-app.get('/users', user.list);
-app.get('/:user/wormhole', user.wormhole);
+app.get('/', appCon.index);
+app.get('/play', gameCon.startGame);
 
 http.createServer(app).listen(app.get('port'), function(){
   console.log('Express server listening on port ' + app.get('port'));
