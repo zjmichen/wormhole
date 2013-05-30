@@ -3,15 +3,24 @@ var socketio = require("socket.io");
 function SocketController() {
     var sio;
 
+    /** declarations for individual sockets */
+    function SocketHandler(socket) {
+        socket.on("disconnect", function() {
+            console.log("Socket disconnected: " + socket.id);
+        });
+    }
+
+    /** public members/methods */
     var _SocketController = {
+
+        /** set up global socket handler */
         "init": function(server) {
             sio = socketio.listen(server);
-            sio.on("connection", this.connection);
-        },
+            sio.sockets.on("connection", function(socket) {
+                var sHandler = new SocketHandler(socket);
+            });
+         },
 
-        "connection": function(client) {
-            console.log("Connection acquired");
-        },
     };
 
     return _SocketController;
