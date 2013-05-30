@@ -10,7 +10,8 @@ $(document).ready(function() {
         });
 
         socket.on("go", function(data) {
-            console.log("Server said go.  You are on team " + data.team);
+            console.log("Server said go.");
+            console.log(data);
         });
     });
 });
