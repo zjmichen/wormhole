@@ -3,10 +3,15 @@ var socketio = require("socket.io");
 function SocketController() {
     var sio;
 
-    /** declarations for individual sockets */
+    /** callback declarations for individual sockets */
     function SocketHandler(socket) {
         socket.on("disconnect", function() {
             console.log("Socket disconnected: " + socket.id);
+        });
+
+        socket.on("ready", function() {
+            console.log("Client is ready.");
+            socket.emit("ackReady");
         });
     }
 
