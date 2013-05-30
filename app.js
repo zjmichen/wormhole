@@ -37,7 +37,6 @@ if ('development' == app.get('env')) {
 }
 
 app.get('/', appCon.index);
-app.get('/play', gameCon.enqueue);
 
 server = http.createServer(app).listen(app.get('port'), function(){
   console.log('Express server listening on port ' + app.get('port'));

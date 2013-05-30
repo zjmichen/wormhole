@@ -8,11 +8,6 @@ function GameController() {
     // public members
     var _GameController = {
 
-        /** enqueues a player to start a game */
-        "enqueue": function(req, res) {
-
-        },
-
         // assigns client to a game, redirects
         "startGame": function(req, res) {
             numGames += 1;
