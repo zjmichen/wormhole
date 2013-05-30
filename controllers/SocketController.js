@@ -4,7 +4,7 @@ var socketio = require("socket.io")
 function SocketController() {
     var sio
       , rClient = redis.createClient()
-      , numPlayers = 3
+      , playersPerGame = 3
       , nextGameId = 0;
 
     /** callback declarations for individual sockets */
@@ -17,6 +17,13 @@ function SocketController() {
             console.log("Client is ready.");
 
             _SocketController.enqueue(socket.id);
+        });
+
+        socket.on("msg", function(data) {
+            console.log("Message from " + socket.id + " to " + data.player);
+            sio.sockets.sockets[data.player].emit("msg", {
+                "from": socket.id,
+            });
         });
     }
 
@@ -34,10 +41,10 @@ function SocketController() {
          /** add player to play queue */
          "enqueue": function(socketId) {
             rClient.llen("playQueue", function(err, numQueued) {
-                if (numQueued >= numPlayers - 1) {
-                    
-                    rClient.lrange("playQueue", 0, numPlayers - 1, function(err, players) {
-                        rClient.ltrim("playQueue", numPlayers, -1);
+                if (numQueued >= playersPerGame - 1) {
+
+                    rClient.lrange("playQueue", 0, playersPerGame - 1, function(err, players) {
+                        rClient.ltrim("playQueue", playersPerGame, -1);
 
                         players.push(socketId);
 
