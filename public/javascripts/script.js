@@ -5,8 +5,12 @@ $(document).ready(function() {
         console.log("Button pressed");
         socket.emit("ready");
 
-        socket.on("ackReady", function() {
-            console.log("Server said go.");
+        socket.on("wait", function() {
+            console.log("Server said wait.");
+        });
+
+        socket.on("go", function(data) {
+            console.log("Server said go.  You are on team " + data.team);
         });
     });
 });
