@@ -175,7 +175,9 @@ function Game(otherPlayers, socket) {
             },
 
             "collideWith": function(obj) {
-                console.log("Collision with " + obj.type);
+                if (obj.type !== "projectile") {
+                    console.log("Collision with " + obj.type);
+                }
             },
 
             "turnLeft": function() {
@@ -263,12 +265,12 @@ function Game(otherPlayers, socket) {
             },
 
             "collideWith": function(obj) {
-                console.log(obj);
-        // if (a.type === "wormhole" && b.type === "projectile") {
-        //             console.log("Collision!");
-        //     a.send(b);
-        //     gameObjects.splice(gameObjects.indexOf(b), 1);
-        //     delete b;
+                console.log("Bullet collided with " + obj.type);
+                if (obj.type === "wormhole") {
+                    obj.send(this);
+                    gameObjects.splice(gameObjects.indexOf(this), 1);
+                    delete this;
+                }
             }
         };
 
@@ -298,11 +300,13 @@ function Game(otherPlayers, socket) {
             },
 
             "collideWith": function(obj) {
-                console.log("Wormhole collided with " + obj.type);
-                if (obj.type === "projectile") {
-                    this.send(obj);
-                    gameObjects.splice(gameObjects.indexOf(obj), 1);
-                    delete obj;
+                if (obj.type !== "wormhole") {
+                    console.log("Wormhole " + this.name + "collided with " + obj.type);
+                    if (obj.type === "projectile") {
+                        this.send(obj);
+                        gameObjects.splice(gameObjects.indexOf(obj), 1);
+                        delete obj;
+                    }
                 }
             },
 
