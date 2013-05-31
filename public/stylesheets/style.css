@@ -5,3 +5,6 @@ body {
 a {
   color: #00b7ff;
 }
+canvas {
+  border: 1px solid #000;
+}
