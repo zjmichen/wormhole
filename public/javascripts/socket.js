@@ -1,6 +1,7 @@
 function SocketController() {
     var socket = new io.connect(window.location.host)
-      , players = [];
+      , players = []
+      , game;
 
     var _SocketController = {
 
@@ -11,6 +12,8 @@ function SocketController() {
             socket.on("wait", this.wait);
             socket.on("go", this.go);
             socket.on("msg", this.receive);
+
+
         },
 
         "wait": function() {
@@ -23,18 +26,30 @@ function SocketController() {
 
             players = data.players;
 
-            players.forEach(function(player, i) {
-                $("body").append("<button name='" + player + "' class='btnPlayer'>Player " + (i+1) + "</button>");
-            });
+            game = new Game(players, this);
+
+            game.play();
+
+            // players.forEach(function(player, i) {
+            //     $("body").append("<button name='" + player + "' class='btnPlayer'>Player " + (i+1) + "</button>");
+            // });
 
             $("#btnPlay").hide();
 
-            $(".btnPlayer").click(function() {
-                socket.emit("msg", {
-                    "player": $(this).attr("name"),
-                });
-            });
+            // $(".btnPlayer").click(function() {
+            //     that.send($(this).attr("name"));
+            //     socket.emit("msg", {
+            //         "player": $(this).attr("name"),
+            //     });
+            // });
 
+        },
+
+        "send": function(to, data) {
+            data = data || {};
+            data.player = to;
+            console.log("Sending data");
+            socket.emit("msg", data);
         },
 
         "receive": function(data) {

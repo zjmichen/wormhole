@@ -1,9 +1,12 @@
 $(document).ready(function() {
-    var game = new Game();
-    game.play();
+    // var game = new Game();
+    // game.play();
 });
 
-function Game() {
+function Game(otherPlayers, socket) {
+    socket.send(otherPlayers[0], {
+        "asdf": "fdsa"
+    });
     var width = 480
       , height = 320
       , canvasEl
@@ -22,6 +25,14 @@ function Game() {
 
     player = new Ship();
     gameObjects.push(player);
+
+    otherPlayers.forEach(function(opponent) {
+        gameObjects.push(new Wormhole({
+            "name": opponent,
+            "x": Math.random() * width,
+            "y": Math.random() * height,
+        }));
+    });
 
     $(document).bind("keydown", "left", function() {
         keystatus.left = true;
@@ -65,8 +76,14 @@ function Game() {
             player.accelerate();
         }
 
-        gameObjects.forEach(function(obj) {
+        gameObjects.forEach(function(obj, i, objs) {
             obj.update();
+
+            for (var j = i + 1; j < objs.length; j++) {
+                if (collides(objs[i], objs[j])) {
+                    objs[i].collideWith(objs[j]);
+                }
+            }
         });
     }
 
@@ -80,6 +97,13 @@ function Game() {
         var fuelLevel = height * (player.fuel / player.maxFuel);
         canvas.fillStyle = "#0f0";
         canvas.fillRect(width - 10, height - fuelLevel, 10, fuelLevel);
+        canvas.fillStyle = "#000";
+        canvas.fillText("Fuel", width - 35, height - 5);
+    }
+
+    function collides(a, b) {
+        return (Math.abs(a.x - b.x) < 0.5*a.width + 0.5*b.width &&
+                Math.abs(a.y - b.y) < 0.5*a.height + 0.5*b.height);
     }
 
     /** public members/methods */
@@ -110,6 +134,7 @@ function Game() {
           , driftAngle = I.angle || 0;
 
         var _Ship = {
+            "type": "ship",
             "x": I.x || width / 2,
             "y": I.y || height  / 2,
             "width": I.width || 50,
@@ -147,6 +172,10 @@ function Game() {
                 canvas.fillRect(0, 0, 0.1*this.width, 0.1*this.height);
 
                 canvas.restore();
+            },
+
+            "collideWith": function(obj) {
+                console.log("Collision with " + obj.type);
             },
 
             "turnLeft": function() {
@@ -204,8 +233,11 @@ function Game() {
         I = I || {};
 
         var _Bullet = {
+            "type": "projectile",
             "x": I.x,
             "y": I.y,
+            "width": 2,
+            "height": 2,
             "speed": I.speed || 1,
             "angle": I.angle,
             "size": I.size || 2,
@@ -229,9 +261,57 @@ function Game() {
                 //canvas.arc(this.x, this.y, this.size, 0, 2*Math.PI, false);
                 canvas.fillRect(this.x, this.y, this.size, this.size);
             },
+
+            "collideWith": function(obj) {
+                console.log(obj);
+        // if (a.type === "wormhole" && b.type === "projectile") {
+        //             console.log("Collision!");
+        //     a.send(b);
+        //     gameObjects.splice(gameObjects.indexOf(b), 1);
+        //     delete b;
+            }
         };
 
         return _Bullet;
+    }
+
+    function Wormhole(I) {
+        I = I || {};
+
+        var _Wormhole = {
+            "type": "wormhole",
+            "name": I.name,
+            "x": I.x || 0.5*width,
+            "y": I.y || 0.5*height,
+            "width": 50,
+            "height": 50,
+            "size": I.size || 50,
+
+            "update": function() {
+
+            },
+
+            "draw": function() {
+                canvas.fillStyle = "#f00";
+                //canvas.arc(this.x, this.y, this.size, 0, 2*Math.PI, false);
+                canvas.fillRect(this.x, this.y, this.size, this.size);
+            },
+
+            "collideWith": function(obj) {
+                console.log("Wormhole collided with " + obj.type);
+                if (obj.type === "projectile") {
+                    this.send(obj);
+                    gameObjects.splice(gameObjects.indexOf(obj), 1);
+                    delete obj;
+                }
+            },
+
+            "send": function(data) {
+                socket.send(this.name, data);
+            },
+        };
+
+        return _Wormhole;
     }
 
     return _Game;
