@@ -76,6 +76,10 @@ function Game() {
         ships.forEach(function(ship) {
             ship.draw();
         });
+
+        var fuelLevel = height * (ships[0].fuel / ships[0].maxFuel);
+        canvas.fillStyle = "#0f0";
+        canvas.fillRect(width - 10, height - fuelLevel, 10, fuelLevel);
     }
 
     /** public members/methods */
@@ -103,7 +107,6 @@ function Game() {
         I = I || {};
 
         var drag = 0.99
-          , maxSpeed = 10
           , driftAngle = I.angle || 0;
 
         var _Ship = {
@@ -115,8 +118,15 @@ function Game() {
             "color": I.color || "#00f",
             "speed": I.speed || 0,
             "thrust": I.thrust || 0.3,
+            "maxFuel": I.maxFuel || 10,
+            "fuel": I.fuel || 10,
+            "recharge": I.recharge || 0.1,
 
             "update": function() {
+                if (this.fuel < this.maxFuel) {
+                    this.fuel += this.recharge;
+                }
+
                 this.speed *= drag;
                 this.x += this.speed*Math.cos(driftAngle);
                 this.y += this.speed*Math.sin(driftAngle);
@@ -148,6 +158,13 @@ function Game() {
             },
 
             "accelerate": function() {
+                this.fuel -= this.thrust;
+
+                if (this.fuel <= 0) {
+                    this.fuel = 0;
+                    return;
+                }
+
                 var driftX = this.speed*Math.cos(driftAngle)
                   , driftY = this.speed*Math.sin(driftAngle)
                   , thrustX = this.thrust*Math.cos(this.angle)
