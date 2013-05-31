@@ -103,22 +103,23 @@ function Game() {
         I = I || {};
 
         var drag = 0.99
-          , maxSpeed = 10;
+          , maxSpeed = 10
+          , driftAngle = I.angle || 0;
 
         var _Ship = {
             "x": I.x || width / 2,
             "y": I.y || height  / 2,
             "width": I.width || 50,
             "height": I.height || 50,
-            "angle": I.angle || 2,
+            "angle": driftAngle,
             "color": I.color || "#00f",
             "speed": I.speed || 0,
             "thrust": I.thrust || 0.3,
 
             "update": function() {
                 this.speed *= drag;
-                this.x += this.speed*Math.cos(this.angle);
-                this.y += this.speed*Math.sin(this.angle);
+                this.x += this.speed*Math.cos(driftAngle);
+                this.y += this.speed*Math.sin(driftAngle);
 
                 this.x = ((this.x % width) + width) % width;
                 this.y = ((this.y % height) + height) % height;
@@ -132,6 +133,8 @@ function Game() {
 
                 canvas.fillStyle = this.color;
                 canvas.fillRect(0, 0, this.width, this.height);
+                canvas.fillStyle = "#000";
+                canvas.fillRect(0, 0, 0.1*this.width, 0.1*this.height);
 
                 canvas.restore();
             },
@@ -145,9 +148,19 @@ function Game() {
             },
 
             "accelerate": function() {
-                this.speed += this.thrust;
-                if (this.speed > maxSpeed) {
-                    this.speed = maxSpeed;
+                var driftX = this.speed*Math.cos(driftAngle)
+                  , driftY = this.speed*Math.sin(driftAngle)
+                  , thrustX = this.thrust*Math.cos(this.angle)
+                  , thrustY = this.thrust*Math.sin(this.angle);
+
+                driftX += thrustX;
+                driftY += thrustY;
+
+                this.speed = Math.sqrt(Math.pow(driftX, 2) + Math.pow(driftY, 2));
+
+                driftAngle = Math.acos(driftX / this.speed);
+                if (Math.asin(driftY / this.speed) < 0) {
+                    driftAngle *= -1;
                 }
             },
 
