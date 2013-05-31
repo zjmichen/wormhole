@@ -11,7 +11,8 @@ function Game() {
       , ctx
       , frameRate = 30
       , gameLoop
-      , ships = []
+      , gameObjects = []
+      , player
       , keystatus = {};
 
     canvasEl = $("canvas#wormhole");
@@ -19,13 +20,8 @@ function Game() {
     canvasEl.attr("height", height);
     canvas = canvasEl.get(0).getContext("2d");
 
-    ships.push(new Ship());
-    ships.push(new Ship({
-        "color": "red",
-        "x": 50,
-        "y": 40,
-        "angle": 3,
-    }));
+    player = new Ship();
+    gameObjects.push(player);
 
     $(document).bind("keydown", "left", function() {
         keystatus.left = true;
@@ -53,31 +49,35 @@ function Game() {
     $(document).bind("keyup", "down", function() {
         keystatus.down = false;
     });
+    $(document).bind("keydown", "space", function() {
+        player.shoot();
+        return false;
+    });
 
     function update() {
         if (keystatus.left) {
-            ships[0].turnLeft();
+            player.turnLeft();
         }
         if (keystatus.right) {
-            ships[0].turnRight();
+            player.turnRight();
         }
         if (keystatus.up) {
-            ships[0].accelerate();
+            player.accelerate();
         }
 
-        ships.forEach(function(ship) {
-            ship.update();
+        gameObjects.forEach(function(obj) {
+            obj.update();
         });
     }
 
     function draw() {
         canvas.clearRect(0, 0, width, height);
 
-        ships.forEach(function(ship) {
-            ship.draw();
+        gameObjects.forEach(function(obj) {
+            obj.draw();
         });
 
-        var fuelLevel = height * (ships[0].fuel / ships[0].maxFuel);
+        var fuelLevel = height * (player.fuel / player.maxFuel);
         canvas.fillStyle = "#0f0";
         canvas.fillRect(width - 10, height - fuelLevel, 10, fuelLevel);
     }
@@ -181,9 +181,57 @@ function Game() {
                 }
             },
 
+            "shoot": function() {
+                console.log("Shooting!!!");
+
+                var frontX = this.x + 0.5*this.width*Math.cos(this.angle)
+                  , frontY = this.y + 0.5*this.height*Math.sin(this.angle);
+
+                gameObjects.push(new Bullet({
+                    "x": frontX,
+                    "y": frontY,
+                    "angle": this.angle,
+                    "speed": this.speed + 2,
+                }));
+            },
+
         };
 
         return _Ship;
+    }
+
+    function Bullet(I) {
+        I = I || {};
+
+        var _Bullet = {
+            "x": I.x,
+            "y": I.y,
+            "speed": I.speed || 1,
+            "angle": I.angle,
+            "size": I.size || 2,
+            "ttl": I.ttl || 70,
+
+            "update": function() {
+                if (this.ttl <= 0) {
+                    gameObjects.splice(gameObjects.indexOf(this), 1);
+                    delete this;
+                    return;
+                }
+
+                this.ttl -= 1;
+
+                this.x += this.speed*Math.cos(this.angle);
+                this.y += this.speed*Math.sin(this.angle);
+            },
+
+            "draw": function() {
+                canvas.fillStyle = "#000";
+                //canvas.arc(this.x, this.y, this.size, 0, 2*Math.PI, false);
+                canvas.fillRect(this.x, this.y, this.size, this.size);
+            },
+        };
+
+        return _Bullet;
     }
 
     return _Game;
