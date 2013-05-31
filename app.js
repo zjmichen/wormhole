@@ -12,8 +12,6 @@ var express = require('express')
   , app = express()
   , socketio = require('socket.io')
   , socketCon = require('./controllers/SocketController')()
-  , userCon = require('./controllers/UserController')
-  , gameCon = require('./controllers/GameController')()
   , appCon = require('./controllers/ApplicationController');
 
 

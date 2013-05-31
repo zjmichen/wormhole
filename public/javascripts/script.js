@@ -41,10 +41,6 @@ function SocketController() {
             console.log("Message from player " + (players.indexOf(data.from) + 1));
         },
 
-        "send": function(data) {
-
-        },
-
     };
 
     return _SocketController;
