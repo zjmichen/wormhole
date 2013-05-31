@@ -46,6 +46,13 @@ function Game() {
     $(document).bind("keyup", "up", function() {
         keystatus.up = false;
     });
+    $(document).bind("keydown", "down", function() {
+        keystatus.down = true;
+        return false;
+    });
+    $(document).bind("keyup", "down", function() {
+        keystatus.down = false;
+    });
 
     function update() {
         if (keystatus.left) {
@@ -95,7 +102,8 @@ function Game() {
     function Ship(I) {
         I = I || {};
 
-        var drag = 0.9;
+        var drag = 0.99
+          , maxSpeed = 10;
 
         var _Ship = {
             "x": I.x || width / 2,
@@ -105,11 +113,15 @@ function Game() {
             "angle": I.angle || 2,
             "color": I.color || "#00f",
             "speed": I.speed || 0,
+            "thrust": I.thrust || 0.3,
 
             "update": function() {
                 this.speed *= drag;
                 this.x += this.speed*Math.cos(this.angle);
                 this.y += this.speed*Math.sin(this.angle);
+
+                this.x = ((this.x % width) + width) % width;
+                this.y = ((this.y % height) + height) % height;
             },
 
             "draw": function() {
@@ -133,7 +145,10 @@ function Game() {
             },
 
             "accelerate": function() {
-                this.speed += 1;
+                this.speed += this.thrust;
+                if (this.speed > maxSpeed) {
+                    this.speed = maxSpeed;
+                }
             },
 
         };
