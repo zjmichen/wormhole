@@ -3,10 +3,9 @@ $(document).ready(function() {
     // game.play();
 });
 
-function Game(otherPlayers, socket) {
-    socket.send(otherPlayers[0], {
-        "asdf": "fdsa"
-    });
+function Game(otherPlayers) {
+    window.socketCon.send(otherPlayers[0], {"message": "Hello"});
+
     var width = 480
       , height = 320
       , canvasEl
@@ -122,6 +121,11 @@ function Game(otherPlayers, socket) {
 
         "stop": function() {
             clearInterval(gameLoop);
+        },
+
+        "receiveData": function(data) {
+            console.log("Game got data: ");
+            console.log(data);
         },
 
     };
@@ -302,16 +306,17 @@ function Game(otherPlayers, socket) {
             "collideWith": function(obj) {
                 if (obj.type !== "wormhole") {
                     console.log("Wormhole " + this.name + "collided with " + obj.type);
-                    if (obj.type === "projectile") {
-                        this.send(obj);
-                        gameObjects.splice(gameObjects.indexOf(obj), 1);
-                        delete obj;
-                    }
+                }
+                
+                if (obj.type === "projectile") {
+                    this.send(obj);
+                    gameObjects.splice(gameObjects.indexOf(obj), 1);
+                    delete obj;
                 }
             },
 
             "send": function(data) {
-                socket.send(this.name, data);
+                window.socketCon.send(this.name, data);
             },
         };
 

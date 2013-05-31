@@ -1,3 +1,5 @@
+window.socketCon;
+
 function SocketController() {
     var socket = new io.connect(window.location.host)
       , players = []
@@ -54,6 +56,7 @@ function SocketController() {
 
         "receive": function(data) {
             console.log("Message from player " + (players.indexOf(data.from) + 1));
+            game.receiveData(data);
         },
 
     };
@@ -63,7 +66,7 @@ function SocketController() {
 }
 
 $(document).ready(function() {
-    var socketCon = SocketController();
+    socketCon = SocketController();
 
     $("#btnPlay").click(function() {
         console.log("Button pressed");

@@ -23,9 +23,11 @@ function SocketController() {
 
         socket.on("msg", function(data) {
             console.log("Message from " + socket.id + " to " + data.player);
-            sio.sockets.sockets[data.player].emit("msg", {
-                "from": socket.id,
-            });
+
+            data = data || {};
+            data.from = socket.id;
+
+            sio.sockets.sockets[data.player].emit("msg", data);
         });
     }
 
