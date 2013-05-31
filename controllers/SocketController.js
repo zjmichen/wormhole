@@ -7,6 +7,8 @@ function SocketController() {
       , playersPerGame = 3
       , nextGameId = 0;
 
+    rClient.flushall();
+
     /** callback declarations for individual sockets */
     function SocketHandler(socket) {
         socket.on("disconnect", function() {
@@ -40,32 +42,41 @@ function SocketController() {
 
          /** add player to play queue */
          "enqueue": function(socketId) {
+            var that = this;
             rClient.llen("playQueue", function(err, numQueued) {
                 if (numQueued >= playersPerGame - 1) {
 
-                    rClient.lrange("playQueue", 0, playersPerGame - 1, function(err, players) {
-                        rClient.ltrim("playQueue", playersPerGame, -1);
-
-                        players.push(socketId);
-
-                        players.forEach(function(socketId) {
-                            var otherPlayers = players.filter(function(playerId) {
-                                return (playerId !== socketId);
-                            });
-
-                            sio.sockets.sockets[socketId].emit("go", {
-                                "gameId": nextGameId,
-                                "players": otherPlayers,
-                            });
-                        });
-
-                        nextGameId += 1;
-                    });
+                    that.createGame(socketId);
 
                 } else {
                     rClient.rpush("playQueue", socketId);
                     sio.sockets.sockets[socketId].emit("wait");
                 }
+            });
+         },
+
+         /** removes players from play queue and creates a game */
+         "createGame": function(lastPlayer) {
+            rClient.lrange("playQueue", 0, playersPerGame - 1, function(err, players) {
+                var gameId = nextGameId;
+                nextGameId += 1;
+
+                rClient.ltrim("playQueue", playersPerGame, -1);
+
+                players.push(lastPlayer);
+
+                players.forEach(function(socketId) {
+                    var otherPlayers = players.filter(function(playerId) {
+                        return (playerId !== socketId);
+                    });
+
+                    sio.sockets.sockets[socketId].emit("go", {
+                        "gameId": gameId,
+                        "players": otherPlayers,
+                    });
+                });
+
+                rClient.hset("players", "game" + gameId, players);
             });
          },
 
