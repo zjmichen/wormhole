@@ -49,24 +49,31 @@ function SocketController() {
                 var players = [];
                 if (numQueued >= playersPerGame - 1) {
                     players.push(socketId);
-                    while (1) {
+                    (function getPlayers() {
                         if (numQueued + players.length < playersPerGame) {
+                            console.log("Not enough players, reverting.");
+
                             players.forEach(function(socketId) {
                                 rClient.rpush("playQueue", socketId);
                             });
-                            break;
+                            return;
                         } else if (players.length >= playersPerGame) {
-                            createGame(players);
-                            break;
+                            console.log("Found enough players.");
+
+                            that.createGame(players);
+                            return;
                         } else {
+                            console.log("Fetching another player...");
                             rClient.lpop("playQueue", function(err, socketId) {
                                 numQueued -= 1;
                                 if (sio.sockets.sockets[socketId] !== undefined) {
                                     players.push(socketId);
+
+                                    getPlayers();
                                 }
                             });
                         }
-                    }
+                    })();
                 } else {
                     rClient.rpush("playQueue", socketId);
                     sio.sockets.sockets[socketId].emit("wait");
@@ -84,8 +91,8 @@ function SocketController() {
                 if (sio.sockets.sockets[socketId] === undefined) {
                     players.splice(i, 1);
                     for (var j = 0; j < i; j++) {
-                        sio.sockets.sockets[players[j]].emit("quit" {
-                            "player": socketId;
+                        sio.sockets.sockets[players[j]].emit("quit", {
+                            "player": socketId,
                         });
                     }
                 } else {
