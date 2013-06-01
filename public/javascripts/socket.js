@@ -1,4 +1,4 @@
-window.socketCon;
+window.socket;
 
 function SocketController() {
     var socket = new io.connect(window.location.host)
@@ -14,7 +14,7 @@ function SocketController() {
             socket.on("wait", this.wait);
             socket.on("go", this.go);
             socket.on("msg", this.receive);
-
+            socket.on("quit", this.playerQuit);
 
         },
 
@@ -59,6 +59,14 @@ function SocketController() {
             game.receiveData(data);
         },
 
+        "playerQuit": function(data) {
+            var i = players.indexOf(data.player);
+            if (i >= 0) {
+                players.splice(i, 1);
+                game.removePlayer(data.player);
+            }
+        },
+
     };
 
     return _SocketController;
@@ -66,10 +74,10 @@ function SocketController() {
 }
 
 $(document).ready(function() {
-    socketCon = SocketController();
+    window.socket= SocketController();
 
     $("#btnPlay").click(function() {
         console.log("Button pressed");
-        socketCon.ready();
+        window.socket.ready();
     });
 });

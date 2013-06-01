@@ -136,6 +136,13 @@ function Game(otherPlayers) {
             }
         },
 
+        "removePlayer": function(player) {
+            gameObjects = gameObjects.filter(function(obj) {
+                return (obj.type !== "wormhole" && obj.name !== player);
+            });
+            delete wormholes[player];
+        },
+
     };
 
     /** internal objects */
@@ -325,7 +332,7 @@ function Game(otherPlayers) {
             },
 
             "send": function(data) {
-                window.socketCon.send(this.name, data);
+                window.socket.send(this.name, data);
             },
         };
 

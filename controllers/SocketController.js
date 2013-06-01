@@ -42,14 +42,31 @@ function SocketController() {
             });
          },
 
-         /** add player to play queue */
+         /** add player to play queue, start game if enough players */
          "enqueue": function(socketId) {
             var that = this;
             rClient.llen("playQueue", function(err, numQueued) {
+                var players = [];
                 if (numQueued >= playersPerGame - 1) {
-
-                    that.createGame(socketId);
-
+                    players.push(socketId);
+                    while (1) {
+                        if (numQueued + players.length < playersPerGame) {
+                            players.forEach(function(socketId) {
+                                rClient.rpush("playQueue", socketId);
+                            });
+                            break;
+                        } else if (players.length >= playersPerGame) {
+                            createGame(players);
+                            break;
+                        } else {
+                            rClient.lpop("playQueue", function(err, socketId) {
+                                numQueued -= 1;
+                                if (sio.sockets.sockets[socketId] !== undefined) {
+                                    players.push(socketId);
+                                }
+                            });
+                        }
+                    }
                 } else {
                     rClient.rpush("playQueue", socketId);
                     sio.sockets.sockets[socketId].emit("wait");
@@ -57,29 +74,32 @@ function SocketController() {
             });
          },
 
-         /** removes players from play queue and creates a game */
-         "createGame": function(lastPlayer) {
-            rClient.lrange("playQueue", 0, playersPerGame - 1, function(err, players) {
-                var gameId = nextGameId;
-                nextGameId += 1;
+         /** creates a game with players */
+         "createGame": function(players) {
+            players.forEach(function(socketId, i) {
+                var otherPlayers = players.filter(function(playerId) {
+                    return (playerId !== socketId);
+                });
 
-                rClient.ltrim("playQueue", playersPerGame, -1);
-
-                players.push(lastPlayer);
-
-                players.forEach(function(socketId) {
-                    var otherPlayers = players.filter(function(playerId) {
-                        return (playerId !== socketId);
-                    });
-
+                if (sio.sockets.sockets[socketId] === undefined) {
+                    players.splice(i, 1);
+                    for (var j = 0; j < i; j++) {
+                        sio.sockets.sockets[players[j]].emit("quit" {
+                            "player": socketId;
+                        });
+                    }
+                } else {
                     sio.sockets.sockets[socketId].emit("go", {
                         "gameId": gameId,
                         "players": otherPlayers,
                     });
-                });
-
-                rClient.hset("players", "game" + gameId, players);
+                }
             });
+
+            var gameId = nextGameId;
+            nextGameId += 1;
+
+            rClient.hset("players", "game" + gameId, players);
          },
 
     };
