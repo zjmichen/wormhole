@@ -88,7 +88,8 @@ function Game(otherPlayers) {
     }
 
     function draw() {
-        canvas.clearRect(0, 0, width, height);
+        canvas.fillStyle = "#000";
+        canvas.fillRect(0, 0, width, height);
 
         gameObjects.forEach(function(obj) {
             obj.draw();
@@ -261,6 +262,7 @@ function Game(otherPlayers) {
             "ttl": I.ttl || 70,
             "damage": I.damage || 1,
             "harmful": I.harmful,
+            "color": I.color || "#fff",
 
             "update": function() {
                 if (this.ttl <= 0) {
@@ -276,7 +278,7 @@ function Game(otherPlayers) {
             },
 
             "draw": function() {
-                canvas.fillStyle = "#000";
+                canvas.fillStyle = this.color;
                 //canvas.arc(this.x, this.y, this.size, 0, 2*Math.PI, false);
                 canvas.fillRect(this.x, this.y, this.size, this.size);
             },
@@ -303,21 +305,35 @@ function Game(otherPlayers) {
     function Wormhole(I) {
         I = I || {};
 
+        var sprite = new Image();
+        sprite.onload = function() {
+            _Wormhole.sprite = sprite;
+        };
+        sprite.src = I.sprite || "/images/wormhole.png";
+
         var _Wormhole = {
             "type": "wormhole",
             "name": I.name,
             "x": I.x || 0.5*width,
             "y": I.y || 0.5*height,
+            "angle": 0,
             "size": I.size || 50,
 
             "update": function() {
-
+                this.angle += 0.01;
             },
 
             "draw": function() {
-                canvas.fillStyle = "#f00";
-                //canvas.arc(this.x, this.y, this.size, 0, 2*Math.PI, false);
-                canvas.fillRect(this.x, this.y, this.size, this.size);
+                canvas.save();
+                canvas.translate(this.x, this.y);
+                canvas.rotate(this.angle);
+                canvas.translate(-0.5*this.size, -0.5*this.size);
+
+                // canvas.fillStyle = "#f00";
+                // this.sprite.draw(canvas, this.x, this.y);
+                canvas.drawImage(this.sprite, this.x, this.y);
+
+                canvas.restore();
             },
 
             "collideWith": function(obj) {

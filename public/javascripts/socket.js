@@ -5,6 +5,7 @@ function SocketController() {
       , players = []
       , game;
 
+    /** public members/methods */
     var _SocketController = {
 
         /** client is ready to interact with server */
@@ -74,7 +75,7 @@ function SocketController() {
 }
 
 $(document).ready(function() {
-    window.socket= SocketController();
+    window.socket = SocketController();
 
     $("#btnPlay").click(function() {
         console.log("Button pressed");
