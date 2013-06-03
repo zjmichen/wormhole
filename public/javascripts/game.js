@@ -155,6 +155,12 @@ function Game(otherPlayers) {
         var drag = 0.99
           , driftAngle = I.angle || 0;
 
+        var sprite = new Image();
+        sprite.onload = function() {
+            _Ship.sprite = sprite;
+        };
+        sprite.src = I.sprite || "/images/ship1.png";
+
         var _Ship = {
             "type": "ship",
             "x": I.x || width / 2,
@@ -188,10 +194,9 @@ function Game(otherPlayers) {
                 canvas.rotate(this.angle);
                 canvas.translate(-this.size, -this.size);
 
-                canvas.fillStyle = this.color;
-                canvas.fillRect(0, 0, 2*this.size, 2*this.size);
-                canvas.fillStyle = "#000";
-                canvas.fillRect(0, 0, 0.1*this.size, 0.1*this.size);
+                // canvas.fillStyle = this.color;
+                // canvas.fillRect(0, 0, 2*this.size, 2*this.size);
+                canvas.drawImage(this.sprite, 0, 0);
 
                 canvas.restore();
             },
@@ -332,8 +337,6 @@ function Game(otherPlayers) {
                 canvas.translate(-0.5*this.size, -0.5*this.size);
 
                 canvas.drawImage(this.sprite, 0, 0);
-                // canvas.fillStyle = "#fff";
-                // canvas.fillRect(0, 0, this.size, this.size);
 
                 canvas.restore();
             },
