@@ -21,6 +21,8 @@ function SocketController() {
 
         "wait": function() {
             console.log("Server said wait.");
+            $("#btnPlay").hide();
+            $("#waiting").show();
         },
 
         "go": function(data) {
@@ -31,11 +33,11 @@ function SocketController() {
 
             game = new Game(thisPlayer, otherPlayers);
 
-            game.play();
-
             $("#btnPlay").hide();
+            $("#waiting").hide();
+            $("#wormhole").show();
 
-
+            game.play();
         },
 
         "send": function(to, data) {

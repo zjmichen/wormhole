@@ -2,6 +2,14 @@ extends layout
 
 block content
   h1 Wormhole
-  p Welcome!
+  h2 Instructions
+  p Click "Play" to join a game.  Once enough players have joined, 
+    | the game will begin.  You will have a spaceship, which you control with 
+    | the arrow keys, and shoot with spacebar.  There will be wormholes into
+    | which you can shoot, and your bullets will appear on that player's screen.
+    | But beware! The other players can shoot out of those same wormholes! Your
+    | mission is to destroy the other players' ships.  Once their ships are
+    | destroyed, their wormhole will close.
+    
   button(type="button", id="btnPlay") Play
   canvas#wormhole

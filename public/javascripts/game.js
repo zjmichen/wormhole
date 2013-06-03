@@ -4,8 +4,8 @@ $(document).ready(function() {
 });
 
 function Game(playerName, otherPlayers) {
-    var width = 480
-      , height = 320
+    var width = 800
+      , height = 600
       , canvasEl
       , canvas
       , ctx
