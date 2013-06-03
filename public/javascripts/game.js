@@ -52,9 +52,11 @@ function Game(playerName, otherPlayers) {
     });
     $(document).bind("keydown", "up", function() {
         keystatus.up = true;
+        player.sprite.setRange(1, 3);
         return false;
     });
     $(document).bind("keyup", "up", function() {
+        player.sprite.setToDefault();
         keystatus.up = false;
     });
     $(document).bind("keydown", "down", function() {
@@ -78,6 +80,8 @@ function Game(playerName, otherPlayers) {
         }
         if (keystatus.up) {
             player.accelerate();
+        } else {
+            player.sprite.setToDefault();
         }
 
         gameObjects.forEach(function(obj, i, objs) {
@@ -189,7 +193,12 @@ function Game(playerName, otherPlayers) {
             "recharge": I.recharge || 0.1,
             "maxHealth": I.maxHealth || 100,
             "health": I.health || 100,
-            "sprite": new Sprite("/images/ship1.png"),
+            "sprite": new Sprite([
+                "/images/ship_default.png",
+                "/images/ship_fire1.png",
+                "/images/ship_fire2.png",
+                "/images/ship_fire3.png",
+            ], 126, 50),
 
             "update": function() {
                 if (this.fuel < this.maxFuel) {
@@ -208,9 +217,8 @@ function Game(playerName, otherPlayers) {
                 canvas.save();
                 canvas.translate(this.x, this.y);
                 canvas.rotate(this.angle);
-                canvas.translate(-this.size, -this.size);
 
-                canvas.drawImage(this.sprite.getImage(), 0, 0);
+                this.sprite.draw(canvas);
 
                 canvas.restore();
             },
@@ -235,6 +243,7 @@ function Game(playerName, otherPlayers) {
 
                 if (this.fuel <= 0) {
                     this.fuel = 0;
+                    this.sprite.setToDefault();
                     return;
                 }
 
@@ -337,7 +346,7 @@ function Game(playerName, otherPlayers) {
             "y": I.y || 0.5*height,
             "angle": 0,
             "size": I.size || 50,
-            "sprite": I.sprite || new Sprite("/images/wormhole.png"),
+            "sprite": I.sprite || new Sprite("/images/wormhole.png", 50, 50),
 
             "update": function() {
                 this.angle -= 0.01;
@@ -347,9 +356,8 @@ function Game(playerName, otherPlayers) {
                 canvas.save();
                 canvas.translate(this.x, this.y);
                 canvas.rotate(this.angle);
-                canvas.translate(-0.5*this.size, -0.5*this.size);
 
-                canvas.drawImage(this.sprite.getImage(), 0, 0);
+                this.sprite.draw(canvas);
 
                 canvas.restore();
             },
@@ -370,12 +378,13 @@ function Game(playerName, otherPlayers) {
         return _Wormhole;
     }
 
-    function Sprite(urls) {
+    function Sprite(urls, width, height) {
         var _Sprite = {}
           , imgs = []
           , curImg = 0
           , firstImg = 0
-          , imgRange = 1;
+          , imgRange = 1
+          , curFrame = 0;
 
         if (!Array.isArray(urls)) {
             urls = [urls];
@@ -384,7 +393,7 @@ function Game(playerName, otherPlayers) {
         urls.forEach(function(url, i) {
             var image = new Image();
             imgs[i] = image;
-            
+
             image.onload = function() {
                 imgs[i] = image;
             }
@@ -394,12 +403,25 @@ function Game(playerName, otherPlayers) {
         console.log(imgs);
 
         _Sprite = {
+            "framesPerImage": 3,
+
+            "draw": function(canvas) {
+                canvas.save();
+                canvas.translate(-0.5*width, -0.5*height);
+                canvas.drawImage(this.getImage(), 0, 0);
+                canvas.restore();
+            },
 
             "getImage": function() {
                 var img = imgs[curImg];
-                curImg += 1;
-                if (curImg >= firstImg + imgRange) {
-                    curImg = firstImg;
+                curFrame += 1;
+
+                if (curFrame > this.framesPerImage) {
+                    curFrame = 0;
+                    curImg += 1;
+                    if (curImg >= firstImg + imgRange) {
+                        curImg = firstImg;
+                    }
                 }
 
                 return img;
@@ -409,7 +431,7 @@ function Game(playerName, otherPlayers) {
                 curImg = 0;
             },
 
-            "setToRange": function(low, high) {
+            "setRange": function(low, high) {
                 if (high <= low) {
                     console.error("Sprite: bad range set");
                     return;
@@ -417,7 +439,10 @@ function Game(playerName, otherPlayers) {
 
                 firstImg = low;
                 imgRange = high - low;
-                curImg = firstImg;
+
+                if (curImg < firstImg || curImg > firstImg + imgRange) {
+                    curImg = firstImg;
+                }
             },
 
         }
