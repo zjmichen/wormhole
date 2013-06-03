@@ -174,12 +174,6 @@ function Game(playerName, otherPlayers) {
         var drag = 0.99
           , driftAngle = I.angle || 0;
 
-        var sprite = new Image();
-        sprite.onload = function() {
-            _Ship.sprite = sprite;
-        };
-        sprite.src = I.sprite || "/images/ship1.png";
-
         var _Ship = {
             "type": "ship",
             "name": I.name || "",
@@ -195,6 +189,7 @@ function Game(playerName, otherPlayers) {
             "recharge": I.recharge || 0.1,
             "maxHealth": I.maxHealth || 100,
             "health": I.health || 100,
+            "sprite": new Sprite("/images/ship1.png"),
 
             "update": function() {
                 if (this.fuel < this.maxFuel) {
@@ -215,7 +210,7 @@ function Game(playerName, otherPlayers) {
                 canvas.rotate(this.angle);
                 canvas.translate(-this.size, -this.size);
 
-                canvas.drawImage(this.sprite, 0, 0);
+                canvas.drawImage(this.sprite.getImage(), 0, 0);
 
                 canvas.restore();
             },
@@ -388,9 +383,10 @@ function Game(playerName, otherPlayers) {
 
         urls.forEach(function(url, i) {
             var image = new Image();
+            imgs[i] = image;
+            
             image.onload = function() {
                 imgs[i] = image;
-                console.log(imgs);
             }
             image.src = url;
         });
