@@ -27,7 +27,13 @@ function SocketController() {
             data = data || {};
             data.from = socket.id;
 
-            sio.sockets.sockets[data.player].emit("msg", data);
+            if (sio.sockets.sockets[data.player] === undefined) {
+                socket.emit("quit", {
+                    "player": data.player,
+                });
+            } else {
+                sio.sockets.sockets[data.player].emit("msg", data);
+            }
         });
     }
 
