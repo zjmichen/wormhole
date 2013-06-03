@@ -3,7 +3,7 @@ $(document).ready(function() {
     // game.play();
 });
 
-function Game(otherPlayers) {
+function Game(playerName, otherPlayers) {
     var width = 480
       , height = 320
       , canvasEl
@@ -21,7 +21,9 @@ function Game(otherPlayers) {
     canvasEl.attr("height", height);
     canvas = canvasEl.get(0).getContext("2d");
 
-    player = new Ship();
+    player = new Ship({
+        "name": playerName,
+    });
     gameObjects.push(player);
 
     otherPlayers.forEach(function(opponent) {
@@ -131,9 +133,9 @@ function Game(otherPlayers) {
             if (data.from && data.type) {
                 console.log("Got something");
 
-                data.harmful = true;
                 data.x = wormholes[data.from].x + 0.5*wormholes[data.from].size;
                 data.y = wormholes[data.from].y + 0.5*wormholes[data.from].size;
+                data.color = "#f00";
                 data.ttl = 50;
                 gameObjects.push(new Bullet(data));
             }
@@ -163,6 +165,7 @@ function Game(otherPlayers) {
 
         var _Ship = {
             "type": "ship",
+            "name": I.name || "",
             "x": I.x || width / 2,
             "y": I.y || height  / 2,
             "size": I.size || 25,
@@ -202,8 +205,9 @@ function Game(otherPlayers) {
             },
 
             "collideWith": function(obj) {
-                if (obj.type === "projectile" && obj.harmful) {
+                if (obj.type === "projectile" && obj.name !== this.name) {
                     this.health -= obj.damage;
+                    console.log("Ouch! " + this.health);
                 }
             },
 
@@ -248,6 +252,7 @@ function Game(otherPlayers) {
                     "y": frontY,
                     "angle": this.angle,
                     "speed": this.speed + 2,
+                    "owner": this.name,
                 }));
             },
 
@@ -268,7 +273,7 @@ function Game(otherPlayers) {
             "size": I.size || 2,
             "ttl": I.ttl || 70,
             "damage": I.damage || 1,
-            "harmful": I.harmful,
+            "owner": I.owner || "",
             "color": I.color || "#fff",
 
             "update": function() {
@@ -291,16 +296,15 @@ function Game(otherPlayers) {
             },
 
             "collideWith": function(obj) {
-                console.log("Bullet collided with " + obj.type);
                 if (obj.type === "wormhole") {
-                    if (!this.from || this.from !== obj.name) {
+                    if (this.owner !== obj.name) {
                         obj.send(this);
                         gameObjects.splice(gameObjects.indexOf(this), 1);
                         delete this;
                     }
                 }
 
-                if (obj.type === "ship" && this.harmful) {
+                if (obj.type === "ship" && this.owner !== obj.name) {
                     obj.health -= this.damage;
                 }
             }
@@ -343,8 +347,9 @@ function Game(otherPlayers) {
 
             "collideWith": function(obj) {
                 if (obj.type === "projectile") {
-                    console.log(obj);
-                    if (!obj.from || obj.from !== this.name) {
+                    if (obj.owner !== this.name) {
+                        console.log("Sending bullet from " + obj.owner +
+                            " to " + this.name);
                         this.send(obj);
                         gameObjects.splice(gameObjects.indexOf(obj), 1);
                         delete obj;

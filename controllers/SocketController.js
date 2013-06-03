@@ -105,6 +105,7 @@ function SocketController() {
                     sio.sockets.sockets[socketId].emit("go", {
                         "gameId": gameId,
                         "players": otherPlayers,
+                        "you": socketId,
                     });
                 }
             });

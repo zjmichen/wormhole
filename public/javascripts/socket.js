@@ -25,26 +25,16 @@ function SocketController() {
 
         "go": function(data) {
             console.log("Server said go.");
-            console.log(data);
 
-            players = data.players;
+            otherPlayers = data.players;
+            thisPlayer = data.you;
 
-            game = new Game(players, this);
+            game = new Game(thisPlayer, otherPlayers);
 
             game.play();
 
-            // players.forEach(function(player, i) {
-            //     $("body").append("<button name='" + player + "' class='btnPlayer'>Player " + (i+1) + "</button>");
-            // });
-
             $("#btnPlay").hide();
 
-            // $(".btnPlayer").click(function() {
-            //     that.send($(this).attr("name"));
-            //     socket.emit("msg", {
-            //         "player": $(this).attr("name"),
-            //     });
-            // });
 
         },
 
