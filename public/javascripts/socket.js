@@ -2,7 +2,8 @@ window.socket;
 
 function SocketController() {
     var socket = new io.connect(window.location.host)
-      , players = []
+      , otherPlayers = []
+      , thisPlayer
       , game;
 
     /** public members/methods */
@@ -48,16 +49,19 @@ function SocketController() {
         },
 
         "receive": function(data) {
-            console.log("Message from player " + (players.indexOf(data.from) + 1));
+            console.log("Message from player " + (otherPlayers.indexOf(data.from) + 1));
             game.receiveData(data);
         },
 
         "playerQuit": function(data) {
-            var i = players.indexOf(data.player);
+            var i = otherPlayers.indexOf(data.player);
             if (i >= 0) {
-                players.splice(i, 1);
+                otherPlayers.splice(i, 1);
                 game.removePlayer(data.player);
             }
+        },
+
+        "quit": function() {
         },
 
     };

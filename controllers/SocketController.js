@@ -35,6 +35,11 @@ function SocketController() {
                 sio.sockets.sockets[data.player].emit("msg", data);
             }
         });
+
+        socket.on("quit", function(data) {
+            console.log(data.player + " quit.");
+            
+        });
     }
 
     /** public members/methods */

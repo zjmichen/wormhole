@@ -51,12 +51,14 @@ function Game(playerName, otherPlayers) {
         keystatus.right = false;
     });
     $(document).bind("keydown", "up", function() {
-        keystatus.up = true;
-        player.sprite.setRange(1, 3);
+        if (!keystatus.up) {
+            keystatus.up = true;
+            player.sprite.setMode("thrusting");
+        }
         return false;
     });
     $(document).bind("keyup", "up", function() {
-        player.sprite.setToDefault();
+        player.sprite.setMode("default");
         keystatus.up = false;
     });
     $(document).bind("keydown", "down", function() {
@@ -70,6 +72,9 @@ function Game(playerName, otherPlayers) {
         player.shoot();
         return false;
     });
+    $(document).bind("keyup", "q", function() {
+        player.die();
+    });
 
     function update() {
         if (keystatus.left) {
@@ -80,8 +85,6 @@ function Game(playerName, otherPlayers) {
         }
         if (keystatus.up) {
             player.accelerate();
-        } else {
-            player.sprite.setToDefault();
         }
 
         gameObjects.forEach(function(obj, i, objs) {
@@ -148,8 +151,6 @@ function Game(playerName, otherPlayers) {
 
         "receiveData": function(data) {
             if (data.from && data.type) {
-                console.log("Got something");
-
                 data.x = wormholes[data.from].x + 0.5*wormholes[data.from].size;
                 data.y = wormholes[data.from].y + 0.5*wormholes[data.from].size;
                 data.color = "#f00";
@@ -178,6 +179,7 @@ function Game(playerName, otherPlayers) {
         var drag = 0.99
           , driftAngle = I.angle || 0;
 
+        console.log("Creating ship");
         var _Ship = {
             "type": "ship",
             "name": I.name || "",
@@ -193,14 +195,28 @@ function Game(playerName, otherPlayers) {
             "recharge": I.recharge || 0.1,
             "maxHealth": I.maxHealth || 100,
             "health": I.health || 100,
-            "sprite": new Sprite([
-                "/images/ship_default.png",
-                "/images/ship_fire1.png",
-                "/images/ship_fire2.png",
-                "/images/ship_fire3.png",
-            ], 126, 50),
+            "sprite": new Sprite({
+                "default": [
+                    "/images/ship_default.png",
+                ],
+                "thrusting": [
+                    "/images/ship_fire1.png",
+                    "/images/ship_fire2.png",
+                    "/images/ship_fire3.png",
+                ],
+                "exploding": [
+                    "/images/ship_die1.png",
+                    "/images/ship_die2.png",
+                    "/images/ship_die3.png",
+                    "/images/ship_die4.png",
+                ]
+            }, 126, 50),
 
             "update": function() {
+                if (this.health < 0) {
+                    this.die();
+                }
+
                 if (this.fuel < this.maxFuel) {
                     this.fuel += this.recharge;
                 }
@@ -226,7 +242,6 @@ function Game(playerName, otherPlayers) {
             "collideWith": function(obj) {
                 if (obj.type === "projectile" && obj.owner !== this.name) {
                     this.health -= obj.damage;
-                    console.log("Ouch! " + this.health);
                 }
             },
 
@@ -243,7 +258,7 @@ function Game(playerName, otherPlayers) {
 
                 if (this.fuel <= 0) {
                     this.fuel = 0;
-                    this.sprite.setToDefault();
+                    this.sprite.setMode("default");
                     return;
                 }
 
@@ -274,6 +289,15 @@ function Game(playerName, otherPlayers) {
                     "speed": this.speed + 2,
                     "owner": this.name,
                 }));
+            },
+
+            "die": function() {
+                console.log("Player died.");
+                this.sprite.setMode("exploding");
+                setTimeout(function() {
+                    gameObjects.splice(gameObjects.indexOf(this), 1);
+                    window.socket.quit();
+                }, 2000);
             },
 
         };
@@ -378,32 +402,40 @@ function Game(playerName, otherPlayers) {
         return _Wormhole;
     }
 
-    function Sprite(urls, width, height) {
+    function Sprite(modeUrls, width, height) {
         var _Sprite = {}
-          , imgs = []
-          , curImg = 0
-          , firstImg = 0
-          , imgRange = 1
+          , modes = {}
+          , curMode = "default"
+          , curImgIndex = 0
+          , curImg
           , curFrame = 0;
 
-        if (!Array.isArray(urls)) {
-            urls = [urls];
+        if (typeof modeUrls === "string") {
+            modeUrls = {
+                "default": [modeUrls],
+            }
         }
 
-        urls.forEach(function(url, i) {
-            var image = new Image();
-            imgs[i] = image;
+        for (var mode in modeUrls) {
+            modes[mode] = [];
+            modeUrls[mode].forEach(function(url, i) {
+                var image = new Image();
+                image.onload = function() {
+                    modes[mode][i] = image;
+                }
+                image.src = url;
 
-            image.onload = function() {
-                imgs[i] = image;
-            }
-            image.src = url;
-        });
+                modes[mode][i] = image;
+            });
+        }
 
-        console.log(imgs);
+        curImg = modes.default[0];
+
+        console.log(curImg);
 
         _Sprite = {
             "framesPerImage": 3,
+            "modes": modes,
 
             "draw": function(canvas) {
                 canvas.save();
@@ -413,36 +445,20 @@ function Game(playerName, otherPlayers) {
             },
 
             "getImage": function() {
-                var img = imgs[curImg];
                 curFrame += 1;
 
                 if (curFrame > this.framesPerImage) {
                     curFrame = 0;
-                    curImg += 1;
-                    if (curImg >= firstImg + imgRange) {
-                        curImg = firstImg;
-                    }
+                    curImgIndex = (curImgIndex + 1) % modes[curMode].length;
+                    console.log(curImgIndex + ", " + modes[curMode].length);
                 }
 
-                return img;
+                return modes[curMode][curImgIndex] || modes.default[0];
             },
 
-            "setToDefault": function() {
+            "setMode": function(newMode) {
+                curMode = newMode;
                 curImg = 0;
-            },
-
-            "setRange": function(low, high) {
-                if (high <= low) {
-                    console.error("Sprite: bad range set");
-                    return;
-                }
-
-                firstImg = low;
-                imgRange = high - low;
-
-                if (curImg < firstImg || curImg > firstImg + imgRange) {
-                    curImg = firstImg;
-                }
             },
 
         }
