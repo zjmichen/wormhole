@@ -27,9 +27,11 @@ function Game(otherPlayers) {
     otherPlayers.forEach(function(opponent) {
         var newWormhole = new Wormhole({
             "name": opponent,
-            "x": Math.random() * width,
-            "y": Math.random() * height,
+            "x": Math.random() * (width - 50),
+            "y": Math.random() * (height - 50),
         });
+        console.log("Wormhole positioned at (" + newWormhole.x + 
+                ", " + newWormhole.y + ")");
         wormholes[newWormhole.name] = newWormhole;
         gameObjects.push(newWormhole);
     });
@@ -320,7 +322,7 @@ function Game(otherPlayers) {
             "size": I.size || 50,
 
             "update": function() {
-                this.angle += 0.01;
+                this.angle -= 0.01;
             },
 
             "draw": function() {
@@ -329,9 +331,9 @@ function Game(otherPlayers) {
                 canvas.rotate(this.angle);
                 canvas.translate(-0.5*this.size, -0.5*this.size);
 
-                // canvas.fillStyle = "#f00";
-                // this.sprite.draw(canvas, this.x, this.y);
-                canvas.drawImage(this.sprite, this.x, this.y);
+                canvas.drawImage(this.sprite, 0, 0);
+                // canvas.fillStyle = "#fff";
+                // canvas.fillRect(0, 0, this.size, this.size);
 
                 canvas.restore();
             },
