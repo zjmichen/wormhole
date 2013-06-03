@@ -335,12 +335,6 @@ function Game(playerName, otherPlayers) {
     function Wormhole(I) {
         I = I || {};
 
-        var sprite = new Image();
-        sprite.onload = function() {
-            _Wormhole.sprite = sprite;
-        };
-        sprite.src = I.sprite || "/images/wormhole.png";
-
         var _Wormhole = {
             "type": "wormhole",
             "name": I.name,
@@ -348,6 +342,7 @@ function Game(playerName, otherPlayers) {
             "y": I.y || 0.5*height,
             "angle": 0,
             "size": I.size || 50,
+            "sprite": I.sprite || new Sprite("/images/wormhole.png"),
 
             "update": function() {
                 this.angle -= 0.01;
@@ -359,7 +354,7 @@ function Game(playerName, otherPlayers) {
                 canvas.rotate(this.angle);
                 canvas.translate(-0.5*this.size, -0.5*this.size);
 
-                canvas.drawImage(this.sprite, 0, 0);
+                canvas.drawImage(this.sprite.getImage(), 0, 0);
 
                 canvas.restore();
             },
@@ -378,6 +373,60 @@ function Game(playerName, otherPlayers) {
         };
 
         return _Wormhole;
+    }
+
+    function Sprite(urls) {
+        var _Sprite = {}
+          , imgs = []
+          , curImg = 0
+          , firstImg = 0
+          , imgRange = 1;
+
+        if (!Array.isArray(urls)) {
+            urls = [urls];
+        }
+
+        urls.forEach(function(url, i) {
+            var image = new Image();
+            image.onload = function() {
+                imgs[i] = image;
+                console.log(imgs);
+            }
+            image.src = url;
+        });
+
+        console.log(imgs);
+
+        _Sprite = {
+
+            "getImage": function() {
+                var img = imgs[curImg];
+                curImg += 1;
+                if (curImg >= firstImg + imgRange) {
+                    curImg = firstImg;
+                }
+
+                return img;
+            },
+
+            "setToDefault": function() {
+                curImg = 0;
+            },
+
+            "setToRange": function(low, high) {
+                if (high <= low) {
+                    console.error("Sprite: bad range set");
+                    return;
+                }
+
+                firstImg = low;
+                imgRange = high - low;
+                curImg = firstImg;
+            },
+
+        }
+
+        return _Sprite;
     }
 
     return _Game;
