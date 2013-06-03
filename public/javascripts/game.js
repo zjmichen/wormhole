@@ -99,11 +99,24 @@ function Game(playerName, otherPlayers) {
             obj.draw();
         });
 
+        drawFuel();
+        drawHealth();
+    }
+
+    function drawFuel() {
         var fuelLevel = height * (player.fuel / player.maxFuel);
         canvas.fillStyle = "#0f0";
-        canvas.fillRect(width - 10, height - fuelLevel, 10, fuelLevel);
-        canvas.fillStyle = "#000";
-        canvas.fillText("Fuel", width - 35, height - 5);
+        canvas.fillRect(width - 10, height - fuelLevel, 5, fuelLevel);
+        canvas.fillStyle = "#0f0";
+        canvas.fillText("Fuel", width - 35, height - 15);
+    }
+
+    function drawHealth() {
+        var healthLevel = height * (player.health / player.maxHealth);
+        canvas.fillStyle = "#f00";
+        canvas.fillRect(width - 5, height - healthLevel, 5, healthLevel);
+        canvas.fillStyle = "#f00";
+        canvas.fillText("Health", width - 47, height - 3);
     }
 
     function collides(a, b) {
@@ -150,7 +163,11 @@ function Game(playerName, otherPlayers) {
 
     };
 
-    /** internal objects */
+    /** internal objects:
+     *  - Ship
+     *  - Bullet
+     *  - Wormhole
+     */
     function Ship(I) {
         I = I || {};
 
@@ -176,6 +193,7 @@ function Game(playerName, otherPlayers) {
             "maxFuel": I.maxFuel || 10,
             "fuel": I.fuel || 10,
             "recharge": I.recharge || 0.1,
+            "maxHealth": I.maxHealth || 100,
             "health": I.health || 100,
 
             "update": function() {
@@ -197,15 +215,13 @@ function Game(playerName, otherPlayers) {
                 canvas.rotate(this.angle);
                 canvas.translate(-this.size, -this.size);
 
-                // canvas.fillStyle = this.color;
-                // canvas.fillRect(0, 0, 2*this.size, 2*this.size);
                 canvas.drawImage(this.sprite, 0, 0);
 
                 canvas.restore();
             },
 
             "collideWith": function(obj) {
-                if (obj.type === "projectile" && obj.name !== this.name) {
+                if (obj.type === "projectile" && obj.owner !== this.name) {
                     this.health -= obj.damage;
                     console.log("Ouch! " + this.health);
                 }
@@ -287,6 +303,9 @@ function Game(playerName, otherPlayers) {
 
                 this.x += this.speed*Math.cos(this.angle);
                 this.y += this.speed*Math.sin(this.angle);
+
+                this.x = ((this.x % width) + width) % width;
+                this.y = ((this.y % height) + height) % height;
             },
 
             "draw": function() {
@@ -346,14 +365,10 @@ function Game(playerName, otherPlayers) {
             },
 
             "collideWith": function(obj) {
-                if (obj.type === "projectile") {
-                    if (obj.owner !== this.name) {
-                        console.log("Sending bullet from " + obj.owner +
-                            " to " + this.name);
-                        this.send(obj);
-                        gameObjects.splice(gameObjects.indexOf(obj), 1);
-                        delete obj;
-                    }
+                if (obj.type === "projectile" && obj.owner !== this.name) {
+                    this.send(obj);
+                    gameObjects.splice(gameObjects.indexOf(obj), 1);
+                    delete obj;
                 }
             },
 
