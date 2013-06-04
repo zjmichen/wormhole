@@ -36,8 +36,8 @@ function SocketController() {
             game = new Game(thisPlayer, otherPlayers);
 
             $("#btnPlay").hide();
-            $("#waiting").hide();
-            $("#wormhole").show();
+            window.scrollTo(0, 0);
+            $("#wormhole").fadeIn();
 
             game.play();
         },
