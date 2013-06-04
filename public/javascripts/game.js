@@ -86,32 +86,46 @@ function Game(playerName, otherPlayers) {
         _Game.add(newWormhole);
     });
 
-    var bindings = {
-        "left": player.turnLeft,
-        "right": player.turnRight,
-        "up": {
-            "keydown": function() {
-                player.sprite.setMode("thrusting");
-            },
-            "keyup": function() {
-                player.sprite.setMode("default");
-            },
-        },
-        "space": player.shoot,
-        "q": player.die,
-    }
-
-    var keybindings = new Keybindings(bindings);
-    console.log(keybindings);
+    $(document).bind("keydown", "left", function() {
+        keystatus.left = true;
+    });
+    $(document).bind("keyup", "left", function() {
+        keystatus.left = false;
+    });
+    $(document).bind("keydown", "right", function() {
+        keystatus.right = true;
+    });
+    $(document).bind("keyup", "right", function() {
+        keystatus.right = false;
+    });
+    $(document).bind("keydown", "up", function() {
+        if (!keystatus.up) {
+            keystatus.up = true;
+            player.sprite.setMode("thrusting");
+        }
+        return false;
+    });
+    $(document).bind("keyup", "up", function() {
+        player.sprite.setMode("default");
+        keystatus.up = false;
+    });
+    $(document).bind("keydown", "down", function() {
+        keystatus.down = true;
+        return false;
+    });
+    $(document).bind("keyup", "down", function() {
+        keystatus.down = false;
+    });
+    $(document).bind("keydown", "space", function() {
+        player.shoot();
+        return false;
+    });
+    $(document).bind("keyup", "q", function() {
+        player.die();
+    });
 
     function update() {
         if (player.alive) {
-            for (var key in keybindings.keystatus) {
-                if (keybindings.keystatus[key]) {
-                    keybindings.bindings[key]();
-                }
-            }
-
             if (keystatus.left) {
                 player.turnLeft();
             }
@@ -457,47 +471,3 @@ function Sprite(modeUrls, width, height) {
     return _Sprite;
 }
 
-function Keybindings(bindings) {
-    var _Keybindings = {
-        "keystatus": {},
-        "bindings": {},
-    };
-
-    for (var key in bindings) {
-        _Keybindings.keystatus[key] = false;
-
-        if (typeof bindings[key] === "function") {
-            _Keybindings.bindings[key] = bindings[key];
-            $(document).bind("keydown", key, function() {
-                _Keybindings.keystatus[key] = true;
-                return false;
-            });
-            $(document).bind("keyup", key, function() {
-                _Keybindings.keystatus[key] = false;
-                return false;
-            });
-        } else if (typeof bindings[key] === "object") {
-            if (bindings[key].keydown && 
-                    typeof bindings[key].keydown === "function") {
-                $(document).bind("keydown", key, function() {
-                    _Keybindings.keystatus[key] = true;
-                    console.log(bindings[key].keydown());
-                    bindings[key].keydown();
-                    return false;
-                });
-            }
-            if (bindings[key].keyup && 
-                    typeof bindings[key].keyup === "function") {
-                $(document).bind("keyup", key, function() {
-                    _Keybindings.keystatus[key] = false;
-                    bindings[key].keyup();
-                    return false;
-                });
-            }
-        } else {
-            continue;
-        }
-    }
-
-    return _Keybindings;
-}
