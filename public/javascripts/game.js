@@ -5,8 +5,8 @@ $(document).ready(function() {
 
 function Game(playerName, otherPlayers) {
     var _Game
-      , width = 800
-      , height = 600
+      , width = window.innerWidth
+      , height = window.innerHeight
       , nextId = 0
       , canvasEl
       , ctx

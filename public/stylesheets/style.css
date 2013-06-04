@@ -5,9 +5,13 @@ body {
 a {
   color: #00b7ff;
 }
-canvas {
-  border: 1px solid #000;
+canvas#wormhole {
   display: none;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0px;
+  left: 0px;
 }
 #waiting {
   display: none;
