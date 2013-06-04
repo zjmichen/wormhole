@@ -3,11 +3,9 @@ var socketio = require("socket.io")
 
 function SocketController() {
     var sio
-      , rClient = redis.createClient()
+      , nextGameId = 0
       , playersPerGame = 3
-      , nextGameId = 0;
-
-    rClient.flushall();
+      , rClient = redis.createClient();
 
     /** callback declarations for individual sockets */
     function SocketHandler(socket) {
@@ -38,7 +36,10 @@ function SocketController() {
 
         socket.on("quit", function(data) {
             console.log(data.player + " quit.");
-            
+            console.log(sio.sockets.in(socket.game));
+            sio.sockets.in(socket.room).emit("quit", {
+                "player": socket.id,
+            });
         });
     }
 
@@ -107,18 +108,16 @@ function SocketController() {
                         });
                     }
                 } else {
+                    var game = "game" + nextGameId;
+                    sio.sockets.sockets[socketId].join(game);
+                    nextGameId += 1;
                     sio.sockets.sockets[socketId].emit("go", {
-                        "gameId": gameId,
                         "players": otherPlayers,
                         "you": socketId,
                     });
                 }
             });
 
-            var gameId = nextGameId;
-            nextGameId += 1;
-
-            rClient.hset("players", "game" + gameId, players);
          },
 
     };

@@ -56,10 +56,14 @@ function SocketController() {
             if (i >= 0) {
                 otherPlayers.splice(i, 1);
                 game.removePlayer(data.player);
+                console.log(data.player + " quit.");
             }
         },
 
         "quit": function() {
+            socket.emit("quit", {
+                "player": thisPlayer,
+            });
         },
 
     };
