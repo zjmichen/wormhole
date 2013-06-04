@@ -49,11 +49,10 @@ function SocketController() {
 
         /** set up global socket handler */
         "init": function(server, credentials) {
-            console.log(credentials);
             rClient = redis.createClient(credentials.redisPort, credentials.redisHost);
             rClient.auth(credentials.redisPass, function(err) {
                 if (err) {
-                    console.log("Oh shit, redis!");
+                    console.log("Oh shit, redis barfed!");
                     throw err;
                 } else {
                     console.log("Redis auth'd.");
