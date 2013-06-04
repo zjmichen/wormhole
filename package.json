@@ -1,6 +1,6 @@
 {
-  "name": "application-name",
-  "version": "0.0.1",
+  "name": "wormhole",
+  "version": "0.0.1-2",
   "private": true,
   "scripts": {
     "start": "node app.js"
@@ -11,5 +11,9 @@
     "redis": "*",
     "socket.io": "*",
     "stylus": "*"
+  },
+  "subdomain": "wormhole",
+  "engines": {
+    "node": "0.8.x"
   }
 }
