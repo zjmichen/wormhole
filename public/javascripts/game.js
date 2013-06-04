@@ -54,10 +54,7 @@ function Game(playerName, otherPlayers) {
         },
 
         "removePlayer": function(player) {
-            gameObjects = gameObjects.filter(function(obj) {
-                return (obj.type !== "wormhole" && obj.name !== player);
-            });
-            delete wormholes[player];
+            this.remove(wormholes[player]);
         },
 
         "add": function(obj) {
