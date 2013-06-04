@@ -7,6 +7,7 @@ function Game(playerName, otherPlayers) {
     var _Game
       , width = 800
       , height = 600
+      , nextId = 0
       , canvasEl
       , ctx
       , frameRate = 30
@@ -48,7 +49,7 @@ function Game(playerName, otherPlayers) {
                 data.y = wormholes[data.from].y + 0.5*wormholes[data.from].size;
                 data.color = "#f00";
                 data.ttl = 50;
-                game.add(new Bullet(data), game);
+                this.add(new Bullet(data, this));
             }
         },
 
@@ -60,13 +61,11 @@ function Game(playerName, otherPlayers) {
         },
 
         "add": function(obj) {
-            obj.id = gameObjects.length;
             gameObjects.push(obj);
         },
 
-        "remove": function(id) {
-            obj = gameObjects[id];
-            gameObjects.splice(id, 1);
+        "remove": function(obj) {
+            gameObjects.splice(gameObjects.indexOf(obj), 1);
             delete obj;
         },
 
@@ -309,7 +308,7 @@ function Ship(I, game) {
             this.sprite.setMode("exploding");
             window.socket.quit();
             setTimeout(function() {
-                game.remove(this.id);
+                game.remove(this);
             }, 2000);
         },
 
@@ -335,7 +334,7 @@ function Bullet(I, game) {
 
         "update": function() {
             if (this.ttl <= 0) {
-                game.remove(this.id);
+                game.remove(this);
                 return;
             }
 
@@ -357,7 +356,7 @@ function Bullet(I, game) {
             if (obj.type === "wormhole") {
                 if (this.owner !== obj.name) {
                     obj.send(this);
-                    game.remove(this.id);
+                    game.remove(this);
                 }
             }
 
@@ -399,7 +398,7 @@ function Wormhole(I, game) {
         "collideWith": function(obj) {
             if (obj.type === "projectile" && obj.owner !== this.name) {
                 this.send(obj);
-                game.remove(obj.id);
+                game.remove(obj);
             }
         },
 
