@@ -76,8 +76,8 @@ function Game(playerName, otherPlayers) {
     otherPlayers.forEach(function(opponent) {
         var newWormhole = new Wormhole({
             "name": opponent,
-            "x": Math.random() * (width - 50),
-            "y": Math.random() * (height - 50),
+            "x": Math.random() * (width - 100) + 50,
+            "y": Math.random() * (height - 50) + 50,
         }, _Game);
         wormholes[newWormhole.name] = newWormhole;
         _Game.add(newWormhole);
