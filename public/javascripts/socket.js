@@ -22,8 +22,7 @@ function SocketController() {
 
         "wait": function() {
             console.log("Server said wait.");
-            $("#btnPlay").hide();
-            $("#waiting").show();
+            $("#btnPlay").html("Loading...");
         },
 
         "go": function(data) {

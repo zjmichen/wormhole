@@ -11,10 +11,13 @@ function SocketController() {
     function SocketHandler(socket) {
         socket.on("disconnect", function() {
             console.log("Socket disconnected: " + socket.id);
+            sio.sockets.in(socket.room).emit("quit", {
+                "player": socket.id,
+            });
         });
 
         socket.on("ready", function() {
-            console.log("Client is ready.");
+            console.log(socket.id + " is ready.");
 
             _SocketController.enqueue(socket.id);
         });
@@ -35,8 +38,6 @@ function SocketController() {
         });
 
         socket.on("quit", function(data) {
-            console.log(data.player + " quit.");
-            console.log(sio.sockets.in(socket.game));
             sio.sockets.in(socket.room).emit("quit", {
                 "player": socket.id,
             });
