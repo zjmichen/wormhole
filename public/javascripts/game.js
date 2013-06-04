@@ -315,12 +315,12 @@ function Ship(I, game) {
         },
 
         "die": function() {
-            console.log("Player died.");
+            var that = this;
             this.alive = false;
             this.sprite.setMode("exploding");
             window.socket.quit();
             setTimeout(function() {
-                game.remove(this);
+                game.remove(that);
             }, 2000);
         },
 
