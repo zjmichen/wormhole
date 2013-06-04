@@ -1,7 +1,7 @@
 var socketio = require("socket.io")
   , redis = require("redis");
 
-function SocketController(credentials) {
+function SocketController() {
     var sio
       , nextGameId = 0
       , playersPerGame = 3
@@ -48,8 +48,18 @@ function SocketController(credentials) {
     var _SocketController = {
 
         /** set up global socket handler */
-        "init": function(server) {
+        "init": function(server, credentials) {
+            console.log(credentials);
             rClient = redis.createClient(credentials.redisPort, credentials.redisHost);
+            rClient.auth(credentials.redisPass, function(err) {
+                if (err) {
+                    console.log("Oh shit, redis!");
+                    throw err;
+                } else {
+                    console.log("Redis auth'd.");
+                }
+            });
+
             sio = socketio.listen(server);
             sio.sockets.on("connection", function(socket) {
                 var sHandler = new SocketHandler(socket);
