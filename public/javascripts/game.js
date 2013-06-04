@@ -272,6 +272,7 @@ function Ship(I, game) {
         "collideWith": function(obj) {
             if (obj.type === "projectile" && obj.owner !== this.name) {
                 this.health -= obj.damage;
+                game.remove(obj);
             }
         },
 
@@ -381,6 +382,7 @@ function Bullet(I, game) {
 
             if (obj.type === "ship" && this.owner !== obj.name) {
                 obj.health -= this.damage;
+                game.remove(this);
             }
         }
     };
