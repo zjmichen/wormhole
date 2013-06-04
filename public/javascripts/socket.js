@@ -44,12 +44,10 @@ function SocketController() {
         "send": function(to, data) {
             data = data || {};
             data.player = to;
-            console.log("Sending data");
             socket.emit("msg", data);
         },
 
         "receive": function(data) {
-            console.log("Message from player " + (otherPlayers.indexOf(data.from) + 1));
             game.receiveData(data);
         },
 
@@ -74,7 +72,6 @@ $(document).ready(function() {
     window.socket = SocketController();
 
     $("#btnPlay").click(function() {
-        console.log("Button pressed");
         window.socket.ready();
     });
 });
