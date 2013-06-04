@@ -88,26 +88,29 @@ function Game(playerName, otherPlayers) {
 
     $(document).bind("keydown", "left", function() {
         keystatus.left = true;
+        return false;
     });
     $(document).bind("keyup", "left", function() {
         keystatus.left = false;
+        return false;
     });
     $(document).bind("keydown", "right", function() {
         keystatus.right = true;
+        return false;
     });
     $(document).bind("keyup", "right", function() {
         keystatus.right = false;
+        return false;
     });
     $(document).bind("keydown", "up", function() {
         if (!keystatus.up) {
             keystatus.up = true;
-            player.sprite.setMode("thrusting");
         }
         return false;
     });
     $(document).bind("keyup", "up", function() {
-        player.sprite.setMode("default");
         keystatus.up = false;
+        return false;
     });
     $(document).bind("keydown", "down", function() {
         keystatus.down = true;
@@ -115,6 +118,7 @@ function Game(playerName, otherPlayers) {
     });
     $(document).bind("keyup", "down", function() {
         keystatus.down = false;
+        return false;
     });
     $(document).bind("keydown", "space", function() {
         player.shoot();
@@ -122,6 +126,7 @@ function Game(playerName, otherPlayers) {
     });
     $(document).bind("keyup", "q", function() {
         player.die();
+        return false;
     });
 
     function update() {
@@ -133,7 +138,14 @@ function Game(playerName, otherPlayers) {
                 player.turnRight();
             }
             if (keystatus.up) {
+                if (player.sprite.mode !== "thrusting") {
+                    player.sprite.setMode("thrusting");
+                }
                 player.accelerate();
+            } else {
+                if (player.sprite.mode === "thrusting") {
+                    player.sprite.setMode("default");
+                }
             }
         }
 
@@ -413,7 +425,6 @@ function Wormhole(I, game) {
 function Sprite(modeUrls, width, height) {
     var _Sprite = {}
       , modes = {}
-      , curMode = "default"
       , curImgIndex = 0
       , curImg
       , curFrame = 0;
@@ -442,6 +453,7 @@ function Sprite(modeUrls, width, height) {
     _Sprite = {
         "framesPerImage": 3,
         "modes": modes,
+        "mode": "default",
 
         "draw": function(canvas) {
             canvas.save();
@@ -455,14 +467,14 @@ function Sprite(modeUrls, width, height) {
 
             if (curFrame > this.framesPerImage) {
                 curFrame = 0;
-                curImgIndex = (curImgIndex + 1) % modes[curMode].length;
+                curImgIndex = (curImgIndex + 1) % modes[this.mode].length;
             }
 
-            return modes[curMode][curImgIndex] || modes.default[0];
+            return modes[this.mode][curImgIndex] || modes.default[0];
         },
 
         "setMode": function(newMode) {
-            curMode = newMode;
+            this.mode = newMode;
             curImg = 0;
         },
 
