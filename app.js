@@ -32,6 +32,13 @@ app.use(express.static(path.join(__dirname, 'public')));
 // development only
 if ('development' == app.get('env')) {
   app.use(express.errorHandler());
+  credentials.redisHost = "127.0.0.1";
+  credentials.redisPort = 6379;
+}
+
+if ('production' == app.get('env')) {
+  credentials.redisHost = process.env.REDIS_HOST;
+  credentials.redisPort = process.env.REDIS_PORT;
 }
 
 app.get('/', appCon.index);
@@ -40,4 +47,4 @@ server = http.createServer(app).listen(app.get('port'), function(){
   console.log('Express server listening on port ' + app.get('port'));
 });
 
-socketCon.init(server);
+socketCon.init(server, credentials);

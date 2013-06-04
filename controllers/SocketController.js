@@ -1,11 +1,11 @@
 var socketio = require("socket.io")
   , redis = require("redis");
 
-function SocketController() {
+function SocketController(credentials) {
     var sio
       , nextGameId = 0
       , playersPerGame = 3
-      , rClient = redis.createClient();
+      , rClient;
 
     /** callback declarations for individual sockets */
     function SocketHandler(socket) {
@@ -49,6 +49,7 @@ function SocketController() {
 
         /** set up global socket handler */
         "init": function(server) {
+            rClient = redis.createClient(credentials.redisPort, credentials.redisHost);
             sio = socketio.listen(server);
             sio.sockets.on("connection", function(socket) {
                 var sHandler = new SocketHandler(socket);
