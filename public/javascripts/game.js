@@ -13,6 +13,8 @@ function Game(playerName, otherPlayers) {
       , frameRate = 30
       , gameLoop
       , gameObjects = []
+      , backgroundObjects = []
+      , numStars = Math.floor(0.0001*width*height)
       , player
       , keystatus = {}
       , wormholes = {};
@@ -67,6 +69,10 @@ function Game(playerName, otherPlayers) {
         },
 
     };
+
+    for (var i = 0; i < numStars; i++) {
+        backgroundObjects.push(new Star(_Game));
+    }
 
     player = new Ship({
         "name": playerName,
@@ -160,6 +166,10 @@ function Game(playerName, otherPlayers) {
     function draw() {
         canvas.fillStyle = "#000";
         canvas.fillRect(0, 0, width, height);
+
+        backgroundObjects.forEach(function(obj) {
+            obj.draw();
+        });
 
         gameObjects.forEach(function(obj) {
             obj.draw();
@@ -480,3 +490,20 @@ function Sprite(modeUrls, width, height) {
     return _Sprite;
 }
 
+function Star(game) {
+    var chars = "123456789abcdef"
+      , value = chars[Math.floor(Math.random()*chars.length)];
+
+    var _Star = {
+        "color": "#" + value + value + value,
+        "x": Math.floor(Math.random()*game.width),
+        "y": Math.floor(Math.random()*game.height),
+
+        "draw": function() {
+            game.canvas.fillStyle = this.color;
+            game.canvas.fillRect(this.x, this.y, 2, 2);
+        },
+    };
+
+    return _Star;
+}
