@@ -4,10 +4,10 @@ $(document).ready(function() {
 });
 
 function Game(playerName, otherPlayers) {
-    var width = 800
+    var _Game
+      , width = 800
       , height = 600
       , canvasEl
-      , canvas
       , ctx
       , frameRate = 30
       , gameLoop
@@ -21,21 +21,70 @@ function Game(playerName, otherPlayers) {
     canvasEl.attr("height", height);
     canvas = canvasEl.get(0).getContext("2d");
 
+    /** public members/methods */
+    _Game = {
+        "canvas": canvas,
+        "width": width,
+        "height": height,
+
+        "play": function() {
+            gameLoop = setInterval(function() {
+                update();
+                draw();
+            }, 1000/frameRate);
+        },
+
+        "pause": function() {
+
+        },
+
+        "stop": function() {
+            clearInterval(gameLoop);
+        },
+
+        "receiveData": function(data) {
+            if (data.from && data.type) {
+                data.x = wormholes[data.from].x + 0.5*wormholes[data.from].size;
+                data.y = wormholes[data.from].y + 0.5*wormholes[data.from].size;
+                data.color = "#f00";
+                data.ttl = 50;
+                game.add(new Bullet(data), game);
+            }
+        },
+
+        "removePlayer": function(player) {
+            gameObjects = gameObjects.filter(function(obj) {
+                return (obj.type !== "wormhole" && obj.name !== player);
+            });
+            delete wormholes[player];
+        },
+
+        "add": function(obj) {
+            obj.id = gameObjects.length;
+            gameObjects.push(obj);
+        },
+
+        "remove": function(id) {
+            obj = gameObjects[id];
+            gameObjects.splice(id, 1);
+            delete obj;
+        },
+
+    };
+
     player = new Ship({
         "name": playerName,
-    });
-    gameObjects.push(player);
+    }, _Game);
+    _Game.add(player);
 
     otherPlayers.forEach(function(opponent) {
         var newWormhole = new Wormhole({
             "name": opponent,
             "x": Math.random() * (width - 50),
             "y": Math.random() * (height - 50),
-        });
-        console.log("Wormhole positioned at (" + newWormhole.x + 
-                ", " + newWormhole.y + ")");
+        }, _Game);
         wormholes[newWormhole.name] = newWormhole;
-        gameObjects.push(newWormhole);
+        _Game.add(newWormhole);
     });
 
     $(document).bind("keydown", "left", function() {
@@ -77,14 +126,16 @@ function Game(playerName, otherPlayers) {
     });
 
     function update() {
-        if (keystatus.left) {
-            player.turnLeft();
-        }
-        if (keystatus.right) {
-            player.turnRight();
-        }
-        if (keystatus.up) {
-            player.accelerate();
+        if (player.alive) {
+            if (keystatus.left) {
+                player.turnLeft();
+            }
+            if (keystatus.right) {
+                player.turnRight();
+            }
+            if (keystatus.up) {
+                player.accelerate();
+            }
         }
 
         gameObjects.forEach(function(obj, i, objs) {
@@ -131,341 +182,293 @@ function Game(playerName, otherPlayers) {
                 < a.size + b.size);
     }
 
-    /** public members/methods */
-    var _Game = {
+    return _Game;
+}
 
-        "play": function() {
-            gameLoop = setInterval(function() {
-                update();
-                draw();
-            }, 1000/frameRate);
+function Ship(I, game) {
+    I = I || {};
+
+    var drag = 0.99
+      , driftAngle = I.angle || 0;
+
+    var _Ship = {
+        "type": "ship",
+        "name": I.name || "",
+        "x": I.x || game.width / 2,
+        "y": I.y || game.height  / 2,
+        "size": I.size || 25,
+        "angle": driftAngle,
+        "color": I.color || "#00f",
+        "speed": I.speed || 0,
+        "thrust": I.thrust || 0.3,
+        "maxFuel": I.maxFuel || 10,
+        "fuel": I.fuel || 10,
+        "recharge": I.recharge || 0.1,
+        "maxHealth": I.maxHealth || 100,
+        "health": I.health || 100,
+        "alive": true,
+        "sprite": new Sprite({
+            "default": [
+                "/images/ship_default.png",
+            ],
+            "thrusting": [
+                "/images/ship_fire1.png",
+                "/images/ship_fire2.png",
+                "/images/ship_fire3.png",
+            ],
+            "exploding": [
+                "/images/ship_die1.png",
+                "/images/ship_die2.png",
+                "/images/ship_die3.png",
+                "/images/ship_die4.png",
+            ]
+        }, 126, 50),
+
+        "update": function() {
+            if (this.health < 0) {
+                this.die();
+            }
+
+            if (this.fuel < this.maxFuel) {
+                this.fuel += this.recharge;
+            }
+
+            this.speed *= drag;
+            this.x += this.speed*Math.cos(driftAngle);
+            this.y += this.speed*Math.sin(driftAngle);
+
+            this.x = ((this.x % game.width) + game.width) % game.width;
+            this.y = ((this.y % game.height) + game.height) % game.height;
         },
 
-        "pause": function() {
+        "draw": function() {
+            canvas.save();
+            canvas.translate(this.x, this.y);
+            canvas.rotate(this.angle);
 
+            this.sprite.draw(canvas);
+
+            canvas.restore();
         },
 
-        "stop": function() {
-            clearInterval(gameLoop);
-        },
-
-        "receiveData": function(data) {
-            if (data.from && data.type) {
-                data.x = wormholes[data.from].x + 0.5*wormholes[data.from].size;
-                data.y = wormholes[data.from].y + 0.5*wormholes[data.from].size;
-                data.color = "#f00";
-                data.ttl = 50;
-                gameObjects.push(new Bullet(data));
+        "collideWith": function(obj) {
+            if (obj.type === "projectile" && obj.owner !== this.name) {
+                this.health -= obj.damage;
             }
         },
 
-        "removePlayer": function(player) {
-            gameObjects = gameObjects.filter(function(obj) {
-                return (obj.type !== "wormhole" && obj.name !== player);
-            });
-            delete wormholes[player];
+        "turnLeft": function() {
+            this.angle -= 0.1;
+        },
+
+        "turnRight": function() {
+            this.angle += 0.1;
+        },
+
+        "accelerate": function() {
+            this.fuel -= this.thrust;
+
+            if (this.fuel <= 0) {
+                this.fuel = 0;
+                this.sprite.setMode("default");
+                return;
+            }
+
+            var driftX = this.speed*Math.cos(driftAngle)
+              , driftY = this.speed*Math.sin(driftAngle)
+              , thrustX = this.thrust*Math.cos(this.angle)
+              , thrustY = this.thrust*Math.sin(this.angle);
+
+            driftX += thrustX;
+            driftY += thrustY;
+
+            this.speed = Math.sqrt(Math.pow(driftX, 2) + Math.pow(driftY, 2));
+
+            driftAngle = Math.acos(driftX / this.speed);
+            if (Math.asin(driftY / this.speed) < 0) {
+                driftAngle *= -1;
+            }
+        },
+
+        "shoot": function() {
+            var frontX = this.x + this.size*Math.cos(this.angle)
+              , frontY = this.y + this.size*Math.sin(this.angle);
+
+            game.add(new Bullet({
+                "x": frontX,
+                "y": frontY,
+                "angle": this.angle,
+                "speed": this.speed + 2,
+                "owner": this.name,
+            }, game));
+        },
+
+        "die": function() {
+            console.log("Player died.");
+            this.alive = false;
+            this.sprite.setMode("exploding");
+            window.socket.quit();
+            setTimeout(function() {
+                game.remove(this.id);
+            }, 2000);
         },
 
     };
 
-    /** internal objects:
-     *  - Ship
-     *  - Bullet
-     *  - Wormhole
-     */
-    function Ship(I) {
-        I = I || {};
+    return _Ship;
+}
 
-        var drag = 0.99
-          , driftAngle = I.angle || 0;
+function Bullet(I, game) {
+    I = I || {};
 
-        console.log("Creating ship");
-        var _Ship = {
-            "type": "ship",
-            "name": I.name || "",
-            "x": I.x || width / 2,
-            "y": I.y || height  / 2,
-            "size": I.size || 25,
-            "angle": driftAngle,
-            "color": I.color || "#00f",
-            "speed": I.speed || 0,
-            "thrust": I.thrust || 0.3,
-            "maxFuel": I.maxFuel || 10,
-            "fuel": I.fuel || 10,
-            "recharge": I.recharge || 0.1,
-            "maxHealth": I.maxHealth || 100,
-            "health": I.health || 100,
-            "sprite": new Sprite({
-                "default": [
-                    "/images/ship_default.png",
-                ],
-                "thrusting": [
-                    "/images/ship_fire1.png",
-                    "/images/ship_fire2.png",
-                    "/images/ship_fire3.png",
-                ],
-                "exploding": [
-                    "/images/ship_die1.png",
-                    "/images/ship_die2.png",
-                    "/images/ship_die3.png",
-                    "/images/ship_die4.png",
-                ]
-            }, 126, 50),
+    var _Bullet = {
+        "type": "projectile",
+        "x": I.x,
+        "y": I.y,
+        "speed": I.speed || 1,
+        "angle": I.angle,
+        "size": I.size || 2,
+        "ttl": I.ttl || 70,
+        "damage": I.damage || 1,
+        "owner": I.owner || "",
+        "color": I.color || "#fff",
 
-            "update": function() {
-                if (this.health < 0) {
-                    this.die();
-                }
+        "update": function() {
+            if (this.ttl <= 0) {
+                game.remove(this.id);
+                return;
+            }
 
-                if (this.fuel < this.maxFuel) {
-                    this.fuel += this.recharge;
-                }
+            this.ttl -= 1;
 
-                this.speed *= drag;
-                this.x += this.speed*Math.cos(driftAngle);
-                this.y += this.speed*Math.sin(driftAngle);
+            this.x += this.speed*Math.cos(this.angle);
+            this.y += this.speed*Math.sin(this.angle);
 
-                this.x = ((this.x % width) + width) % width;
-                this.y = ((this.y % height) + height) % height;
-            },
+            this.x = ((this.x % game.width) + game.width) % game.width;
+            this.y = ((this.y % game.height) + game.height) % game.height;
+        },
 
-            "draw": function() {
-                canvas.save();
-                canvas.translate(this.x, this.y);
-                canvas.rotate(this.angle);
+        "draw": function() {
+            game.canvas.fillStyle = this.color;
+            game.canvas.fillRect(this.x, this.y, this.size, this.size);
+        },
 
-                this.sprite.draw(canvas);
-
-                canvas.restore();
-            },
-
-            "collideWith": function(obj) {
-                if (obj.type === "projectile" && obj.owner !== this.name) {
-                    this.health -= obj.damage;
-                }
-            },
-
-            "turnLeft": function() {
-                this.angle -= 0.1;
-            },
-
-            "turnRight": function() {
-                this.angle += 0.1;
-            },
-
-            "accelerate": function() {
-                this.fuel -= this.thrust;
-
-                if (this.fuel <= 0) {
-                    this.fuel = 0;
-                    this.sprite.setMode("default");
-                    return;
-                }
-
-                var driftX = this.speed*Math.cos(driftAngle)
-                  , driftY = this.speed*Math.sin(driftAngle)
-                  , thrustX = this.thrust*Math.cos(this.angle)
-                  , thrustY = this.thrust*Math.sin(this.angle);
-
-                driftX += thrustX;
-                driftY += thrustY;
-
-                this.speed = Math.sqrt(Math.pow(driftX, 2) + Math.pow(driftY, 2));
-
-                driftAngle = Math.acos(driftX / this.speed);
-                if (Math.asin(driftY / this.speed) < 0) {
-                    driftAngle *= -1;
-                }
-            },
-
-            "shoot": function() {
-                var frontX = this.x + this.size*Math.cos(this.angle)
-                  , frontY = this.y + this.size*Math.sin(this.angle);
-
-                gameObjects.push(new Bullet({
-                    "x": frontX,
-                    "y": frontY,
-                    "angle": this.angle,
-                    "speed": this.speed + 2,
-                    "owner": this.name,
-                }));
-            },
-
-            "die": function() {
-                console.log("Player died.");
-                this.sprite.setMode("exploding");
-                setTimeout(function() {
-                    gameObjects.splice(gameObjects.indexOf(this), 1);
-                    window.socket.quit();
-                }, 2000);
-            },
-
-        };
-
-        return _Ship;
-    }
-
-    function Bullet(I) {
-        I = I || {};
-
-        var _Bullet = {
-            "type": "projectile",
-            "x": I.x,
-            "y": I.y,
-            "speed": I.speed || 1,
-            "angle": I.angle,
-            "size": I.size || 2,
-            "ttl": I.ttl || 70,
-            "damage": I.damage || 1,
-            "owner": I.owner || "",
-            "color": I.color || "#fff",
-
-            "update": function() {
-                if (this.ttl <= 0) {
-                    gameObjects.splice(gameObjects.indexOf(this), 1);
-                    delete this;
-                    return;
-                }
-
-                this.ttl -= 1;
-
-                this.x += this.speed*Math.cos(this.angle);
-                this.y += this.speed*Math.sin(this.angle);
-
-                this.x = ((this.x % width) + width) % width;
-                this.y = ((this.y % height) + height) % height;
-            },
-
-            "draw": function() {
-                canvas.fillStyle = this.color;
-                //canvas.arc(this.x, this.y, this.size, 0, 2*Math.PI, false);
-                canvas.fillRect(this.x, this.y, this.size, this.size);
-            },
-
-            "collideWith": function(obj) {
-                if (obj.type === "wormhole") {
-                    if (this.owner !== obj.name) {
-                        obj.send(this);
-                        gameObjects.splice(gameObjects.indexOf(this), 1);
-                        delete this;
-                    }
-                }
-
-                if (obj.type === "ship" && this.owner !== obj.name) {
-                    obj.health -= this.damage;
+        "collideWith": function(obj) {
+            if (obj.type === "wormhole") {
+                if (this.owner !== obj.name) {
+                    obj.send(this);
+                    game.remove(this.id);
                 }
             }
-        };
 
-        return _Bullet;
-    }
-
-    function Wormhole(I) {
-        I = I || {};
-
-        var _Wormhole = {
-            "type": "wormhole",
-            "name": I.name,
-            "x": I.x || 0.5*width,
-            "y": I.y || 0.5*height,
-            "angle": 0,
-            "size": I.size || 50,
-            "sprite": I.sprite || new Sprite("/images/wormhole.png", 50, 50),
-
-            "update": function() {
-                this.angle -= 0.01;
-            },
-
-            "draw": function() {
-                canvas.save();
-                canvas.translate(this.x, this.y);
-                canvas.rotate(this.angle);
-
-                this.sprite.draw(canvas);
-
-                canvas.restore();
-            },
-
-            "collideWith": function(obj) {
-                if (obj.type === "projectile" && obj.owner !== this.name) {
-                    this.send(obj);
-                    gameObjects.splice(gameObjects.indexOf(obj), 1);
-                    delete obj;
-                }
-            },
-
-            "send": function(data) {
-                window.socket.send(this.name, data);
-            },
-        };
-
-        return _Wormhole;
-    }
-
-    function Sprite(modeUrls, width, height) {
-        var _Sprite = {}
-          , modes = {}
-          , curMode = "default"
-          , curImgIndex = 0
-          , curImg
-          , curFrame = 0;
-
-        if (typeof modeUrls === "string") {
-            modeUrls = {
-                "default": [modeUrls],
+            if (obj.type === "ship" && this.owner !== obj.name) {
+                obj.health -= this.damage;
             }
         }
+    };
 
-        for (var mode in modeUrls) {
-            modes[mode] = [];
-            modeUrls[mode].forEach(function(url, i) {
-                var image = new Image();
-                image.onload = function() {
-                    modes[mode][i] = image;
-                }
-                image.src = url;
+    return _Bullet;
+}
 
+function Wormhole(I, game) {
+    I = I || {};
+
+    var _Wormhole = {
+        "type": "wormhole",
+        "name": I.name,
+        "x": I.x || 0.5*game.width,
+        "y": I.y || 0.5*game.height,
+        "angle": 0,
+        "size": I.size || 50,
+        "sprite": I.sprite || new Sprite("/images/wormhole.png", 50, 50),
+
+        "update": function() {
+            this.angle -= 0.01;
+        },
+
+        "draw": function() {
+            game.canvas.save();
+            game.canvas.translate(this.x, this.y);
+            game.canvas.rotate(this.angle);
+
+            this.sprite.draw(canvas);
+
+            game.canvas.restore();
+        },
+
+        "collideWith": function(obj) {
+            if (obj.type === "projectile" && obj.owner !== this.name) {
+                this.send(obj);
+                game.remove(obj.id);
+            }
+        },
+
+        "send": function(data) {
+            window.socket.send(this.name, data);
+        },
+    };
+
+    return _Wormhole;
+}
+
+function Sprite(modeUrls, width, height) {
+    var _Sprite = {}
+      , modes = {}
+      , curMode = "default"
+      , curImgIndex = 0
+      , curImg
+      , curFrame = 0;
+
+    if (typeof modeUrls === "string") {
+        modeUrls = {
+            "default": [modeUrls],
+        }
+    }
+
+    for (var mode in modeUrls) {
+        modes[mode] = [];
+        modeUrls[mode].forEach(function(url, i) {
+            var image = new Image();
+            image.onload = function() {
                 modes[mode][i] = image;
-            });
-        }
+            }
+            image.src = url;
 
-        curImg = modes.default[0];
-
-        console.log(curImg);
-
-        _Sprite = {
-            "framesPerImage": 3,
-            "modes": modes,
-
-            "draw": function(canvas) {
-                canvas.save();
-                canvas.translate(-0.5*width, -0.5*height);
-                canvas.drawImage(this.getImage(), 0, 0);
-                canvas.restore();
-            },
-
-            "getImage": function() {
-                curFrame += 1;
-
-                if (curFrame > this.framesPerImage) {
-                    curFrame = 0;
-                    curImgIndex = (curImgIndex + 1) % modes[curMode].length;
-                    console.log(curImgIndex + ", " + modes[curMode].length);
-                }
-
-                return modes[curMode][curImgIndex] || modes.default[0];
-            },
-
-            "setMode": function(newMode) {
-                curMode = newMode;
-                curImg = 0;
-            },
-
-        }
-
-        return _Sprite;
+            modes[mode][i] = image;
+        });
     }
 
-    return _Game;
+    curImg = modes.default[0];
+
+    _Sprite = {
+        "framesPerImage": 3,
+        "modes": modes,
+
+        "draw": function(canvas) {
+            canvas.save();
+            canvas.translate(-0.5*width, -0.5*height);
+            canvas.drawImage(this.getImage(), 0, 0);
+            canvas.restore();
+        },
+
+        "getImage": function() {
+            curFrame += 1;
+
+            if (curFrame > this.framesPerImage) {
+                curFrame = 0;
+                curImgIndex = (curImgIndex + 1) % modes[curMode].length;
+            }
+
+            return modes[curMode][curImgIndex] || modes.default[0];
+        },
+
+        "setMode": function(newMode) {
+            curMode = newMode;
+            curImg = 0;
+        },
+
+    }
+
+    return _Sprite;
 }
 
