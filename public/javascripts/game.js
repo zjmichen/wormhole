@@ -31,6 +31,7 @@ function Game(playerName, otherPlayers) {
         "canvas": canvas,
         "width": width,
         "height": height,
+        "weapons": weapons,
         "won": false,
 
         "play": function() {
@@ -609,7 +610,6 @@ function Sprite(modeUrls, width, height) {
             curFrame += 1;
 
             if (this.scaleChange != 0) {
-                console.log(this.scale + " (" + this.scaleChange + ")");
                 this.scale += this.scaleChange;
                 this.width = this.scale * width;
                 this.height = this.scale * height;
@@ -617,7 +617,6 @@ function Sprite(modeUrls, width, height) {
             if ((this.scaleChange > 0 && this.scale >= this.targetScale) ||
                 (this.scaleChange < 0 && this.scale <= this.targetScale)) {
 
-                console.log("Scale reached.");
                 this.scale = this.targetScale;
                 this.scaleChange = 0;
             }
@@ -631,13 +630,10 @@ function Sprite(modeUrls, width, height) {
         },
 
         "scaleTo": function(newScale, time, callback) {
-            console.log("Scaling to " + newScale);
             time = time || 1000;
             var frames = 0.03*time
               , direction = (newScale > this.scale) ? 1 : -1;
-            console.log("in " + frames + " frames");
             this.scaleChange = direction*(Math.abs(this.scale - newScale) / frames);
-            console.log("adjusting scale by " + this.scaleChange + " each frame");
             this.targetScale = newScale;
 
             if (callback) {
@@ -656,8 +652,6 @@ function Sprite(modeUrls, width, height) {
 }
 
 function Star(game) {
-    var chars = "123456789abcdef"
-      , value = chars[Math.floor(Math.random()*chars.length)];
     var distance = Math.floor(Math.random() * 255);
 
     var _Star = {
