@@ -158,6 +158,10 @@ function Game(playerName, otherPlayers) {
         player.shoot("missle");
         return false;
     });
+    $(document).bind("keyup", "z", function() {
+        player.shoot("nuke");
+        return false;
+    });
 
     function update() {
         if (player.alive) {
@@ -576,6 +580,76 @@ function Missle(I, game) {
     return _Missle;
 }
 
+function Nuke(I, game) {
+    var _Nuke;
+
+    _Nuke = {
+        "type": "projectile",
+        "subtype": "nuke",
+        "x": I.x,
+        "y": I.y,
+        "speed": I.speed || 1,
+        "angle": I.angle,
+        "size": I.size || 5,
+        "ttl": I.ttl || 150,
+        "damage": I.damage || 0,
+        "payload": I.payload || 500,
+        "owner": I.owner || "",
+        "color": I.color || "#fff",
+
+        "update": function() {
+            if (this.ttl <= 0) {
+                this.detonate();
+                return;
+            }
+
+            this.ttl -= 1;
+
+            this.x += this.speed*Math.cos(this.angle);
+            this.y += this.speed*Math.sin(this.angle);
+
+            this.x = ((this.x % game.width) + game.width) % game.width;
+            this.y = ((this.y % game.height) + game.height) % game.height;
+        },
+
+        "draw": function() {
+            game.canvas.fillStyle = this.color;
+            game.canvas.fillRect(this.x, this.y, this.size, this.size);
+        },
+
+        "collideWith": function(obj, isReaction) {
+            if (obj.type === "ship" && this.owner !== obj.name) {
+                this.detonate();
+            }
+
+            if (!isReaction) {
+                obj.collideWith(this, true);
+            }
+        },
+
+        "detonate": function() {
+            var x, y;
+            for (var i = 0; i < this.payload; i++) {
+                x = this.x + Math.random()*500 - 250;
+                y = this.y + Math.random()*500 - 250;
+                game.add(new Explosion({
+                    "x": x,
+                    "y": y,
+                    "ttl": 100,
+                    "damage": this.payload,
+                    "owner": this.owner,
+                }, game));
+            }
+
+            game.remove(this);
+        },
+
+
+    };
+
+    return _Nuke;
+}
+
 function Explosion(I, game) {
     var _Explosion;
 
@@ -632,6 +706,7 @@ function Arsenal() {
         "bullet": Bullet,
         "canister": Canister,
         "missle": Missle,
+        "nuke": Nuke,
     };
 
     return _Arsenal;
