@@ -958,7 +958,6 @@ function Comet(I, game) {
         "angle": I.angle || (Math.random()*0.5 + 1)*Math.PI,
         "speed": I.speed || Math.floor(Math.random()*5) + 5,
         "animationStep": 0,
-        "ttl": I.ttl || Math.floor(Math.random()*100 + 50),
         "sprite": new Sprite({
             "default": [
                 "/images/missile1.png",
@@ -967,12 +966,6 @@ function Comet(I, game) {
         }, 50, 13),
 
         "update": function() {
-            if (this.ttl <= 0) {
-                game.removeFromBackground(this);
-                return;
-            }
-            this.ttl -= 1;
-            
             this.x += this.speed*Math.cos(this.angle);
             this.y += this.speed*Math.sin(this.angle);
 
