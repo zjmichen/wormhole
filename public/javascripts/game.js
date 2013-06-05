@@ -316,10 +316,8 @@ function Ship(I, game) {
                 "/images/ship_fire3.png",
             ],
             "exploding": [
-                "/images/ship_die1.png",
-                "/images/ship_die2.png",
-                "/images/ship_die3.png",
-                "/images/ship_die4.png",
+                "/images/explosion1.png",
+                "/images/explosion2.png",
             ]
         }, 126, 50),
 
