@@ -324,7 +324,7 @@ function Ship(I, game) {
         }, 126, 50),
 
         "update": function() {
-            if (this.health < 0) {
+            if (this.health <= 0) {
                 this.die();
             }
 
