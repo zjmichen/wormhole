@@ -52,8 +52,13 @@ function Game(playerName, otherPlayers) {
                 data.x = wormholes[data.from].x + 0.5*wormholes[data.from].size;
                 data.y = wormholes[data.from].y + 0.5*wormholes[data.from].size;
                 data.color = "#f00";
-                data.ttl = 50;
-                this.add(new Bullet(data, this));
+                data.ttl = 70;
+
+                if (data.subtype === "bullet") {
+                    this.add(new Bullet(data, this));
+                } else if (data.subtype === "canister") {
+                    this.add(new Canister(data, this));
+                }
             }
         },
 
@@ -141,6 +146,10 @@ function Game(playerName, otherPlayers) {
     });
     $(document).bind("keyup", "q", function() {
         player.die();
+        return false;
+    });
+    $(document).bind("keyup", "c", function() {
+        player.shoot("canister");
         return false;
     });
 
@@ -339,17 +348,27 @@ function Ship(I, game) {
             }
         },
 
-        "shoot": function() {
+        "shoot": function(weapon) {
             var frontX = this.x + this.size*Math.cos(this.angle)
               , frontY = this.y + this.size*Math.sin(this.angle);
 
-            game.add(new Bullet({
-                "x": frontX,
-                "y": frontY,
-                "angle": this.angle,
-                "speed": this.speed + 2,
-                "owner": this.name,
-            }, game));
+            if (weapon === "canister") {
+                game.add(new Canister({
+                    "x": frontX,
+                    "y": frontY,
+                    "angle": this.angle,
+                    "speed": this.speed + 2,
+                    "owner": this.name,
+                }, game));
+            } else {
+                game.add(new Bullet({
+                    "x": frontX,
+                    "y": frontY,
+                    "angle": this.angle,
+                    "speed": this.speed + 2,
+                    "owner": this.name,
+                }, game));
+            }
         },
 
         "die": function() {
@@ -375,6 +394,7 @@ function Bullet(I, game) {
 
     var _Bullet = {
         "type": "projectile",
+        "subtype": "bullet",
         "x": I.x,
         "y": I.y,
         "speed": I.speed || 1,
@@ -421,6 +441,73 @@ function Bullet(I, game) {
     };
 
     return _Bullet;
+}
+
+function Canister(I, game) {
+   var _Canister;
+   
+   _Canister = {
+        "type": "projectile",
+        "subtype": "canister",
+        "x": I.x,
+        "y": I.y,
+        "speed": I.speed || 1,
+        "angle": I.angle,
+        "size": I.size || 10,
+        "ttl": I.ttl || 70,
+        "damage": I.damage || 0,
+        "payload": I.payload || 10,
+        "owner": I.owner || "",
+        "color": I.color || "#fff",
+
+        "update": function() {
+            if (this.ttl <= 0) {
+                this.detonate();
+                return;
+            }
+
+            this.ttl -= 1;
+
+            this.x += this.speed*Math.cos(this.angle);
+            this.y += this.speed*Math.sin(this.angle);
+
+            this.x = ((this.x % game.width) + game.width) % game.width;
+            this.y = ((this.y % game.height) + game.height) % game.height;
+        },
+
+        "draw": function() {
+            game.canvas.fillStyle = this.color;
+            game.canvas.fillRect(this.x, this.y, this.size, this.size);
+        },
+
+        "collideWith": function(obj) {
+            if (obj.type === "wormhole") {
+                if (this.owner !== obj.name) {
+                    obj.send(this);
+                    game.remove(this);
+                }
+            }
+        },
+
+        "detonate": function() {
+            for (var i = 0; i < this.payload; i++) {
+                game.add(new Bullet({
+                    "x": this.x,
+                    "y": this.y,
+                    "ttl": 50,
+                    "speed": this.speed + Math.random() * 4 - 2,
+                    "angle": Math.random() * Math.PI * 2,
+                    "owner": this.owner,
+                    "color": this.color,
+                }, game));
+            }
+
+            game.remove(this);
+        },
+
+   };
+
+   return _Canister; 
 }
 
 function Wormhole(I, game) {
