@@ -17,7 +17,8 @@ function Game(playerName, otherPlayers) {
       , numStars = Math.floor(0.0001*width*height)
       , player
       , keystatus = {}
-      , wormholes = {};
+      , wormholes = {}
+      , numWormholes = 0;
 
     canvasEl = $("canvas#wormhole");
     canvasEl.attr("width", width);
@@ -29,6 +30,7 @@ function Game(playerName, otherPlayers) {
         "canvas": canvas,
         "width": width,
         "height": height,
+        "won": false,
 
         "play": function() {
             gameLoop = setInterval(function() {
@@ -56,7 +58,15 @@ function Game(playerName, otherPlayers) {
         },
 
         "removePlayer": function(player) {
-            this.remove(wormholes[player]);
+            var that = this;
+            wormholes[player].sprite.scaleTo(0, 1000, function() {
+                that.remove(wormholes[player]);
+                numWormholes -= 1;
+
+                if (numWormholes <= 0) {
+                    that.won = true;
+                }
+            });
         },
 
         "add": function(obj) {
@@ -86,6 +96,8 @@ function Game(playerName, otherPlayers) {
             "y": Math.random() * (height - 50) + 50,
         }, _Game);
         wormholes[newWormhole.name] = newWormhole;
+        numWormholes += 1;
+
         _Game.add(newWormhole);
     });
 
@@ -177,6 +189,15 @@ function Game(playerName, otherPlayers) {
 
         drawFuel();
         drawHealth();
+
+        if (_Game.won) {
+            canvas.fillStyle = "#fff";
+            canvas.font = "bold 72px sans-serif";
+            canvas.textAlign = "center";
+            canvas.shadowColor = "#000";
+            canvas.shadowBlur = 4;
+            canvas.fillText("You won!", 0.5*width, 0.5*height);
+        }
     }
 
     function drawFuel() {
@@ -184,6 +205,8 @@ function Game(playerName, otherPlayers) {
         canvas.fillStyle = "#0f0";
         canvas.fillRect(width - 10, height - fuelLevel, 5, fuelLevel);
         canvas.fillStyle = "#0f0";
+        canvas.font = "normal 10px sans-serif";
+        canvas.textAlign = "start";
         canvas.fillText("Fuel", width - 35, height - 15);
     }
 
@@ -192,6 +215,8 @@ function Game(playerName, otherPlayers) {
         canvas.fillStyle = "#f00";
         canvas.fillRect(width - 5, height - healthLevel, 5, healthLevel);
         canvas.fillStyle = "#f00";
+        canvas.font = "normal 10px sans-serif";
+        canvas.textAlign = "start";
         canvas.fillText("Health", width - 47, height - 3);
     }
 
@@ -327,9 +352,12 @@ function Ship(I, game) {
             this.alive = false;
             this.sprite.setMode("exploding");
             window.socket.quit();
+
             setTimeout(function() {
-                game.remove(that);
-            }, 2000);
+                that.sprite.scaleTo(0, 500, function() {
+                    game.remove(that);
+                });
+            }, 500);
         },
 
     };
@@ -460,13 +488,19 @@ function Sprite(modeUrls, width, height) {
     curImg = modes.default[0];
 
     _Sprite = {
+        "width": width,
+        "height": height,
         "framesPerImage": 3,
         "modes": modes,
         "mode": "default",
+        "scale": 1.0,
+        "targetScale": 1.0,
+        "scaleChange": 0,
 
         "draw": function(canvas) {
             canvas.save();
-            canvas.translate(-0.5*width, -0.5*height);
+            canvas.translate(-0.5*this.width, -0.5*this.height);
+            canvas.scale(this.scale, this.scale);
             canvas.drawImage(this.getImage(), 0, 0);
             canvas.restore();
         },
@@ -474,12 +508,41 @@ function Sprite(modeUrls, width, height) {
         "getImage": function() {
             curFrame += 1;
 
+            if (this.scaleChange != 0) {
+                console.log(this.scale + " (" + this.scaleChange + ")");
+                this.scale += this.scaleChange;
+                this.width = this.scale * width;
+                this.height = this.scale * height;
+            }
+            if ((this.scaleChange > 0 && this.scale >= this.targetScale) ||
+                (this.scaleChange < 0 && this.scale <= this.targetScale)) {
+
+                console.log("Scale reached.");
+                this.scale = this.targetScale;
+                this.scaleChange = 0;
+            }
+
             if (curFrame > this.framesPerImage) {
                 curFrame = 0;
                 curImgIndex = (curImgIndex + 1) % modes[this.mode].length;
             }
 
             return modes[this.mode][curImgIndex] || modes.default[0];
+        },
+
+        "scaleTo": function(newScale, time, callback) {
+            console.log("Scaling to " + newScale);
+            time = time || 1000;
+            var frames = 0.03*time
+              , direction = (newScale > this.scale) ? 1 : -1;
+            console.log("in " + frames + " frames");
+            this.scaleChange = direction*(Math.abs(this.scale - newScale) / frames);
+            console.log("adjusting scale by " + this.scaleChange + " each frame");
+            this.targetScale = newScale;
+
+            if (callback) {
+                setTimeout(callback, time);
+            }
         },
 
         "setMode": function(newMode) {
