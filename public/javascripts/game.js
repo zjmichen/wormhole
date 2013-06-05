@@ -45,8 +45,9 @@ function Game(playerName, otherPlayers) {
             }, 1000/frameRate);
 
             cometLoop = setInterval(function() {
-                var x = width + 100
-                  , y = height + 100;
+                var x = width
+                  , y = height;
+
                 if (Math.random() > 0.5) {
                     x = Math.random()*width;
                 } else {
@@ -56,7 +57,7 @@ function Game(playerName, otherPlayers) {
                     "x": x,
                     "y": y,
                 }, that));
-            }, 30000);
+            }, 5000);
 
         },
 
@@ -954,8 +955,10 @@ function Comet(I, game) {
     var _Comet = {
         "x": I.x || game.width,
         "y": I.y || game.height,
-        "angle": I.angle || 1.25*Math.PI,
-        "speed": I.speed || 1,
+        "angle": I.angle || (Math.random()*0.5 + 1)*Math.PI,
+        "speed": I.speed || Math.floor(Math.random()*5) + 5,
+        "animationStep": 0,
+        "ttl": I.ttl || Math.floor(Math.random()*100 + 50),
         "sprite": new Sprite({
             "default": [
                 "/images/missile1.png",
@@ -964,6 +967,12 @@ function Comet(I, game) {
         }, 50, 13),
 
         "update": function() {
+            if (this.ttl <= 0) {
+                game.removeFromBackground(this);
+                return;
+            }
+            this.ttl -= 1;
+            
             this.x += this.speed*Math.cos(this.angle);
             this.y += this.speed*Math.sin(this.angle);
 
@@ -977,7 +986,23 @@ function Comet(I, game) {
             game.canvas.translate(this.x, this.y);
             game.canvas.rotate(this.angle);
 
-            this.sprite.draw(canvas);
+            var tailEnd = this.animationStep === 0 ? -30 : -28;
+            this.animationStep = (this.animationStep + 1) % 3;
+            console.log(this.animationStep);
+
+            game.canvas.beginPath();
+            game.canvas.strokeStyle = "#111";
+            game.canvas.moveTo(0, 1);
+            game.canvas.lineTo(tailEnd, 2);
+            game.canvas.moveTo(0, 2);
+            game.canvas.lineTo(tailEnd, 2);
+            game.canvas.strokeStyle = "#333";
+            game.canvas.moveTo(0, 1.5);
+            game.canvas.lineTo(-20, 2);
+            game.canvas.stroke();
+
+            game.canvas.fillStyle = "#777";
+            game.canvas.fillRect(0, 0, 3, 3);
 
             game.canvas.restore();
         },
