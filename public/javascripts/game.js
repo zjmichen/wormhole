@@ -580,8 +580,8 @@ function Missile(I, game) {
 
         "detonate": function() {
             game.add(new Explosion({
-                "x": this.x,
-                "y": this.y,
+                "x": this.x + this.size*Math.cos(this.angle),
+                "y": this.y + this.size*Math.sin(this.angle),
                 "ttl": 50,
                 "damage": this.payload,
                 "owner": this.owner,
@@ -608,7 +608,7 @@ function Nuke(I, game) {
         "angle": I.angle,
         "size": I.size || 5,
         "ttl": I.ttl || 150,
-        "damage": I.damage || 0,
+        "damage": I.damage || 20,
         "payload": I.payload || 100,
         "owner": I.owner || "",
         "color": I.color || "#fff",
@@ -661,7 +661,7 @@ function Nuke(I, game) {
                     "x": x,
                     "y": y,
                     "ttl": 100,
-                    "damage": this.payload,
+                    "damage": this.damage,
                     "owner": this.owner,
                 }, game));
             }
@@ -683,7 +683,7 @@ function Explosion(I, game) {
         "x": I.x,
         "y": I.y,
         "ttl": I.ttl || 20,
-        "damage": 2,
+        "damage": I.damage || 10,
         "owner": I.owner || "",
         "size": 25,
         "sprite": I.sprite || new Sprite({
