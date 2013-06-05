@@ -155,7 +155,7 @@ function Game(playerName, otherPlayers) {
         return false;
     });
     $(document).bind("keyup", "x", function() {
-        player.shoot("missle");
+        player.shoot("missile");
         return false;
     });
     $(document).bind("keyup", "z", function() {
@@ -504,12 +504,12 @@ function Canister(I, game) {
    return _Canister; 
 }
 
-function Missle(I, game) {
-    var _Missle;
+function Missile(I, game) {
+    var _Missile;
 
-    _Missle = {
+    _Missile = {
         "type": "projectile",
-        "subtype": "missle",
+        "subtype": "missile",
         "x": I.x,
         "y": I.y,
         "speed": I.speed || 1,
@@ -577,7 +577,7 @@ function Missle(I, game) {
 
     };
 
-    return _Missle;
+    return _Missile;
 }
 
 function Nuke(I, game) {
@@ -705,7 +705,7 @@ function Arsenal() {
     var _Arsenal = {
         "bullet": Bullet,
         "canister": Canister,
-        "missle": Missle,
+        "missile": Missile,
         "nuke": Nuke,
     };
 
