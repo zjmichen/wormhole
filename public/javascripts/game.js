@@ -18,7 +18,8 @@ function Game(playerName, otherPlayers) {
       , player
       , keystatus = {}
       , wormholes = {}
-      , numWormholes = 0;
+      , numWormholes = 0
+      , weapons = new Arsenal();
 
     canvasEl = $("canvas#wormhole");
     canvasEl.attr("width", width);
@@ -54,11 +55,14 @@ function Game(playerName, otherPlayers) {
                 data.color = "#f00";
                 data.ttl = 70;
 
-                if (data.subtype === "bullet") {
-                    this.add(new Bullet(data, this));
-                } else if (data.subtype === "canister") {
-                    this.add(new Canister(data, this));
+                if (data.subtype in weapons) {
+                    this.add(new weapons[data.subtype](data, this));
                 }
+                // if (data.subtype === "bullet") {
+                //     this.add(new Bullet(data, this));
+                // } else if (data.subtype === "canister") {
+                //     this.add(new Canister(data, this));
+                // }
             }
         },
 
@@ -349,25 +353,18 @@ function Ship(I, game) {
         },
 
         "shoot": function(weapon) {
-            var frontX = this.x + this.size*Math.cos(this.angle)
-              , frontY = this.y + this.size*Math.sin(this.angle);
+            var I = {
+                "x": this.x + this.size*Math.cos(this.angle),
+                "y": this.y + this.size*Math.sin(this.angle),
+                "angle": this.angle,
+                "speed": this.speed + 2,
+                "owner": this.name,
+            };
 
-            if (weapon === "canister") {
-                game.add(new Canister({
-                    "x": frontX,
-                    "y": frontY,
-                    "angle": this.angle,
-                    "speed": this.speed + 2,
-                    "owner": this.name,
-                }, game));
-            } else {
-                game.add(new Bullet({
-                    "x": frontX,
-                    "y": frontY,
-                    "angle": this.angle,
-                    "speed": this.speed + 2,
-                    "owner": this.name,
-                }, game));
+            weapon = weapon || "bullet";
+
+            if (weapon in game.weapons) {
+                game.add(new game.weapons[weapon](I, game));
             }
         },
 
@@ -445,6 +442,8 @@ function Bullet(I, game) {
 
 function Canister(I, game) {
    var _Canister;
+
+   I = I || {};
    
    _Canister = {
         "type": "projectile",
@@ -508,6 +507,15 @@ function Canister(I, game) {
    };
 
    return _Canister; 
+}
+
+function Arsenal() {
+    var _Arsenal = {
+        "bullet": Bullet,
+        "canister": Canister,
+    };
+
+    return _Arsenal;
 }
 
 function Wormhole(I, game) {
