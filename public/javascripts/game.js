@@ -37,10 +37,27 @@ function Game(playerName, otherPlayers) {
         "frameRate": frameRate,
 
         "play": function() {
+            var that = this;
+
             gameLoop = setInterval(function() {
                 update();
                 draw();
             }, 1000/frameRate);
+
+            cometLoop = setInterval(function() {
+                var x = width + 100
+                  , y = height + 100;
+                if (Math.random() > 0.5) {
+                    x = Math.random()*width;
+                } else {
+                    y = Math.random()*height;
+                }
+                backgroundObjects.push(new Comet({
+                    "x": x,
+                    "y": y,
+                }, that));
+            }, 30000);
+
         },
 
         "pause": function() {
@@ -86,6 +103,15 @@ function Game(playerName, otherPlayers) {
 
         "remove": function(obj) {
             gameObjects.splice(gameObjects.indexOf(obj), 1);
+            delete obj;
+        },
+
+        "addToBackground": function(obj) {
+            backgroundObjects.push(obj);
+        },
+
+        "removeFromBackground": function(obj) {
+            backgroundObjects.splice(backgroundObjects.indexOf(obj), 1);
             delete obj;
         },
 
@@ -713,7 +739,7 @@ function Explosion(I, game) {
         },
 
         "collideWith": function(obj, isReaction) {
-            if (this.owner !== obj.name && this.damage > 0) {
+            if (this.owner !== obj.name && this.damage > 0 && obj.health > 0) {
                 obj.health -= 1;
                 this.damage -= 1;
             }
@@ -922,4 +948,40 @@ function Star(game) {
     };
 
     return _Star;
+}
+
+function Comet(I, game) {
+    var _Comet = {
+        "x": I.x || game.width,
+        "y": I.y || game.height,
+        "angle": I.angle || 1.25*Math.PI,
+        "speed": I.speed || 1,
+        "sprite": new Sprite({
+            "default": [
+                "/images/missile1.png",
+                "/images/missile2.png",
+            ],
+        }, 50, 13),
+
+        "update": function() {
+            this.x += this.speed*Math.cos(this.angle);
+            this.y += this.speed*Math.sin(this.angle);
+
+            if (this.x < 0 || this.y < 0) {
+                game.removeFromBackground(this);
+            }
+        },
+
+        "draw": function() {
+            game.canvas.save();
+            game.canvas.translate(this.x, this.y);
+            game.canvas.rotate(this.angle);
+
+            this.sprite.draw(canvas);
+
+            game.canvas.restore();
+        },
+    };
+
+    return _Comet;
 }
