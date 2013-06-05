@@ -295,7 +295,7 @@ function Ship(I, game) {
         "name": I.name || "",
         "x": I.x || game.width / 2,
         "y": I.y || game.height  / 2,
-        "size": I.size || 25,
+        "size": I.size || 50,
         "angle": driftAngle,
         "color": I.color || "#00f",
         "speed": I.speed || 0,
@@ -319,7 +319,7 @@ function Ship(I, game) {
                 "/images/explosion1.png",
                 "/images/explosion2.png",
             ]
-        }, 126, 50),
+        }, 150, 64),
 
         "update": function() {
             if (this.health <= 0) {
