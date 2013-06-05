@@ -453,7 +453,7 @@ function Canister(I, game) {
         "size": I.size || 10,
         "ttl": I.ttl || 70,
         "damage": I.damage || 0,
-        "payload": I.payload || 10,
+        "payload": I.payload || 50,
         "owner": I.owner || "",
         "color": I.color || "#fff",
 
@@ -532,7 +532,7 @@ function Missle(I, game) {
             // heat seeking
             if (this.owner !== game.player.name) {
                 var playerAngle = Math.atan( (game.player.y - this.y) / 
-                                              (game.player.x - this.x) );
+                                             (game.player.x - this.x) );
                 if (game.player.x - this.x < 0) {
                     playerAngle += Math.PI;
                 }
@@ -593,7 +593,7 @@ function Nuke(I, game) {
         "size": I.size || 5,
         "ttl": I.ttl || 150,
         "damage": I.damage || 0,
-        "payload": I.payload || 500,
+        "payload": I.payload || 100,
         "owner": I.owner || "",
         "color": I.color || "#fff",
 
@@ -630,8 +630,8 @@ function Nuke(I, game) {
         "detonate": function() {
             var x, y;
             for (var i = 0; i < this.payload; i++) {
-                x = this.x + Math.random()*500 - 250;
-                y = this.y + Math.random()*500 - 250;
+                x = (this.x + Math.random()*500 - 250) % game.width;
+                y = (this.y + Math.random()*500 - 250) % game.height;
                 game.add(new Explosion({
                     "x": x,
                     "y": y,
