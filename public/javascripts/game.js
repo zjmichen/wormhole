@@ -628,10 +628,13 @@ function Nuke(I, game) {
         },
 
         "detonate": function() {
-            var x, y;
+            var x, y
+              , theta, dist;
             for (var i = 0; i < this.payload; i++) {
-                x = (this.x + Math.random()*500 - 250) % game.width;
-                y = (this.y + Math.random()*500 - 250) % game.height;
+                theta = Math.random()*Math.PI*2;
+                dist = Math.random()*250;
+                x = (this.x + dist*Math.cos(theta)) % game.width;
+                y = (this.y + dist*Math.sin(theta)) % game.height;
                 game.add(new Explosion({
                     "x": x,
                     "y": y,
