@@ -164,6 +164,10 @@ function Game(playerName, otherPlayers) {
             }
         }
 
+        backgroundObjects.forEach(function(obj, i, objs) {
+            obj.update();
+        });
+
         gameObjects.forEach(function(obj, i, objs) {
             obj.update();
 
@@ -197,6 +201,8 @@ function Game(playerName, otherPlayers) {
             canvas.shadowColor = "#000";
             canvas.shadowBlur = 4;
             canvas.fillText("You won!", 0.5*width, 0.5*height);
+            canvas.font = "bold 12px sans-serif";
+            canvas.fillText("But your friends are still dead.", 0.5*width, 0.5*height + 30);
         }
     }
 
@@ -558,11 +564,24 @@ function Sprite(modeUrls, width, height) {
 function Star(game) {
     var chars = "123456789abcdef"
       , value = chars[Math.floor(Math.random()*chars.length)];
+    var distance = Math.floor(Math.random() * 255);
 
     var _Star = {
-        "color": "#" + value + value + value,
+        "color": "rgb(" + distance + "," + distance + "," + distance + ")",
         "x": Math.floor(Math.random()*game.width),
         "y": Math.floor(Math.random()*game.height),
+
+        "update": function() {
+            this.x -= distance / 1000;
+            if (this.x < 0) {
+                this.x = game.width;
+            }
+
+            this.y -= distance / 1500;
+            if (this.y < 0) {
+                this.y = game.height;
+            }
+        },
 
         "draw": function() {
             game.canvas.fillStyle = this.color;
