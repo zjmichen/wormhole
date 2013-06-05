@@ -56,6 +56,10 @@ function Game(playerName, otherPlayers) {
                 data.y = wormholes[data.from].y + 0.5*wormholes[data.from].size;
                 data.color = "#f00";
                 data.ttl = undefined;
+                if (data.sprite) {
+                    data.sprite = new Sprite(data.sprite.modeUrls,
+                                             data.sprite.width, data.sprite.height);
+                }
 
                 if (data.subtype in weapons) {
                     this.add(new weapons[data.subtype](data, this));
@@ -596,6 +600,7 @@ function Nuke(I, game) {
         "payload": I.payload || 100,
         "owner": I.owner || "",
         "color": I.color || "#fff",
+        "sprite": I.sprite || new Sprite("/images/nuke.png", 50, 50),
 
         "update": function() {
             if (this.ttl <= 0) {
@@ -613,8 +618,13 @@ function Nuke(I, game) {
         },
 
         "draw": function() {
-            game.canvas.fillStyle = this.color;
-            game.canvas.fillRect(this.x, this.y, this.size, this.size);
+            game.canvas.save();
+            game.canvas.translate(this.x, this.y);
+            game.canvas.rotate(this.angle);
+
+            this.sprite.draw(game.canvas);
+
+            game.canvas.restore();
         },
 
         "collideWith": function(obj, isReaction) {
@@ -787,6 +797,7 @@ function Sprite(modeUrls, width, height) {
     _Sprite = {
         "width": width,
         "height": height,
+        "modeUrls": modeUrls,
         "framesPerImage": 3,
         "modes": modes,
         "mode": "default",
