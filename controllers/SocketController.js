@@ -4,7 +4,7 @@ var socketio = require("socket.io")
 function SocketController() {
     var sio
       , nextGameId = 0
-      , playersPerGame = 3
+      , playersPerGame = 2
       , rClient;
 
     /** callback declarations for individual sockets */
