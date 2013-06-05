@@ -157,9 +157,7 @@ function Game(playerName, otherPlayers) {
         return false;
     });
     $(document).bind("keydown", "up", function() {
-        if (!keystatus.up) {
-            keystatus.up = true;
-        }
+        keystatus.up = true;
         return false;
     });
     $(document).bind("keyup", "up", function() {
@@ -316,9 +314,9 @@ function Ship(I, game) {
                 "/images/ship_fire3.png",
             ],
             "exploding": [
-                "/images/explosion1.png",
-                "/images/explosion2.png",
-            ]
+                "/images/ship_explosion1.png",
+                "/images/ship_explosion2.png",
+            ],
         }, 150, 64),
 
         "update": function() {
@@ -985,7 +983,6 @@ function Comet(I, game) {
 
             var tailEnd = this.animationStep === 0 ? -30 : -28;
             this.animationStep = (this.animationStep + 1) % 3;
-            console.log(this.animationStep);
 
             game.canvas.beginPath();
             game.canvas.strokeStyle = "#111";
