@@ -22,9 +22,7 @@ function SocketController() {
 
         "wait": function() {
             console.log("Server said wait.");
-            $("#btnPlay").html("Loading...");
-            $("#btnPlay").addClass("disabled");
-            $("#btnPlay").attr("disabled", "disabled");
+            $("#btnPlay").replaceWith($("<button disabled='disabled' class='btn btn-large btn-primary'>Waiting...</button>"));
         },
 
         "go": function(data) {
