@@ -34,6 +34,7 @@ function Game(playerName, otherPlayers) {
         "weapons": weapons,
         "won": false,
         "player": undefined,
+        "frameRate": frameRate,
 
         "play": function() {
             gameLoop = setInterval(function() {
@@ -746,7 +747,7 @@ function Wormhole(I, game) {
         "x": I.x || 0.5*game.width,
         "y": I.y || 0.5*game.height,
         "angle": 0,
-        "size": I.size || 50,
+        "size": I.size || 30,
         "sprite": I.sprite || new Sprite("/images/wormhole.png", 50, 50),
 
         "update": function() {
@@ -764,9 +765,25 @@ function Wormhole(I, game) {
         },
 
         "collideWith": function(obj, isReaction) {
+            var timeToCenter
+              , distToCenter
+              , framesToCenter
+              , that = this;
             if (obj.type === "projectile" && obj.owner !== this.name) {
-                this.send(obj);
-                game.remove(obj);
+                if (obj.sprite && !obj.sprite.scaling) {
+                    distToCenter = Math.sqrt(Math.pow(this.x - obj.x, 2) +
+                                             Math.pow(this.y - obj.y, 2));
+                    framesToCenter = (1/obj.speed)*distToCenter;
+                    timeToCenter = framesToCenter*game.frameRate;
+
+                    obj.sprite.scaleTo(0, timeToCenter, function() {
+                        that.send(obj);
+                        game.remove(obj);
+                    });
+                } else if (!obj.sprite) {
+                    this.send(obj);
+                    game.remove(obj);
+                }
             }
         },
 
@@ -816,6 +833,7 @@ function Sprite(modeUrls, width, height) {
         "scale": 1.0,
         "targetScale": 1.0,
         "scaleChange": 0,
+        "scaling": false,
 
         "draw": function(canvas) {
             canvas.save();
@@ -832,6 +850,8 @@ function Sprite(modeUrls, width, height) {
                 this.scale += this.scaleChange;
                 this.width = this.scale * width;
                 this.height = this.scale * height;
+            } else {
+                this.scaling = false;
             }
             if ((this.scaleChange > 0 && this.scale >= this.targetScale) ||
                 (this.scaleChange < 0 && this.scale <= this.targetScale)) {
@@ -849,6 +869,11 @@ function Sprite(modeUrls, width, height) {
         },
 
         "scaleTo": function(newScale, time, callback) {
+            if (this.scaling) {
+                return;
+            }
+
+            this.scaling = true;
             time = time || 1000;
             var frames = 0.03*time
               , direction = (newScale > this.scale) ? 1 : -1;
