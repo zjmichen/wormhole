@@ -524,6 +524,12 @@ function Missile(I, game) {
         "payload": I.payload || 10,
         "owner": I.owner || "",
         "color": I.color || "#fff",
+        "sprite": I.sprite || new Sprite({
+            "default": [
+                "/images/missile1.png",
+                "/images/missile2.png",
+            ],
+        }, 50, 13),
 
         "update": function() {
             if (this.ttl <= 0) {
@@ -552,8 +558,13 @@ function Missile(I, game) {
         },
 
         "draw": function() {
-            game.canvas.fillStyle = this.color;
-            game.canvas.fillRect(this.x, this.y, this.size, this.size);
+            game.canvas.save();
+            game.canvas.translate(this.x, this.y);
+            game.canvas.rotate(this.angle);
+
+            this.sprite.draw(game.canvas);
+
+            game.canvas.restore();
         },
 
         "collideWith": function(obj, isReaction) {
@@ -701,8 +712,9 @@ function Explosion(I, game) {
         },
 
         "collideWith": function(obj, isReaction) {
-            if (this.owner !== obj.name) {
-                obj.health -= this.damage;
+            if (this.owner !== obj.name && this.damage > 0) {
+                obj.health -= 1;
+                this.damage -= 1;
             }
 
             if (!isReaction) {
