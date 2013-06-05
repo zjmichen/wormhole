@@ -33,6 +33,7 @@ function Game(playerName, otherPlayers) {
         "height": height,
         "weapons": weapons,
         "won": false,
+        "player": undefined,
 
         "play": function() {
             gameLoop = setInterval(function() {
@@ -54,16 +55,11 @@ function Game(playerName, otherPlayers) {
                 data.x = wormholes[data.from].x + 0.5*wormholes[data.from].size;
                 data.y = wormholes[data.from].y + 0.5*wormholes[data.from].size;
                 data.color = "#f00";
-                data.ttl = 70;
+                data.ttl = undefined;
 
                 if (data.subtype in weapons) {
                     this.add(new weapons[data.subtype](data, this));
                 }
-                // if (data.subtype === "bullet") {
-                //     this.add(new Bullet(data, this));
-                // } else if (data.subtype === "canister") {
-                //     this.add(new Canister(data, this));
-                // }
             }
         },
 
@@ -97,6 +93,7 @@ function Game(playerName, otherPlayers) {
     player = new Ship({
         "name": playerName,
     }, _Game);
+    _Game.player = player;
     _Game.add(player);
 
     otherPlayers.forEach(function(opponent) {
@@ -155,6 +152,10 @@ function Game(playerName, otherPlayers) {
     });
     $(document).bind("keyup", "c", function() {
         player.shoot("canister");
+        return false;
+    });
+    $(document).bind("keyup", "x", function() {
+        player.shoot("missle");
         return false;
     });
 
@@ -313,10 +314,9 @@ function Ship(I, game) {
             canvas.restore();
         },
 
-        "collideWith": function(obj) {
-            if (obj.type === "projectile" && obj.owner !== this.name) {
-                this.health -= obj.damage;
-                game.remove(obj);
+        "collideWith": function(obj, isReaction) {
+            if (!isReaction) {
+                obj.collideWith(this, true);
             }
         },
 
@@ -423,14 +423,7 @@ function Bullet(I, game) {
             game.canvas.fillRect(this.x, this.y, this.size, this.size);
         },
 
-        "collideWith": function(obj) {
-            if (obj.type === "wormhole") {
-                if (this.owner !== obj.name) {
-                    obj.send(this);
-                    game.remove(this);
-                }
-            }
-
+        "collideWith": function(obj, isReaction) {
             if (obj.type === "ship" && this.owner !== obj.name) {
                 obj.health -= this.damage;
                 game.remove(this);
@@ -480,12 +473,9 @@ function Canister(I, game) {
             game.canvas.fillRect(this.x, this.y, this.size, this.size);
         },
 
-        "collideWith": function(obj) {
-            if (obj.type === "wormhole") {
-                if (this.owner !== obj.name) {
-                    obj.send(this);
-                    game.remove(this);
-                }
+        "collideWith": function(obj, isReaction) {
+            if (!isReaction) {
+                obj.collideWith(this, true);
             }
         },
 
@@ -510,10 +500,138 @@ function Canister(I, game) {
    return _Canister; 
 }
 
+function Missle(I, game) {
+    var _Missle;
+
+    _Missle = {
+        "type": "projectile",
+        "subtype": "missle",
+        "x": I.x,
+        "y": I.y,
+        "speed": I.speed || 1,
+        "angle": I.angle,
+        "size": I.size || 5,
+        "ttl": I.ttl || 150,
+        "damage": I.damage || 0,
+        "payload": I.payload || 10,
+        "owner": I.owner || "",
+        "color": I.color || "#fff",
+
+        "update": function() {
+            if (this.ttl <= 0) {
+                this.detonate();
+                return;
+            }
+
+            this.ttl -= 1;
+
+            // heat seeking
+            if (this.owner !== game.player.name) {
+                var playerAngle = Math.atan( (game.player.y - this.y) / 
+                                              (game.player.x - this.x) );
+                if (game.player.x - this.x < 0) {
+                    playerAngle += Math.PI;
+                }
+
+                this.angle += 0.5*(playerAngle - this.angle);
+            }
+
+            this.x += this.speed*Math.cos(this.angle);
+            this.y += this.speed*Math.sin(this.angle);
+
+            this.x = ((this.x % game.width) + game.width) % game.width;
+            this.y = ((this.y % game.height) + game.height) % game.height;
+        },
+
+        "draw": function() {
+            game.canvas.fillStyle = this.color;
+            game.canvas.fillRect(this.x, this.y, this.size, this.size);
+        },
+
+        "collideWith": function(obj, isReaction) {
+            if (obj.type === "ship" && this.owner !== obj.name) {
+                this.detonate();
+            }
+
+            if (!isReaction) {
+                obj.collideWith(this, true);
+            }
+        },
+
+        "detonate": function() {
+            game.add(new Explosion({
+                "x": this.x,
+                "y": this.y,
+                "ttl": 50,
+                "damage": this.payload,
+                "owner": this.owner,
+            }, game));
+
+            game.remove(this);
+        },
+
+
+    };
+
+    return _Missle;
+}
+
+function Explosion(I, game) {
+    var _Explosion;
+
+    _Explosion = {
+        "type": "explosion",
+        "x": I.x,
+        "y": I.y,
+        "ttl": I.ttl || 20,
+        "damage": 2,
+        "owner": I.owner || "",
+        "size": 25,
+        "sprite": I.sprite || new Sprite({
+            "default": [
+                "/images/explosion1.png",
+                "/images/explosion2.png",
+            ],
+        }, 50, 50),
+
+        "update": function() {
+            var that = this;
+            this.ttl -= 1;
+            if (this.ttl === 0) {
+                this.sprite.scaleTo(0, 1000, function() {
+                    game.remove(that);
+                });
+            }
+        },
+
+        "draw": function() {
+            game.canvas.save();
+            game.canvas.translate(this.x, this.y);
+
+            this.sprite.draw(game.canvas);
+
+            game.canvas.restore();
+        },
+
+        "collideWith": function(obj, isReaction) {
+            if (this.owner !== obj.name) {
+                obj.health -= this.damage;
+            }
+
+            if (!isReaction) {
+                obj.collideWith(this, true);
+            }
+        },
+    };
+
+    return _Explosion;
+}
+
 function Arsenal() {
     var _Arsenal = {
         "bullet": Bullet,
         "canister": Canister,
+        "missle": Missle,
     };
 
     return _Arsenal;
@@ -545,7 +663,7 @@ function Wormhole(I, game) {
             game.canvas.restore();
         },
 
-        "collideWith": function(obj) {
+        "collideWith": function(obj, isReaction) {
             if (obj.type === "projectile" && obj.owner !== this.name) {
                 this.send(obj);
                 game.remove(obj);
