@@ -203,6 +203,9 @@ function Game(playerName, otherPlayers) {
             canvas.fillText("You won!", 0.5*width, 0.5*height);
             canvas.font = "bold 12px sans-serif";
             canvas.fillText("But your friends are still dead.", 0.5*width, 0.5*height + 30);
+
+            canvas.font = "normal 10px sans-serif";
+            canvas.textAlign = "start";
         }
     }
 
@@ -211,8 +214,6 @@ function Game(playerName, otherPlayers) {
         canvas.fillStyle = "#0f0";
         canvas.fillRect(width - 10, height - fuelLevel, 5, fuelLevel);
         canvas.fillStyle = "#0f0";
-        canvas.font = "normal 10px sans-serif";
-        canvas.textAlign = "start";
         canvas.fillText("Fuel", width - 35, height - 15);
     }
 
@@ -221,8 +222,6 @@ function Game(playerName, otherPlayers) {
         canvas.fillStyle = "#f00";
         canvas.fillRect(width - 5, height - healthLevel, 5, healthLevel);
         canvas.fillStyle = "#f00";
-        canvas.font = "normal 10px sans-serif";
-        canvas.textAlign = "start";
         canvas.fillText("Health", width - 47, height - 3);
     }
 
