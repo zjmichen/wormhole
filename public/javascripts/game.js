@@ -488,6 +488,7 @@ function Canister(I, game) {
         "payload": I.payload || 50,
         "owner": I.owner || "",
         "color": I.color || "#fff",
+        "sprite": I.sprite || new Sprite("/images/bomb.png", 15, 15),
 
         "update": function() {
             if (this.ttl <= 0) {
@@ -505,8 +506,13 @@ function Canister(I, game) {
         },
 
         "draw": function() {
-            game.canvas.fillStyle = this.color;
-            game.canvas.fillRect(this.x, this.y, this.size, this.size);
+            game.canvas.save();
+            game.canvas.translate(this.x, this.y);
+            game.canvas.rotate(this.angle);
+
+            this.sprite.draw(canvas);
+
+            game.canvas.restore();
         },
 
         "collideWith": function(obj, isReaction) {
