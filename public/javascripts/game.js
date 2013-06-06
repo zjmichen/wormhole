@@ -59,6 +59,17 @@ function Game(playerName, otherPlayers) {
                 }, that));
             }, 5000);
 
+            itemLoop = setInterval(function() {
+                var types = Object.keys(weapons);
+                types.splice(types.indexOf("bullet"), 1);
+                var weapon = types[Math.floor(Math.random()*types.length)];
+
+                gameObjects.push(new Item({
+                    "subtype": "weapon",
+                    "payload": weapon,
+                }, that));
+            }, 1000);
+
         },
 
         "pause": function() {
@@ -293,7 +304,7 @@ function Ship(I, game) {
         "name": I.name || "",
         "x": I.x || game.width / 2,
         "y": I.y || game.height  / 2,
-        "size": I.size || 50,
+        "size": I.size || 32,
         "angle": driftAngle,
         "color": I.color || "#00f",
         "speed": I.speed || 0,
@@ -304,6 +315,7 @@ function Ship(I, game) {
         "maxHealth": I.maxHealth || 100,
         "health": I.health || 100,
         "alive": true,
+        "weapons": [],
         "sprite": new Sprite({
             "default": [
                 "/images/ship_default.png",
@@ -394,10 +406,17 @@ function Ship(I, game) {
                 "owner": this.name,
             };
 
-            weapon = weapon || "bullet";
+            //weapon = weapon || "bullet";
+            weapon = this.weapons.pop() || "bullet";
 
             if (weapon in game.weapons) {
                 game.add(new game.weapons[weapon](I, game));
+            }
+        },
+
+        "pickUp": function(item) {
+            if (item.subtype === "weapon") {
+                this.weapons.push(item.payload);
             }
         },
 
@@ -1003,4 +1022,57 @@ function Comet(I, game) {
     };
 
     return _Comet;
+}
+
+function Item(I, game) {
+    var spriteUrl = "/images/item_none.png";
+    if (I.payload) {
+        spriteUrl = "/images/item_" + I.payload + ".png";
+    }
+
+    var _Item = {
+        "type": "item",
+        "subtype": I.subtype || "nothing",
+        "x": I.x || game.width + 100,
+        "y": I.y || game.height + 100,
+        "angle": I.angle || Math.random()*Math.PI*0.5 + Math.PI,
+        "speed": I.speed || 2,
+        "ttl": I.ttl || 1000,
+        "size": 12,
+        "payload": I.payload,
+        "sprite": I.sprite || new Sprite(spriteUrl, 24, 24),
+
+        "update": function() {
+            if (this.ttl <= 0) {
+                game.remove(this);
+                return;
+            }
+
+            this.ttl -= 1;
+            this.x += this.speed*Math.cos(this.angle);
+            this.y += this.speed*Math.sin(this.angle);
+        },
+
+        "draw": function() {
+            game.canvas.save();
+            game.canvas.translate(this.x, this.y);
+
+            this.sprite.draw(canvas);
+
+            game.canvas.restore();
+        },
+
+        "collideWith": function(obj, isReaction) {
+            if (obj.type === "ship") {
+                obj.pickUp(this);
+                game.remove(this);
+            }
+
+            if (!isReaction) {
+                obj.collideWith(this, true);
+            }
+        },
+    };
+
+    return _Item;
 }
