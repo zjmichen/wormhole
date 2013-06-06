@@ -259,7 +259,7 @@ function Game(playerName, otherPlayers) {
                 player.accelerate();
             } else {
                 if (player.sprite.mode === "thrusting") {
-                    player.sprite.setMode("default");
+                    player.sprite.setMode("normal");
                 }
             }
         }
@@ -351,17 +351,17 @@ function Ship(I, game) {
     var drag = 0.99
       , driftAngle = I.angle || 0
       , sprite = new Sprite({
-        "default": [
-            "/images/ship_default.png",
-        ],
-        "exploding": [
-            "/images/ship_explosion1.png",
-            "/images/ship_explosion2.png",
+        "normal": [
+            "/images/ship_normal.png",
         ],
         "thrusting": [
             "/images/ship_fire1.png",
             "/images/ship_fire2.png",
             "/images/ship_fire3.png",
+        ],
+        "exploding": [
+            "/images/ship_explosion1.png",
+            "/images/ship_explosion2.png",
         ],
     }, 150, 64);
 
@@ -431,7 +431,7 @@ function Ship(I, game) {
 
             if (this.fuel <= 0) {
                 this.fuel = 0;
-                this.sprite.setMode("default");
+                this.sprite.setMode("normal");
                 return;
             }
 
@@ -637,7 +637,7 @@ function Missile(I, game) {
         "owner": I.owner || "",
         "color": I.color || "#fff",
         "sprite": I.sprite || new Sprite({
-            "default": [
+            "normal": [
                 "/images/missile1.png",
                 "/images/missile2.png",
             ],
@@ -788,7 +788,7 @@ function Nuke(I, game) {
 
 function Mine(I, game) {
     var sprite = new Sprite({
-        "default": [
+        "normal": [
             "/images/mine1.png",
             "/images/mine3.png",
         ],
@@ -877,7 +877,7 @@ function Explosion(I, game) {
         "owner": I.owner || "",
         "size": 25,
         "sprite": I.sprite || new Sprite({
-            "default": [
+            "normal": [
                 "/images/explosion1.png",
                 "/images/explosion2.png",
             ],
@@ -1006,25 +1006,20 @@ function Sprite(modeUrls, width, height) {
 
     if (typeof modeUrls === "string") {
         modeUrls = {
-            "default": [modeUrls],
+            "normal": [modeUrls],
         }
     }
 
     for (var mode in modeUrls) {
         modes[mode] = [];
         modeUrls[mode].forEach(function(url, i) {
-            var image = new Image();
-            image.onload = function() {
-                modes[mode][i] = image;
-            }
-            image.src = url;
-
-            modes[mode][i] = image;
+            modes[mode][i] = new Image();
+            modes[mode][i].src = url;
         });
 
     }
 
-    curImg = modes.default[0];
+    curImg = modes.normal[0];
 
     _Sprite = {
         "width": width,
@@ -1032,17 +1027,23 @@ function Sprite(modeUrls, width, height) {
         "modeUrls": modeUrls,
         "framesPerImage": 3,
         "modes": modes,
-        "mode": "default",
+        "mode": "normal",
         "scale": 1.0,
         "targetScale": 1.0,
         "scaleChange": 0,
         "scaling": false,
 
         "draw": function(canvas) {
+            var img = this.getImage();
             canvas.save();
             canvas.translate(-0.5*this.width, -0.5*this.height);
             canvas.scale(this.scale, this.scale);
-            canvas.drawImage(this.getImage(), 0, 0);
+            if (img) {
+                canvas.drawImage(img, 0, 0);
+            } else {
+                canvas.fillStyle = "#fff";
+                canvas.fillRect(0, 0, this.width, this.height);
+            }
             canvas.restore();
         },
 
@@ -1068,7 +1069,7 @@ function Sprite(modeUrls, width, height) {
                 curImgIndex = (curImgIndex + 1) % modes[this.mode].length;
             }
 
-            return modes[this.mode][curImgIndex] || modes.default[0];
+            return modes[this.mode][curImgIndex] || modes.normal[0];
         },
 
         "scaleTo": function(newScale, time, callback) {
@@ -1135,7 +1136,7 @@ function Comet(I, game) {
         "speed": I.speed || Math.floor(Math.random()*5) + 5,
         "animationStep": 0,
         "sprite": new Sprite({
-            "default": [
+            "normal": [
                 "/images/missile1.png",
                 "/images/missile2.png",
             ],
