@@ -68,12 +68,10 @@ function Game(playerName, otherPlayers) {
                   , weaponChoice = Math.random()
                   , threshhold = 0;
 
-                console.log("Choosing with " + weaponChoice);
-
                 for (var curWeapon in weapons) {
                     threshhold += weapons[curWeapon].rarity;
-                    console.log("Checking at " + threshhold);
                     if (weaponChoice < threshhold) {
+                        console.log("Chose " + curWeapon);
                         weapon = curWeapon;
                         break;
                     }
@@ -117,6 +115,8 @@ function Game(playerName, otherPlayers) {
 
         "stop": function() {
             clearInterval(gameLoop);
+            clearInterval(cometLoop);
+            clearInterval(itemLoop);
         },
 
         "receiveData": function(data) {
@@ -461,13 +461,14 @@ function Ship(I, game) {
             //weapon = weapon || "bullet";
             if (this.weapons.length > 0) {
                 weapon = this.weapons.pop().payload;
+
+                if (weapon in game.weapons) {
+                    game.add(new game.weapons[weapon].item(I, game));
+                }
             } else {
-                weapon = "bullet";
+                game.add(new Bullet(I, game));
             }
 
-            if (weapon in game.weapons) {
-                game.add(new game.weapons[weapon](I, game));
-            }
         },
 
         "pickUp": function(item) {
@@ -1095,7 +1096,7 @@ function Comet(I, game) {
 
 function Item(I, game) {
     var spriteUrl = "/images/item_none.png";
-    if (I.payload) {
+    if (!I.sprite && I.payload) {
         spriteUrl = "/images/item_" + I.payload + ".png";
     }
 
