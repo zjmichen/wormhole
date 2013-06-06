@@ -105,7 +105,7 @@ function Game(playerName, otherPlayers) {
                     "payload": weapon,
                     "scale": 0.5,
                 }, that));
-            }, 1000);
+            }, 5000);
 
         },
 
@@ -131,7 +131,9 @@ function Game(playerName, otherPlayers) {
                 }
 
                 if (data.subtype in weapons) {
-                    this.add(new weapons[data.subtype](data, this));
+                    this.add(new weapons[data.subtype].item(data, this));
+                } else if (data.subtype === "bullet") {
+                    this.add(new Bullet(data, this));
                 }
             }
         },
@@ -458,7 +460,6 @@ function Ship(I, game) {
                 "owner": this.name,
             };
 
-            //weapon = weapon || "bullet";
             if (this.weapons.length > 0) {
                 weapon = this.weapons.pop().payload;
 
@@ -841,11 +842,11 @@ function Arsenal() {
     var _Arsenal = {
         "canister": {
             "item": Canister,
-            "rarity": 0.5,
+            "rarity": 0.7,
         },
         "missile": {
             "item": Missile,
-            "rarity": 0.4,
+            "rarity": 0.3,
         },
         "nuke": {
             "item": Nuke,
