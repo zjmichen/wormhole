@@ -789,6 +789,7 @@ function Nuke(I, game) {
 function Mine(I, game) {
     var sprite = new Sprite({
         "default": [
+            "/images/mine1.png",
             "/images/mine3.png",
         ],
         "active": [
