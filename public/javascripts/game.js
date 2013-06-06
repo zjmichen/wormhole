@@ -786,6 +786,76 @@ function Nuke(I, game) {
     return _Nuke;
 }
 
+function Mine(I, game) {
+
+    var _Mine = {
+        "type": "projectile",
+        "subtype": "mine",
+        "x": I.x,
+        "y": I.y,
+        "speed": I.speed || 1,
+        "angle": I.angle,
+        "size": I.size || 5,
+        "ttl": I.ttl || 100000,
+        "damage": I.damage || 20,
+        "payload": I.payload || 20,
+        "owner": I.owner || "",
+        "color": I.color || "#fff",
+        "sprite": I.sprite || new Sprite({
+            "default": [
+                "/images/mine1.png",
+                "/images/mine2.png",
+            ],
+        }, 50, 50),
+
+        "update": function() {
+            if (this.ttl <= 0) {
+                game.remove(this);
+            }
+
+            this.ttl -= 1;
+            this.x += this.speed*Math.cos(this.angle);
+            this.y += this.speed*Math.sin(this.angle);
+            this.x = ((this.x % game.width) + game.width) % game.width;
+            this.y = ((this.y % game.height) + game.height) % game.height;
+        },
+
+        "draw": function() {
+            game.canvas.save();
+            game.canvas.translate(this.x, this.y);
+
+            this.sprite.draw(canvas);
+
+            game.canvas.restore();
+        },
+
+        "collideWith": function(obj, isReaction) {
+            if (obj.type === "ship" && obj.name !== this.owner) {
+                this.detonate();
+            }
+
+            if (!isReaction) {
+                obj.collideWith(this, true);
+            }
+        },
+
+        "detonate": function() {
+            game.add(new Explosion({
+                "x": this.x + this.size*Math.cos(this.angle),
+                "y": this.y + this.size*Math.sin(this.angle),
+                "ttl": 50,
+                "damage": this.payload,
+                "owner": this.owner,
+            }, game));
+
+            game.remove(this);
+        },
+
+    };
+
+    return _Mine;
+}
+
 function Explosion(I, game) {
     var _Explosion;
 
@@ -842,15 +912,19 @@ function Arsenal() {
     var _Arsenal = {
         "canister": {
             "item": Canister,
-            "rarity": 0.7,
+            "rarity": 0.42,
+        },
+        "mine": {
+            "item": Mine,
+            "rarity": 0.42,
         },
         "missile": {
             "item": Missile,
-            "rarity": 0.3,
+            "rarity": 0.15,
         },
         "nuke": {
             "item": Nuke,
-            "rarity": 0.1,
+            "rarity": 0.01,
         },
     };
 
