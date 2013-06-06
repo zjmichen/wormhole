@@ -60,12 +60,40 @@ function Game(playerName, otherPlayers) {
             }, 5000);
 
             itemLoop = setInterval(function() {
-                var types = Object.keys(weapons);
+                var types = Object.keys(weapons)
+                  , weapon
+                  , x = -20
+                  , y = -20
+                  , angle = Math.random()*Math.PI;
+
                 types.splice(types.indexOf("bullet"), 1);
-                var weapon = types[Math.floor(Math.random()*types.length)];
+                weapon = types[Math.floor(Math.random()*types.length)];
+
+                switch(Math.floor(Math.random()*4)) {
+                    case 0:
+                        x = Math.random()*width;
+                        break;
+                    case 1:
+                        y = Math.random()*height;
+                        angle -= 0.5*Math.PI;
+                        break;
+                    case 2:
+                        x = Math.random() * width;
+                        y = height + 20;
+                        angle += Math.PI;
+                        break;
+                    case 3:
+                        x = width + 20;
+                        y = Math.random() * height;
+                        angle += 0.5*Math.PI;
+                        break;
+                }
 
                 gameObjects.push(new Item({
                     "subtype": "weapon",
+                    "x": x,
+                    "y": y,
+                    "angle": angle,
                     "payload": weapon,
                     "scale": 0.5,
                 }, that));
@@ -421,7 +449,11 @@ function Ship(I, game) {
             };
 
             //weapon = weapon || "bullet";
-            weapon = this.weapons.pop().payload || "bullet";
+            if (this.weapons.length > 0) {
+                weapon = this.weapons.pop().payload;
+            } else {
+                weapon = "bullet";
+            }
 
             if (weapon in game.weapons) {
                 game.add(new game.weapons[weapon](I, game));
