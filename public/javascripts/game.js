@@ -787,6 +787,20 @@ function Nuke(I, game) {
 }
 
 function Mine(I, game) {
+    var sprite = new Sprite({
+        "default": [
+            "/images/mine3.png",
+        ],
+        "active": [
+            "/images/mine1.png",
+            "/images/mine2.png",
+        ],
+    }, 50, 50);
+
+    if (I.owner !== game.player.name) {
+        sprite.mode = "active";
+    }
+    console.log("Owner: " + I.owner + ", player: " + game.player.name);
 
     var _Mine = {
         "type": "projectile",
@@ -801,12 +815,7 @@ function Mine(I, game) {
         "payload": I.payload || 20,
         "owner": I.owner || "",
         "color": I.color || "#fff",
-        "sprite": I.sprite || new Sprite({
-            "default": [
-                "/images/mine1.png",
-                "/images/mine2.png",
-            ],
-        }, 50, 50),
+        "sprite": sprite,
 
         "update": function() {
             if (this.ttl <= 0) {
