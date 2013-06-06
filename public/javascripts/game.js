@@ -61,13 +61,23 @@ function Game(playerName, otherPlayers) {
 
             itemLoop = setInterval(function() {
                 var types = Object.keys(weapons)
-                  , weapon
+                  , weapon = "none"
                   , x = -20
                   , y = -20
-                  , angle = Math.random()*Math.PI;
+                  , angle = Math.random()*Math.PI
+                  , weaponChoice = Math.random()
+                  , threshhold = 0;
 
-                types.splice(types.indexOf("bullet"), 1);
-                weapon = types[Math.floor(Math.random()*types.length)];
+                console.log("Choosing with " + weaponChoice);
+
+                for (var curWeapon in weapons) {
+                    threshhold += weapons[curWeapon].rarity;
+                    console.log("Checking at " + threshhold);
+                    if (weaponChoice < threshhold) {
+                        weapon = curWeapon;
+                        break;
+                    }
+                }
 
                 switch(Math.floor(Math.random()*4)) {
                     case 0:
@@ -828,10 +838,18 @@ function Explosion(I, game) {
 
 function Arsenal() {
     var _Arsenal = {
-        "bullet": Bullet,
-        "canister": Canister,
-        "missile": Missile,
-        "nuke": Nuke,
+        "canister": {
+            "item": Canister,
+            "rarity": 0.5,
+        },
+        "missile": {
+            "item": Missile,
+            "rarity": 0.4,
+        },
+        "nuke": {
+            "item": Nuke,
+            "rarity": 0.1,
+        },
     };
 
     return _Arsenal;
