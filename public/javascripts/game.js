@@ -71,7 +71,6 @@ function Game(playerName, otherPlayers) {
                 for (var curWeapon in weapons) {
                     threshhold += weapons[curWeapon].rarity;
                     if (weaponChoice < threshhold) {
-                        console.log("Chose " + curWeapon);
                         weapon = curWeapon;
                         break;
                     }
@@ -350,7 +349,21 @@ function Ship(I, game) {
     I = I || {};
 
     var drag = 0.99
-      , driftAngle = I.angle || 0;
+      , driftAngle = I.angle || 0
+      , sprite = new Sprite({
+        "default": [
+            "/images/ship_default.png",
+        ],
+        "exploding": [
+            "/images/ship_explosion1.png",
+            "/images/ship_explosion2.png",
+        ],
+        "thrusting": [
+            "/images/ship_fire1.png",
+            "/images/ship_fire2.png",
+            "/images/ship_fire3.png",
+        ],
+    }, 150, 64);
 
     var _Ship = {
         "type": "ship",
@@ -370,20 +383,7 @@ function Ship(I, game) {
         "alive": true,
         "weapons": [],
         "maxWeapons": I.maxWeapons || 10,
-        "sprite": new Sprite({
-            "default": [
-                "/images/ship_default.png",
-            ],
-            "thrusting": [
-                "/images/ship_fire1.png",
-                "/images/ship_fire2.png",
-                "/images/ship_fire3.png",
-            ],
-            "exploding": [
-                "/images/ship_explosion1.png",
-                "/images/ship_explosion2.png",
-            ],
-        }, 150, 64),
+        "sprite": sprite,
 
         "update": function() {
             if (this.health <= 0) {
@@ -801,7 +801,6 @@ function Mine(I, game) {
     if (I.owner !== game.player.name) {
         sprite.mode = "active";
     }
-    console.log("Owner: " + I.owner + ", player: " + game.player.name);
 
     var _Mine = {
         "type": "projectile",
@@ -1022,6 +1021,7 @@ function Sprite(modeUrls, width, height) {
 
             modes[mode][i] = image;
         });
+
     }
 
     curImg = modes.default[0];
