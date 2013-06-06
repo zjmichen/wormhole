@@ -67,6 +67,7 @@ function Game(playerName, otherPlayers) {
                 gameObjects.push(new Item({
                     "subtype": "weapon",
                     "payload": weapon,
+                    "scale": 0.5,
                 }, that));
             }, 1000);
 
@@ -253,6 +254,7 @@ function Game(playerName, otherPlayers) {
 
         drawFuel();
         drawHealth();
+        drawInventory();
 
         if (_Game.won) {
             canvas.fillStyle = "#fff";
@@ -283,6 +285,17 @@ function Game(playerName, otherPlayers) {
         canvas.fillRect(width - 5, height - healthLevel, 5, healthLevel);
         canvas.fillStyle = "#f00";
         canvas.fillText("Health", width - 47, height - 3);
+    }
+
+    function drawInventory() {
+        player.weapons.forEach(function(weapon, i) {
+            var x = i * 32 + 24;
+
+            canvas.save();
+            canvas.translate(x, height - 24);
+            weapon.draw();
+            canvas.restore();
+        });
     }
 
     function collides(a, b) {
@@ -316,6 +329,7 @@ function Ship(I, game) {
         "health": I.health || 100,
         "alive": true,
         "weapons": [],
+        "maxWeapons": I.maxWeapons || 10,
         "sprite": new Sprite({
             "default": [
                 "/images/ship_default.png",
@@ -407,7 +421,7 @@ function Ship(I, game) {
             };
 
             //weapon = weapon || "bullet";
-            weapon = this.weapons.pop() || "bullet";
+            weapon = this.weapons.pop().payload || "bullet";
 
             if (weapon in game.weapons) {
                 game.add(new game.weapons[weapon](I, game));
@@ -415,8 +429,13 @@ function Ship(I, game) {
         },
 
         "pickUp": function(item) {
-            if (item.subtype === "weapon") {
-                this.weapons.push(item.payload);
+
+            if (item.subtype === "weapon" && 
+                    this.weapons.length < this.maxWeapons) {
+                item.x = 0;
+                item.y = 0;
+                item.scale = 1;
+                this.weapons.push(item);
             }
         },
 
@@ -1033,14 +1052,15 @@ function Item(I, game) {
     var _Item = {
         "type": "item",
         "subtype": I.subtype || "nothing",
-        "x": I.x || game.width + 100,
-        "y": I.y || game.height + 100,
-        "angle": I.angle || Math.random()*Math.PI*0.5 + Math.PI,
+        "x": I.x || 0,
+        "y": I.y || 0,
+        "angle": I.angle || Math.random()*Math.PI*0.5,
         "speed": I.speed || 2,
+        "scale": I.scale || 1,
         "ttl": I.ttl || 1000,
         "size": 12,
         "payload": I.payload,
-        "sprite": I.sprite || new Sprite(spriteUrl, 24, 24),
+        "sprite": I.sprite || new Sprite(spriteUrl, 48, 48),
 
         "update": function() {
             if (this.ttl <= 0) {
@@ -1056,6 +1076,7 @@ function Item(I, game) {
         "draw": function() {
             game.canvas.save();
             game.canvas.translate(this.x, this.y);
+            game.canvas.scale(this.scale, this.scale);
 
             this.sprite.draw(canvas);
 
