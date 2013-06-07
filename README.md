@@ -67,7 +67,7 @@ weapons.
 
 Normal things in the game, such as the player ship, wormholes, weapons, and 
 items.  These can interact with each other by colliding.  Each object must have
-#update, #draw, and #collideWith methods, as these are called by Game.  In 
+ #update, #draw, and #collideWith methods, as these are called by Game.  In 
 addition, they must have the following properties:  x, y, angle, speed, type, 
 and size.  The constructor must take two parameters:  an object containing 
 initialization values, and a reference to the Game object.
