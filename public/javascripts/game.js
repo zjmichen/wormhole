@@ -1,8 +1,3 @@
-$(document).ready(function() {
-    // var game = new game();
-    // game.play();
-});
-
 function Game(playerName, otherPlayers) {
     var _Game
       , width = window.innerWidth
