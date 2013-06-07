@@ -1022,6 +1022,7 @@ function Sprite(modeUrls, width, height) {
     curImg = modes.normal[0];
 
     _Sprite = {
+        "type": "sprite",
         "width": width,
         "height": height,
         "modeUrls": modeUrls,
@@ -1035,6 +1036,11 @@ function Sprite(modeUrls, width, height) {
 
         "draw": function(canvas) {
             var img = this.getImage();
+
+            if (this.scale <= 0) {
+                return;
+            }
+            
             canvas.save();
             canvas.translate(-0.5*this.width, -0.5*this.height);
             canvas.scale(this.scale, this.scale);
@@ -1062,6 +1068,7 @@ function Sprite(modeUrls, width, height) {
 
                 this.scale = this.targetScale;
                 this.scaleChange = 0;
+                console.log("Scaling done.");
             }
 
             if (curFrame > this.framesPerImage) {
