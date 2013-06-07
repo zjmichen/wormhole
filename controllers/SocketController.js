@@ -16,10 +16,10 @@ function SocketController() {
             });
         });
 
-        socket.on("ready", function() {
+        socket.on("ready", function(data) {
             console.log(socket.id + " is ready.");
 
-            _SocketController.enqueue(socket.id);
+            _SocketController.enqueue(socket.id, data.players);
         });
 
         socket.on("msg", function(data) {
@@ -66,9 +66,11 @@ function SocketController() {
          },
 
          /** add player to play queue, start game if enough players */
-         "enqueue": function(socketId) {
-            var that = this;
-            rClient.llen("playQueue", function(err, numQueued) {
+         "enqueue": function(socketId, playersPerGame) {
+            var that = this
+              , queue = playersPerGame + "game";
+              
+            rClient.llen(queue, function(err, numQueued) {
                 var players = [];
                 if (numQueued >= playersPerGame - 1) {
                     players.push(socketId);
@@ -77,7 +79,7 @@ function SocketController() {
                             console.log("Not enough players, reverting.");
 
                             players.forEach(function(socketId) {
-                                rClient.rpush("playQueue", socketId);
+                                rClient.rpush(queue, socketId);
                             });
                             return;
                         } else if (players.length >= playersPerGame) {
@@ -87,7 +89,7 @@ function SocketController() {
                             return;
                         } else {
                             console.log("Fetching another player...");
-                            rClient.lpop("playQueue", function(err, socketId) {
+                            rClient.lpop(queue, function(err, socketId) {
                                 numQueued -= 1;
                                 if (sio.sockets.sockets[socketId] !== undefined) {
                                     players.push(socketId);
@@ -98,7 +100,7 @@ function SocketController() {
                         }
                     })();
                 } else {
-                    rClient.rpush("playQueue", socketId);
+                    rClient.rpush(queue, socketId);
                     sio.sockets.sockets[socketId].emit("wait");
                 }
             });

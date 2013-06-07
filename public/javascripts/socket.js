@@ -10,8 +10,10 @@ function SocketController() {
     var _SocketController = {
 
         /** client is ready to interact with server */
-        "ready": function() {
-            socket.emit("ready");
+        "ready": function(numPlayers) {
+            socket.emit("ready", {
+                "players": numPlayers,
+            });
 
             socket.on("wait", this.wait);
             socket.on("go", this.go);
@@ -91,7 +93,11 @@ function SocketController() {
 $(document).ready(function() {
     window.socket = SocketController();
 
-    $("#btnPlay").click(function() {
-        window.socket.ready();
+    $("#btnPlay2").click(function() {
+        window.socket.ready(2);
+    });
+
+    $("#btnPlay3").click(function() {
+        window.socket.ready(3);
     });
 });
