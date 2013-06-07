@@ -544,6 +544,7 @@ function Bullet(I, game) {
             } else if (obj.type === "projectile") {
                 if (obj.detonate) {
                     obj.detonate();
+                    game.remove(this);
                 }
             }
 
