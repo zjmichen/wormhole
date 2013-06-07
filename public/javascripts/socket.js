@@ -40,14 +40,31 @@ function SocketController() {
             game.play();
         },
 
-        "send": function(to, data) {
-            data = data || {};
-            data.player = to;
-            socket.emit("msg", data);
+        "send": function(to, obj) {
+            obj = obj || {};
+            socket.emit("msg", {
+                "player": to,
+                "from": thisPlayer,
+                "data": JSON.stringify(obj, function(key, value) {
+                    if (typeof value === "function") {
+                        return undefined;
+                    } else if (typeof value === "object" && value.type === "sprite") {
+                        return {
+                            "modeUrls": value.modeUrls,
+                            "width": value.width,
+                            "height": value.height,
+                        }
+                    } else {
+                        return value;
+                    }
+                })
+            });
         },
 
         "receive": function(data) {
-            game.receiveData(data);
+            var obj = JSON.parse(data.data);
+            obj.from = data.from;
+            game.receiveData(obj);
         },
 
         "playerQuit": function(data) {
