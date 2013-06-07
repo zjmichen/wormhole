@@ -14,9 +14,9 @@ canvas#wormhole {
   left: 0px;
   cursor: none;
 }
-#waiting {
-  display: none;
-}
 .center {
   text-align: center;
+}
+button {
+  margin: 10px;
 }

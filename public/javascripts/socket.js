@@ -93,11 +93,15 @@ function SocketController() {
 $(document).ready(function() {
     window.socket = SocketController();
 
+    var waitingBtn = $("<div class='center'><button class='btn btn-large btn-primary' disabled='disabled'>Waiting for players...</button></div>");
+
     $("#btnPlay2").click(function() {
         window.socket.ready(2);
+        $(".playButtons").replaceWith(waitingBtn);
     });
 
     $("#btnPlay3").click(function() {
         window.socket.ready(3);
+        $(".playButtons").replaceWith(waitingBtn);
     });
 });
