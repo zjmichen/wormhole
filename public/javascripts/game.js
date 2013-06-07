@@ -542,7 +542,9 @@ function Bullet(I, game) {
                 obj.health -= this.damage;
                 game.remove(this);
             } else if (obj.type === "projectile") {
-                obj.detonate();
+                if (obj.detonate) {
+                    obj.detonate();
+                }
             }
 
             if (!isReaction) {
