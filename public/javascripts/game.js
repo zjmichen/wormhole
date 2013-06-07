@@ -541,6 +541,12 @@ function Bullet(I, game) {
             if (obj.type === "ship" && this.owner !== obj.name) {
                 obj.health -= this.damage;
                 game.remove(this);
+            } else if (obj.type === "projectile") {
+                obj.detonate();
+            }
+
+            if (!isReaction) {
+                obj.collideWith(this, true);
             }
         }
     };
@@ -1040,7 +1046,7 @@ function Sprite(modeUrls, width, height) {
             if (this.scale <= 0) {
                 return;
             }
-            
+
             canvas.save();
             canvas.translate(-0.5*this.width, -0.5*this.height);
             canvas.scale(this.scale, this.scale);
