@@ -6,7 +6,6 @@ a {
   color: #00b7ff;
 }
 canvas#wormhole {
-  display: none;
   position: absolute;
   width: 100%;
   height: 100%;
@@ -20,6 +19,6 @@ canvas#wormhole {
 button {
   margin: 10px;
 }
-#waitingArea {
+.hidden {
   display: none;
 }
