@@ -39,9 +39,20 @@ block content
 
     .row
       .span12
-        p.center
-          .playButtons.center
-            button.btn.btn-primary.btn-large(type="button", id="btnPlay2") 2 Players
-            button.btn.btn-primary.btn-large(type="button", id="btnPlay3") 3 Players
+        .playButtons.center
+          button.btn.btn-primary.btn-large(type="button", id="btnPlay2") 2 Players
+          button.btn.btn-primary.btn-large(type="button", id="btnPlay3") 3 Players
+        button(type="button", id="btnPlay") Play
+
+        #waitingArea
+          ul#roomList
+          label Room name
+            input(type="text", id="newRoom")
+          label Number of players
+            input(type="number", id="newRoomSize")
+          button(type="button", id="btnAddRoom") Create game
 
   canvas#wormhole
+
+  script(id="gameInfo", type="text/template")
+    li(class="{{status}}") {{name}} ({{numPlayers}})
