@@ -4,12 +4,22 @@ function SocketController() {
     var socket = new io.connect(window.location.host)
       , otherPlayers = []
       , thisPlayer
-      , game;
+      , game
+      , gameListUpdate;
 
     /** public members/methods */
     var _SocketController = {
 
-        /** client is ready to interact with server */
+        "joinLobby": function() {
+            $(".content").replaceWith($("#loading"));
+
+            gameListUpdate = setInterval(function() {
+                socket.emit("getGameList");
+            }, 1000);
+
+            socket.on("gameList", this.updateGameList);
+        },
+
         "ready": function(numPlayers) {
             socket.emit("ready", {
                 "players": numPlayers,
@@ -19,7 +29,15 @@ function SocketController() {
             socket.on("go", this.go);
             socket.on("msg", this.receive);
             socket.on("quit", this.playerQuit);
+            socket.on("wormhole", this.wormhole);
+        },
 
+        "newGame": function(game, numPlayers) {
+            console.log("Creating a game of " + game + " with " + numPlayers);
+            socket.emit("newGame", {
+                "name": game,
+                "numPlayers": numPlayers,
+            });
         },
 
         "wait": function() {
@@ -59,14 +77,19 @@ function SocketController() {
                     } else {
                         return value;
                     }
-                })
+                }),
             });
         },
 
-        "receive": function(data) {
+        "wormhole": function(data) {
             var obj = JSON.parse(data.data);
             obj.from = data.from;
             game.receiveData(obj);
+        },
+
+        "receive": function(data) {
+            console.log("Got a message:");
+            console.log(data);
         },
 
         "playerQuit": function(data) {
@@ -84,6 +107,18 @@ function SocketController() {
             });
         },
 
+        "updateGameList": function(games) {
+            $("#roomList").replaceWith("<ul id='roomList'></ul>").show();
+            for (var game in games) {
+                game = JSON.parse(games[game]);
+                // $("#roomList").append("<li class='" + game.status + "'>" + 
+                //         game.name + " (" + game.numPlayers + ")" +
+                //         "<button type='button' class='join' data-game='" + 
+                //         game.name + "'>Join</button>");
+                $("#roomList").append(Mustache.to_html($("#gameInfo").html(), game));
+            }
+        },
+
     };
 
     return _SocketController;
@@ -95,13 +130,13 @@ $(document).ready(function() {
 
     var waitingBtn = $("<div class='center'><button class='btn btn-large btn-primary' disabled='disabled'>Waiting for players...</button></div>");
 
-    $("#btnPlay2").click(function() {
-        window.socket.ready(2);
-        $(".playButtons").replaceWith(waitingBtn);
+    $("#btnPlay").click(function() {
+        window.socket.joinLobby();
+
+        $("#waitingArea").show();
+        $("#btnAddRoom").click(function() {
+            window.socket.newGame($("#newRoom").val(), $("#newRoomSize").val());
+        });
     });
 
-    $("#btnPlay3").click(function() {
-        window.socket.ready(3);
-        $(".playButtons").replaceWith(waitingBtn);
-    });
 });
