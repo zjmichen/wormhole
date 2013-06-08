@@ -20,3 +20,6 @@ canvas#wormhole {
 button {
   margin: 10px;
 }
+#waitingArea {
+  display: none;
+}
