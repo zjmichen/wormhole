@@ -7,60 +7,73 @@ function SocketController() {
       , playersPerGame = 2
       , rClient;
 
-    /** callback declarations for individual sockets */
-    function SocketHandler(socket) {
-        socket.on("disconnect", function() {
-            console.log("Socket disconnected: " + socket.id);
-            sio.sockets.in(socket.room).emit("quit", {
-                "player": socket.id,
-            });
+
+    var joinLobby = function(socket) {
+        socket.join("lobby");
+        sendGameList(socket);
+    };
+
+    var sendGameList = function(socket) {
+        rClient.hgetall("games", function(err, gameList) {
+            console.log(gameList);
+            socket.emit("gameList", gameList);
         });
+    };
 
-        socket.on("joinLobby", function() {
-            _SocketController.joinLobby(socket);
-        });
-
-        socket.on("getGameList", function() {
-            _SocketController.sendGameList(socket);
-        });
-
-        socket.on("newGame", function(gameInfo) {
-            _SocketController.createGame(socket, gameInfo);
-        });
-
-        socket.on("joinGame", function(gameName) {
-
-        });
-
-        socket.on("wormhole", function() {
-            data = data || {};
-            data.from = socket.id;
-
-            if (sio.sockets.sockets[data.player] === undefined) {
-                socket.emit("quit", {
-                    "player": data.player,
-                });
+    var createGame = function(socket, gameInfo) {
+        var that = this;
+        console.log("Creating game:");
+        console.log(gameInfo);
+        rClient.hget("games", gameInfo.name, function(err, game) {
+            if (game) {
+                socket.emit("error", {"message": "Game exists"});
             } else {
-                sio.sockets.sockets[data.player].emit("msg", data);
+                gameInfo.status = "waiting";
+                rClient.hset("games", gameInfo.name, JSON.stringify(gameInfo), function(err) {
+                    console.log("Game added");
+                    socket.join("game-" + gameInfo.name);
+                });
             }
         });
+    };
 
-        socket.on("msg", function(data) {
-            console.log("Message from " + socket.id + " to " + data.player);
-
+    var joinGame = function(socket, gameName) {
+        var that = this;
+        rClient.hget("games", gameName, function(err, game) {
+            if (game) {
+                game = JSON.parse(game);
+                if (game.status !== "waiting") {
+                    socket.emit("error", {"message": "Game is not open"});
+                } else {
+                    that.enqueue(socket.id, gameInfo.name);
+                }
+            } else {
+                socket.emit("error", {"message": "Game does not exist"});
+            }
         });
+    };
 
-        socket.on("quit", function(data) {
-            sio.sockets.in(socket.room).emit("quit", {
-                "player": socket.id,
+    var wormhole = function(socket, data) {
+        data = data || {};
+        data.from = socket.id;
+
+        if (sio.sockets.sockets[data.player] === undefined) {
+            socket.emit("quit", {
+                "player": data.player,
             });
-        });
-    }
+        } else {
+            sio.sockets.sockets[data.player].emit("msg", data);
+        }
+    };
 
-    /** public members/methods */
+    var quit = function() {
+        sio.sockets.in(socket.room).emit("quit", {
+            "player": socket.id,
+        });
+    };
+
     var _SocketController = {
 
-        /** set up global socket handler */
         "init": function(server, credentials) {
             rClient = redis.createClient(credentials.redisPort, credentials.redisHost);
             rClient.auth(credentials.redisPass, function(err) {
@@ -72,60 +85,41 @@ function SocketController() {
                 }
             });
 
+            rClient.flushall();
+
             sio = socketio.listen(server);
-            sio.sockets.on("connection", function(socket) {
-                var sHandler = new SocketHandler(socket);
-            });
+            sio.sockets.on("connection", this.initSocket);
+
          },
 
-         /** add player to play queue, start game if enough players */
-         "enqueue": function(socketId, gameName) {
-            var that = this;
-
-            rClient.hget("games", gameName, function(gameInfo) {
-                var playersPerGame = gameInfo.numPlayers;
-              
-                rClient.llen("queue-" + gameName, function(err, numQueued) {
-                    var players = [];
-                    if (numQueued >= playersPerGame - 1) {
-                        players.push(socketId);
-                        (function getPlayers() {
-                            if (numQueued + players.length < playersPerGame) {
-                                console.log("Not enough players, reverting.");
-
-                                players.forEach(function(socketId) {
-                                    rClient.rpush("queue-" + gameName, socketId);
-                                });
-                                return;
-                            } else if (players.length >= playersPerGame) {
-                                console.log("Found enough players.");
-
-                                gameInfo.status = "playing";
-                                rClient.hset("games", gameName, gameInfo, function(err) {
-                                    that.startGame(players);
-                                });
-                                return;
-                            } else {
-                                console.log("Fetching another player...");
-                                rClient.lpop("queue-" + gameName, function(err, socketId) {
-                                    numQueued -= 1;
-                                    if (sio.sockets.sockets[socketId] !== undefined) {
-                                        players.push(socketId);
-
-                                        getPlayers();
-                                    }
-                                });
-                            }
-                        })();
-                    } else {
-                        rClient.rpush("queue-" + gameName, socketId);
-                        sio.sockets.sockets[socketId].emit("wait");
-                    }
+         "initSocket": function(socket) {
+            socket.on("joinLobby", function() {
+                joinLobby(socket)
+            });
+            socket.on("getGameList", function() {
+                sendGameList(socket);
+            });
+            socket.on("newGame", function(gameInfo) {
+                createGame(socket, gameInfo);
+            });
+            socket.on("joinGame", function(game) {
+                joinGame(socket, game);
+            });
+            socket.on("wormhole", function(data) {
+                wormhole(socket, data);
+            });
+            socket.on("quit", function() {
+                quit(socket);
+            });
+            socket.on("disconnect", function() {
+                console.log("Socket disconnected: " + socket.id);
+                sio.sockets.in(socket.room).emit("quit", {
+                    "player": socket.id,
                 });
             });
          },
 
-         /** creates a game with players */
+ 
          "startGame": function(players) {
             players.forEach(function(socketId, i) {
                 var otherPlayers = players.filter(function(playerId) {
@@ -150,51 +144,6 @@ function SocketController() {
 
          },
 
-         "joinLobby": function(socket) {
-            socket.join("lobby");
-            this.sendGameList(socket);
-         },
-
-         "sendGameList": function(socket) {
-            rClient.hgetall("games", function(err, gameList) {
-                console.log(gameList);
-                socket.emit("gameList", gameList);
-            });
-         },
-
-         "createGame": function(socket, gameInfo) {
-            var that = this;
-            console.log("Creating game:");
-            console.log(gameInfo);
-            rClient.hget("games", gameInfo.name, function(err, game) {
-                if (game) {
-                    socket.emit("error", {"message": "Game exists"});
-                } else {
-                    gameInfo.status = "waiting";
-                    rClient.hset("games", gameInfo.name, JSON.stringify(gameInfo), function(err) {
-                        console.log("Game added");
-                        socket.join("game-" + gameInfo.name);
-                        //that.enqueue(socket.id, gameInfo.name);
-                    });
-                }
-            });
-         },
-
-         "joinGame": function(socket, gameName) {
-            var that = this;
-            rClient.hget("games", gameName, function(err, game) {
-                if (game) {
-                    game = JSON.parse(game);
-                    if (game.status !== "waiting") {
-                        socket.emit("error", {"message": "Game is not open"});
-                    } else {
-                        that.enqueue(socket.id, gameInfo.name);
-                    }
-                } else {
-                    socket.emit("error", {"message": "Game does not exist"});
-                }
-            });
-         },
 
     };
 
