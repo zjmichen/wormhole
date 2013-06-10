@@ -10,6 +10,8 @@ function SocketController() {
     var _SocketController = {
 
         "joinLobby": function() {
+            console.log("Contacting server to join lobby");
+            socket.emit("joinLobby");
             socket.on("gameList", window.contents.updateGameList);
         },
 
