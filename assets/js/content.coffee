@@ -12,7 +12,7 @@ class ContentController
 
     joinLobby: ->
         $("#intro").fadeOut()
-        $("lobby").fadeIn ->
+        $("#lobby").fadeIn ->
             window.socket.joinLobby()
             @gameListUpdate = setInterval ->
                 window.socket.getGameList
