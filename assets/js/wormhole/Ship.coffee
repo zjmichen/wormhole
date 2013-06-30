@@ -1,4 +1,5 @@
 #= require GameObject
+#= require Bullet
 
 class Ship extends GameObject
     drag = 0.99
