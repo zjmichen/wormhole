@@ -1,4 +1,11 @@
 #= require Arsenal
+#= require Ship
+#= require Bullet
+#= require Star
+#= require Wormhole
+#= require Comet
+#= require Item
+#= require Sprite
 
 class Game
     gameObjects = []
