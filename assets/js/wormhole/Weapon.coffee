@@ -14,9 +14,16 @@ class Weapon extends GameObject
         @color = I.color ? "#fff"
 
     update: ->
-        if this.ttl <= 0
-            game.remove this
+        if @ttl <= 0
+            @detonate()
             return
-
         @ttl -= 1
         super.update()
+
+    detonate: ->
+        game.remove this
+
+    collideWith: (obj, isReaction) ->
+        if obj.type is "ship" and @owner isnt obj.name
+            @detonate()
+        super.collideWith obj, isReaction
