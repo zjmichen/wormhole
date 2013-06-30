@@ -1,6 +1,6 @@
 #= require Sprite
 
-class Comet
+class window.Comet
     constructor: (I, game) ->
         @x = I.x || game.width
         @y = I.y || game.height

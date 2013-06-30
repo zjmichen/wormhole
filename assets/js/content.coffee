@@ -1,13 +1,12 @@
-window.contents
-window.socket
+#= require socket
 
 $(document).ready ->
     window.contents = new ContentController()
     contents.init()
 
-class ContentController
+class window.ContentController
     init: ->
-        window.socket = SocketController()
+        window.socket = new SocketController()
         $("button#joinLobby").click(this.joinLobby)
 
     joinLobby: ->

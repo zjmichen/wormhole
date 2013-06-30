@@ -1,6 +1,6 @@
 #= require GameObject
 
-class Item extends GameObject
+class window.Item extends GameObject
     constructor: (I, game) ->
         spriteUrl = "/images/item_none.png"
         if not I.sprite and I.payload

@@ -6,7 +6,7 @@
 #= require Item
 #= require Sprite
 
-class Game
+class window.Game
     gameObjects = []
     backgroundObjects = []
     wormholes = {}

@@ -1,7 +1,7 @@
 #= require GameObject
 #= require Bullet
 
-class Ship extends GameObject
+class window.Ship extends GameObject
     drag = 0.99
 
     constructor: (I, game) ->

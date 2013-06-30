@@ -1,6 +1,6 @@
 #= require GameObject
 
-class Explosion extends GameObject
+class window.Explosion extends GameObject
     constructor: (I, game) ->
         @type = "explosion"
         @x = I.x

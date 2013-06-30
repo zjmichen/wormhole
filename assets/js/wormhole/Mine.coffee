@@ -1,7 +1,7 @@
 #= require Weapon
 #= require Explosion
 
-class Mine extends Weapon
+class window.Mine extends Weapon
     constructor: (I, game) ->
         @sprite = new Sprite(
             "normal": [

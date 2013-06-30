@@ -1,4 +1,4 @@
-class Sprite
+class window.Sprite
     curImg = undefined
     modes = {}
     curFrame = 0

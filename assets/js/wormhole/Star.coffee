@@ -1,4 +1,4 @@
-class Star
+class window.Star
     distance = Math.floor(Math.random() * 255)
 
     constructor: (game) ->

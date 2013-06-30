@@ -1,6 +1,6 @@
 #= require Sprite
 
-class GameObject
+class window.GameObject
     constructor: (I, game) ->
         @type = "none"
         @x = I.x ? 0

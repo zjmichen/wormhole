@@ -1,6 +1,6 @@
 #= require Weapon
 
-class Bullet extends Weapon
+class window.Bullet extends Weapon
     constructor: (I, game) ->
         super()
         @type = "projectile"

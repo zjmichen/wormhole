@@ -1,6 +1,6 @@
 #= require GameObject
 
-class Weapon extends GameObject
+class window.Weapon extends GameObject
     constructor: (I, game) ->
         @type = "none"
         @x = I.x ? 0

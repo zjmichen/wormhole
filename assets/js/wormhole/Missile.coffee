@@ -1,7 +1,7 @@
 #= require Weapon
 #= require Explosion
 
-class Missile extends Weapon
+class window.Missile extends Weapon
     constructor: (I, game) ->
         @type = "projectile"
         @subtype = "missile"

@@ -1,6 +1,6 @@
 #= require GameObject
 
-class Wormhole
+class window.Wormhole
     constructor: (I, game) ->
         @type = "wormhole"
         @name = I.name
