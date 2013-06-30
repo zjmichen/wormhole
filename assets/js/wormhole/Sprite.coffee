@@ -6,8 +6,7 @@ class Sprite
 
     constructor: (modeUrls, width, height) ->
         if typeof modeUrls is "string"
-            modeUrls =
-                "normal": [modeUrls]
+            modeUrls = {"normal": [modeUrls]}
             
 
         for mode of modeUrls
@@ -58,8 +57,8 @@ class Sprite
         else
             @scaling = no
 
-        if  (@scaleChange > 0 and @scale >= @targetScale) or
-            (@scaleChange < 0 and @scale <= @targetScale)
+        if (@scaleChange > 0 and @scale >= @targetScale) or
+           (@scaleChange < 0 and @scale <= @targetScale)
 
             @scale = @targetScale
             @scaleChange = 0

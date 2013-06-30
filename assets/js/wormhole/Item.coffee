@@ -18,8 +18,8 @@ class Item extends GameObject
         @payload = I.payload
         @sprite = I.sprite ? new Sprite(spriteUrl, 48, 48)
 
-        collideWith: (obj, isReaction) ->
-            if obj.type is "ship"
-                obj.pickUp this
-                game.remove this
-            super.collideWith(obj, isReaction)
+    collideWith: (obj, isReaction) ->
+        if obj.type is "ship"
+            obj.pickUp this
+            game.remove this
+        super.collideWith(obj, isReaction)

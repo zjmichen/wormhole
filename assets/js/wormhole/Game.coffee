@@ -1,4 +1,3 @@
-#= require Arsenal
 #= require Ship
 #= require Bullet
 #= require Star
@@ -18,9 +17,26 @@ class Game
         @canvas = canvasEl.get(0).getContext("2d")
         @width = canvasEl.width()
         @height = canvasEl.height()
-        @weapons = Arsenal::getArsenal()
         @hasWon = false
         @framerate = 30
+        @weapons = {
+            canister: {
+                item: Canister,
+                rarity: 0.42,
+            },
+            mine: {
+                item: Mine,
+                rarity: 0.42,
+            },
+            missile: {
+                item: Missile,
+                rarity: 0.15,
+            },
+            nuke: {
+                item: Nuke,
+                rarity: 0.01,
+            }
+        }
 
         i = numStars
         while i-- > 0

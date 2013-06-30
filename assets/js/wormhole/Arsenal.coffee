@@ -5,7 +5,7 @@
 
 class Arsenal
     getArsenal: ->
-        return 
+        return {
             canister:
                 item: Canister,
                 rarity: 0.42,
@@ -21,3 +21,4 @@ class Arsenal
             nuke:
                 item: Nuke,
                 rarity: 0.01,
+        }
