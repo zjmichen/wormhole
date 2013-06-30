@@ -1,4 +1,6 @@
-class Weapon
+#= require GameObject
+
+class Weapon extends GameObject
     constructor: (I, game) ->
         @type = "none"
         @x = I.x ? 0
@@ -17,15 +19,4 @@ class Weapon
             return
 
         @ttl -= 1
-        @x += @speed*Math.cos(@angle)
-        @y += @speed*Math.sin(@angle)
-        @x = ( (@x % game.width) + game.width ) % game.width
-        @y = ( (@y % game.height) + game.height ) % game.height
-
-    draw: ->
-        game.canvas.fillStyle = @color
-        game.canvas.fillRect @x, @y, @size, @size
-    
-    collideWith: (obj, isReaction) ->
-        if not isReaction
-            obj.collideWith this, true
+        super.update()

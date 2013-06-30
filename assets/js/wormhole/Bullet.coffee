@@ -2,9 +2,13 @@
 
 class Bullet extends Weapon
     constructor: (I, game) ->
-        super constructor
+        super()
         @type = "projectile"
         @subtype = "bullet"
+
+    draw: ->
+        game.canvas.fillStyle = @color
+        game.canvas.fillRect @x, @y, @size, @size
     
     collideWith: (obj, isReaction) ->
         if obj.type is "ship" and @owner isnt obj.name
