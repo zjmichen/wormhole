@@ -1,4 +1,4 @@
-
+#= require Arsenal
 
 class Game
     gameObjects = []
@@ -11,7 +11,7 @@ class Game
         @canvas = canvasEl.get(0).getContext("2d")
         @width = canvasEl.width()
         @height = canvasEl.height()
-        @weapons = new Arsenal()
+        @weapons = Arsenal::getArsenal()
         @hasWon = false
         @framerate = 30
 
