@@ -36,6 +36,10 @@ app.get('/', function(req, res) {
   res.render('index');
 });
 
+app.get('/games/:gameid', function(req, res) {
+  res.render('game', {id: req.params.gameid});
+});
+
 
 server.listen(app.get('port'), function(){
   console.log('Express server listening on port ' + app.get('port'));
