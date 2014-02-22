@@ -1,22 +1,10 @@
-
-/**
- * Module dependencies.
- */
-
 var express = require('express')
-  , server
-  , routes = require('./routes')
-  , user = require('./routes/user')
-  , http = require('http')
-  , path = require('path')
   , app = express()
-  , credentials = {}
-  , socketio = require('socket.io')
-  , socketCon = require('./controllers/SocketController')()
-  , appCon = require('./controllers/ApplicationController');
+  , server = require('http').createServer(app)
+  , io = require('socket.io').listen(app)
+  , path = require('path')
+  , credentials = {};
 
-
-// all environments
 app.set('port', process.env.PORT || 3000);
 app.set('views', __dirname + '/views');
 app.set('view engine', 'jade');
@@ -44,10 +32,12 @@ if ('production' == app.get('env')) {
   credentials.redisPass = process.env.REDIS_PASS;
 }
 
-app.get('/', appCon.index);
+app.get('/', function(req, res) {
+  res.render('index');
+});
 
-server = http.createServer(app).listen(app.get('port'), function(){
+
+app.listen(app.get('port'), function(){
   console.log('Express server listening on port ' + app.get('port'));
 });
 
-socketCon.init(server, credentials);
