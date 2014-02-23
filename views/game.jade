@@ -1,7 +1,9 @@
 extends layout
 
 block head
+  link(rel='stylesheet' href='/css/game.css')
   script(type='text/javascript' src='/socket.io/socket.io.js')
+  script(type='text/javascript' src='/js/wormhole.js')
   script(type='text/javascript' src='/js/sockman.js')
 
 block content

@@ -40,6 +40,8 @@ redisClient.auth(credentials.redisPass, function(err) {
   if (err) { throw err; }
 });
 
+redisClient.flushall();
+
 gameCon = new GameController(redisClient);
 
 app.get('/', function(req, res) {

@@ -12,6 +12,10 @@ var Sockman = (function(Sockman) {
   Sockman.join = function(id) {
     socket.emit('join', id);
     $('#join').remove();
+
+    $('canvas#wormhole').fadeIn();
+    Game.init('wormhole');
+    Game.start();
   };
 
   socket.on('playerJoined', function(playerid) {
