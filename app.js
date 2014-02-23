@@ -48,9 +48,11 @@ app.get('/', function(req, res) {
 
 app.get('/games/:gameid', function(req, res) {
   var players = gameCon.getPlayers(req.params.gameid, function(err, players) {
-    if (err) { res.send(500); }
+    if (err) {
+      console.log(err);
+      res.send(500, err);
+    }
     else {
-      console.log(players);
       res.render('game', {
         id: req.params.gameid,
         players: players
@@ -71,6 +73,11 @@ io.sockets.on('connection', function(socket) {
 
   socket.on('join', function(gameid) {
     gameCon.addPlayer(socket.id, gameid);
+    socket.gameid = gameid;
+  });
+
+  socket.on('disconnect', function() {
+    gameCon.removePlayer(socket.id, socket.gameid);
   });
 });
 
