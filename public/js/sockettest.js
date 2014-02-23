@@ -4,3 +4,7 @@ socket.on('message', function(data) {
 });
 
 socket.send('Test message, please ignore.');
+
+function join(id) {
+  socket.emit('join', id);
+}

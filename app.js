@@ -47,7 +47,16 @@ app.get('/', function(req, res) {
 });
 
 app.get('/games/:gameid', function(req, res) {
-  res.render('game', {id: req.params.gameid});
+  var players = gameCon.getPlayers(req.params.gameid, function(err, players) {
+    if (err) { res.send(500); }
+    else {
+      console.log(players);
+      res.render('game', {
+        id: req.params.gameid,
+        players: players
+      });
+    };
+  });
 });
 
 
@@ -58,6 +67,10 @@ server.listen(app.get('port'), function(){
 io.sockets.on('connection', function(socket) {
   socket.on('message', function echo(data) {
     socket.send(data);
+  });
+
+  socket.on('join', function(gameid) {
+    gameCon.addPlayer(socket.id, gameid);
   });
 });
 
