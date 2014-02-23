@@ -4,10 +4,11 @@ block content
   h1= 'This is game #' + id
 
   h2 Other players:
-  ul
+  ul#playerlist
     - players = players || ['No other players']
     each player in players
-      li= player
+      li(id=player)
+        = player
 
 
   script(type='text/javascript')= 'join(' + id + ')'

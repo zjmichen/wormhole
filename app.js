@@ -72,12 +72,21 @@ io.sockets.on('connection', function(socket) {
   });
 
   socket.on('join', function(gameid) {
+    socket.set('gameid', gameid);
     gameCon.addPlayer(socket.id, gameid);
-    socket.gameid = gameid;
+    socket.join(gameid);
+    socket.broadcast.to(gameid).emit('playerJoined', socket.id);
   });
 
   socket.on('disconnect', function() {
-    gameCon.removePlayer(socket.id, socket.gameid);
+    socket.get('gameid', function(err, gameid) {
+      if (err) { console.log(err); }
+
+      socket.broadcast.to(gameid).emit('playerLeft', socket.id);
+      socket.leave(gameid);
+      gameCon.removePlayer(socket.id, gameid);
+    });
+
   });
 });
 
