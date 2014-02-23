@@ -3,7 +3,10 @@ var express = require('express')
   , server = require('http').createServer(app)
   , io = require('socket.io').listen(server)
   , path = require('path')
-  , credentials = {};
+  , credentials = {}
+  , redis = require('redis')
+  , GameController = require('./controllers/GameController.js')
+  , gameCon;
 
 app.set('port', process.env.PORT || 3000);
 app.set('views', __dirname + '/views');
@@ -31,6 +34,13 @@ if ('production' == app.get('env')) {
   credentials.redisPort = process.env.REDIS_PORT;
   credentials.redisPass = process.env.REDIS_PASS;
 }
+
+redisClient = redis.createClient(credentials.redisPort, credentials.redisHost);
+redisClient.auth(credentials.redisPass, function(err) {
+  if (err) { throw err; }
+});
+
+gameCon = new GameController(redisClient);
 
 app.get('/', function(req, res) {
   res.render('index');
