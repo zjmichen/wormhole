@@ -1,5 +1,9 @@
 extends layout
 
+block head
+  script(type='text/javascript' src='/socket.io/socket.io.js')
+  script(type='text/javascript' src='/js/sockman.js')
+
 block content
   h1= 'This is game #' + id
 
@@ -10,6 +14,7 @@ block content
       li(id=player)
         = player
 
+  script(type='text/javascript')= 'Sockman.ready(' + id + ')'
+  button#join(type='button' onclick='Sockman.join(' + id + ')') Join game
 
-  script(type='text/javascript')= 'ready(' + id + ')'
-  button(type='button' onclick='join(' + id + ')') Join game
+  canvas#wormhole
