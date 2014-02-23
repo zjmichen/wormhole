@@ -67,14 +67,17 @@ server.listen(app.get('port'), function(){
 });
 
 io.sockets.on('connection', function(socket) {
+  socket.on('present', function(gameid) {
+    socket.set('gameid', gameid);
+    socket.join(gameid);
+  });
+
   socket.on('message', function echo(data) {
-    socket.send(data);
+    console.log('Got message from ' + socket.id + ': ' + data);
   });
 
   socket.on('join', function(gameid) {
-    socket.set('gameid', gameid);
     gameCon.addPlayer(socket.id, gameid);
-    socket.join(gameid);
     socket.broadcast.to(gameid).emit('playerJoined', socket.id);
   });
 

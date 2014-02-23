@@ -3,13 +3,16 @@ socket.on('message', function(data) {
   console.log(data);
 });
 
-socket.send('Test message, please ignore.');
+function ready(id) {
+  socket.emit('present', id);
+}
 
 function join(id) {
   socket.emit('join', id);
 }
 
 socket.on('playerJoined', function(playerid) {
+  console.log('Player joined: ' + playerid);
   $('#playerlist').append('<li id="' + playerid + '">' + playerid);
 });
 
