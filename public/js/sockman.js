@@ -5,16 +5,27 @@ var Sockman = (function(Sockman) {
     console.log(data);
   });
 
-  Sockman.ready = function(id) {
-    socket.emit('present', id);
+  Sockman.ready = function(gameid) {
+    socket.emit('present', gameid);
   };
 
-  Sockman.join = function(id) {
-    socket.emit('join', id);
+  Sockman.join = function(gameid) {
+    socket.emit('join', gameid);
     $('#join').remove();
 
     $('canvas#wormhole').fadeIn();
     Game.init('wormhole');
+
+    socket.emit('getPlayers');
+
+    socket.on('playerList', function(players) {
+      players.forEach(function(playerid) {
+        if (playerid !== socket.socket.sessionid) {
+          Game.addPlayer(playerid);
+        }
+      });
+    });
+
     Game.start();
   };
 
@@ -30,6 +41,10 @@ var Sockman = (function(Sockman) {
   socket.on('playerLeft', function(playerid) {
     console.log('Player left: ' + playerid);
     $('li#' + playerid).remove();
+
+    if (Game.playing) {
+      Game.removePlayer(playerid);
+    }
   });
 
   return Sockman;

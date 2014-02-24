@@ -93,5 +93,23 @@ io.sockets.on('connection', function(socket) {
     });
 
   });
+
+  socket.on('getPlayers', function() {
+    socket.get('gameid', function(err, gameid) {
+      if (err) {
+        console.log('Error getting gameid: ' + err);
+        socket.send('Could not get player list.');
+      } else {
+        gameCon.getPlayers(gameid, function(err, players) {
+          if (err) {
+            console.log('Error getting player list: ' + err);
+            socket.send('Could not get player list.');
+          } else {
+            socket.emit('playerList', players);
+          }
+        });
+      }
+    });
+  });
 });
 
