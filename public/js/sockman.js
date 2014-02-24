@@ -21,6 +21,10 @@ var Sockman = (function(Sockman) {
   socket.on('playerJoined', function(playerid) {
     console.log('Player joined: ' + playerid);
     $('#playerlist').append('<li id="' + playerid + '">' + playerid);
+
+    if (Game.playing) {
+      Game.addPlayer(playerid);
+    }
   });
 
   socket.on('playerLeft', function(playerid) {

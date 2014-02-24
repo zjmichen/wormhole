@@ -5,7 +5,10 @@ var Game = (function(Game) {
     , frameRate = 60
     , gameObjects = []
     , backgroundObjects = []
+    , wormholes = {}
     , gameLoop;
+
+  Game.playing = false;
 
   Game.init = function(id) {
     var i, x, y, dist;
@@ -35,6 +38,8 @@ var Game = (function(Game) {
       update();
       draw();
     }, 1000/frameRate);
+
+    Game.playing = true;
     console.log('Game started.');
   };
 
@@ -42,10 +47,25 @@ var Game = (function(Game) {
     clearInterval(gameLoop);
   };
 
+  Game.addPlayer = function(id) {
+    var x = Math.random()*canvas.width
+      , y = Math.random()*canvas.height;
+
+    wormholes[id] = new Game.Wormhole(x, y, id);
+  };
+
+  Game.removePlayer = function(id) {
+    delete wormholes[id];
+  };
+
   function update() {
     backgroundObjects.forEach(function(obj) {
       obj.update();
     });
+
+    for (id in wormholes) {
+      wormholes[id].update();
+    }
 
     gameObjects.forEach(function(obj) {
       obj.update();
@@ -68,6 +88,16 @@ var Game = (function(Game) {
 
       ctx.drawImage(img, x, y);
     });
+
+    for (id in wormholes) {
+      var img = wormholes[id].render()
+        , x = wormholes[id].x || 0
+        , y = wormholes[id].y || 0;
+
+      ctx.drawImage(img, x, y);
+      ctx.fillStyle = 'white';
+      ctx.fillText(id, x, y);
+    }
 
     gameObjects.forEach(function(obj) {
       var img = obj.render()
