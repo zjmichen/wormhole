@@ -52,6 +52,8 @@ var Game = (function(Game) {
       , y = Math.random()*canvas.height;
 
     wormholes[id] = new Game.Wormhole(x, y, id);
+    gameObjects.push(wormholes[id]);
+    console.log(gameObjects);
   };
 
   Game.removePlayer = function(id) {
@@ -63,7 +65,7 @@ var Game = (function(Game) {
       obj.update();
     });
 
-    for (id in wormholes) {
+    for (var id in wormholes) {
       wormholes[id].update();
     }
 
@@ -89,27 +91,65 @@ var Game = (function(Game) {
       ctx.drawImage(img, x, y);
     });
 
-    for (id in wormholes) {
-      var img = wormholes[id].render()
-        , x = wormholes[id].x || 0
-        , y = wormholes[id].y || 0;
+    //for (var id in wormholes) {
+    //  var img = wormholes[id].render()
+    //    , x = wormholes[id].x || 0
+    //    , y = wormholes[id].y || 0;
 
-      ctx.drawImage(img, x, y);
-      ctx.fillStyle = 'white';
-      ctx.fillText(id, x, y);
-    }
+    //  ctx.drawImage(img, x, y);
+    //  ctx.fillStyle = 'white';
+    //  ctx.fillText(id, x, y);
+    //}
 
     gameObjects.forEach(function(obj) {
       var img = obj.render()
         , x = obj.x || 0
-        , y = obj.y || 0;
+        , y = obj.y || 0
+        , angle = obj.angle || 0;
 
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(obj.angle);
       ctx.drawImage(img, x, y);
+      ctx.restore();
     });
 
     ctx.fillStyle = '#fff';
     ctx.fillText(frame, 0, 10);
   }
+
+  return Game;
+})(Game || {});
+var Game = (function(Game) {
+  Game.Ship = function(x, y) {
+    var buffer, ctx;
+
+    this.dist = dist;
+    this.x = x;
+    this.y = y;
+    buffer = document.createElement('canvas');
+    buffer.width = 100;
+    buffer.height = 100;
+
+    ctx = buffer.getContext('2d');
+    ctx.fillStyle = '#888';
+    ctx.fillRect(0, 0, 100, 100);
+
+    this.update = function() {
+      this.x -= 1/this.dist;
+      this.y -= 0.5/this.dist;
+    };
+
+    this.render = function() {
+      return buffer;
+    };
+
+    this.controlStates = {
+      thrust: false,
+      turnLeft: false,
+      turnRight: false
+    };
+  };
 
   return Game;
 })(Game || {});
@@ -121,17 +161,14 @@ var Game = (function(Game) {
       , buf = document.createElement('canvas')
       , ctx = buf.getContext('2d');
 
-    this.render = function(options) {
-      options = options || {};
-      options.angle = options.angle || 0;
-
-      ctx.save();
+    this.render = function() {
+      //ctx.save();
+      //ctx.translate(0.5*buf.width, 0.5*buf.height);
+      //ctx.rotate(options.angle);
+      //ctx.translate(-0.5*buf.width, -0.5*buf.height);
       ctx.clearRect(0, 0, buf.width, buf.height);
-      ctx.translate(0.5*buf.width, 0.5*buf.height);
-      ctx.rotate(options.angle);
-      ctx.translate(-0.5*buf.width, -0.5*buf.height);
       ctx.drawImage(image, 0, 0);
-      ctx.restore();
+      //ctx.restore();
 
       return buf;
     };
@@ -192,7 +229,7 @@ var Game = (function(Game) {
     };
 
     this.render = function() {
-      return sprite.render({angle: this.angle});
+      return sprite.render();
     };
   };
 

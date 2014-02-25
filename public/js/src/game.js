@@ -52,6 +52,8 @@ var Game = (function(Game) {
       , y = Math.random()*canvas.height;
 
     wormholes[id] = new Game.Wormhole(x, y, id);
+    gameObjects.push(wormholes[id]);
+    console.log(gameObjects);
   };
 
   Game.removePlayer = function(id) {
@@ -63,7 +65,7 @@ var Game = (function(Game) {
       obj.update();
     });
 
-    for (id in wormholes) {
+    for (var id in wormholes) {
       wormholes[id].update();
     }
 
@@ -89,22 +91,27 @@ var Game = (function(Game) {
       ctx.drawImage(img, x, y);
     });
 
-    for (id in wormholes) {
-      var img = wormholes[id].render()
-        , x = wormholes[id].x || 0
-        , y = wormholes[id].y || 0;
+    //for (var id in wormholes) {
+    //  var img = wormholes[id].render()
+    //    , x = wormholes[id].x || 0
+    //    , y = wormholes[id].y || 0;
 
-      ctx.drawImage(img, x, y);
-      ctx.fillStyle = 'white';
-      ctx.fillText(id, x, y);
-    }
+    //  ctx.drawImage(img, x, y);
+    //  ctx.fillStyle = 'white';
+    //  ctx.fillText(id, x, y);
+    //}
 
     gameObjects.forEach(function(obj) {
       var img = obj.render()
         , x = obj.x || 0
-        , y = obj.y || 0;
+        , y = obj.y || 0
+        , angle = obj.angle || 0;
 
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(obj.angle);
       ctx.drawImage(img, x, y);
+      ctx.restore();
     });
 
     ctx.fillStyle = '#fff';

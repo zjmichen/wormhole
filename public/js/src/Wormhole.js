@@ -17,7 +17,7 @@ var Game = (function(Game) {
     };
 
     this.render = function() {
-      return sprite.render({angle: this.angle});
+      return sprite.render();
     };
   };
 
