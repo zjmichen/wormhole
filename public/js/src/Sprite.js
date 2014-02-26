@@ -7,13 +7,8 @@ var Game = (function(Game) {
       , ctx = buf.getContext('2d');
 
     this.render = function() {
-      //ctx.save();
-      //ctx.translate(0.5*buf.width, 0.5*buf.height);
-      //ctx.rotate(options.angle);
-      //ctx.translate(-0.5*buf.width, -0.5*buf.height);
       ctx.clearRect(0, 0, buf.width, buf.height);
       ctx.drawImage(image, 0, 0);
-      //ctx.restore();
 
       return buf;
     };

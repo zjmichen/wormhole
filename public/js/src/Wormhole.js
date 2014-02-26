@@ -11,6 +11,8 @@ var Game = (function(Game) {
     this.angle = 0;
     this.x = x;
     this.y = y;
+    this.width = img.width;
+    this.height = img.height;
 
     this.update = function() {
       this.angle -= 0.01;

@@ -53,7 +53,6 @@ var Game = (function(Game) {
 
     wormholes[id] = new Game.Wormhole(x, y, id);
     gameObjects.push(wormholes[id]);
-    console.log(gameObjects);
   };
 
   Game.removePlayer = function(id) {
@@ -105,12 +104,15 @@ var Game = (function(Game) {
       var img = obj.render()
         , x = obj.x || 0
         , y = obj.y || 0
+        , w = obj.width || 0
+        , h = obj.height || 0
         , angle = obj.angle || 0;
 
       ctx.save();
-      ctx.translate(x, y);
+      ctx.translate(x + 0.5*w, y + 0.5*h);
       ctx.rotate(obj.angle);
-      ctx.drawImage(img, x, y);
+      ctx.translate(-0.5*w, -0.5*h);
+      ctx.drawImage(img, 0, 0);
       ctx.restore();
     });
 
