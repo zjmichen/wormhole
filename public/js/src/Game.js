@@ -6,12 +6,15 @@ var Game = (function(Game) {
     , gameObjects = []
     , backgroundObjects = []
     , wormholes = {}
-    , gameLoop;
+    , gameLoop
+    , inputHandler;
 
   Game.playing = false;
 
   Game.init = function(id) {
-    var i, x, y, dist;
+    var i, x, y, dist, ship;
+
+    inputHandler = new Game.InputHandler();
 
     canvas = document.getElementById(id);
     canvas.width = window.innerWidth;
@@ -31,8 +34,13 @@ var Game = (function(Game) {
       backgroundObjects.push(new Game.Star(x, y, dist));
     }
 
-    gameObjects.push(new Game.Ship(0.5*canvas.width, 0.5*canvas.height));
 
+    ship = new Game.Ship(0.5*canvas.width, 0.5*canvas.height);
+    for (var key in ship.controls) {
+      inputHandler.addKeyInput(key, ship.controls[key]);
+    }
+
+    gameObjects.push(ship);
   };
 
   Game.start = function() {

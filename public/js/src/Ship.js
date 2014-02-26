@@ -1,9 +1,12 @@
 var Game = (function(Game) {
 
   Game.Ship = function(x, y) {
-    var sprite
+    var that = this
+      , sprite
       , spriteThrusting = new Game.Sprite(5)
-      , spriteNormal = new Game.Sprite();
+      , spriteNormal = new Game.Sprite()
+      , controlStates
+      , speed = 0;
 
     spriteThrusting.addImage('/images/ship_fire1.png');
     spriteThrusting.addImage('/images/ship_fire2.png');
@@ -25,7 +28,21 @@ var Game = (function(Game) {
     });
 
     this.update = function() {
-      this.angle += 0.01;
+      if (controlStates.thrust) {
+        speed += 0.02;
+      }
+
+      if (controlStates.turnLeft) {
+        this.angle -= 0.05;
+      }
+
+      if (controlStates.turnRight) {
+        this.angle += 0.05;
+      }
+
+      this.x += speed*Math.cos(this.angle);
+      this.y += speed*Math.sin(this.angle);
+      speed *= 0.99;
       sprite.update();
     };
 
@@ -33,7 +50,50 @@ var Game = (function(Game) {
       return sprite.render();
     };
 
-    this.controlStates = {
+    this.controls = {
+      '38': {
+        keydown: function() {
+          if (!controlStates.thrust) {
+            controlStates.thrust = true;
+            sprite = spriteThrusting;
+          }
+        },
+        keyup: function() {
+          if (controlStates.thrust) {
+            controlStates.thrust = false;
+            sprite = spriteNormal;
+          }
+        }
+      },
+
+      '37': {
+        keydown: function() {
+          if (!controlStates.turnLeft) {
+            controlStates.turnLeft = true;
+          }
+        },
+        keyup: function() {
+          if (controlStates.turnLeft) {
+            controlStates.turnLeft = false;
+          }
+        }
+      },
+
+      '39': {
+        keydown: function() {
+          if (!controlStates.turnRight) {
+            controlStates.turnRight = true;
+          }
+        },
+        keyup: function() {
+          if (controlStates.turnRight) {
+            controlStates.turnRight = false;
+          }
+        }
+      }
+    };
+
+    controlStates = {
       thrust: false,
       turnLeft: false,
       turnRight: false

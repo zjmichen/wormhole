@@ -6,12 +6,15 @@ var Game = (function(Game) {
     , gameObjects = []
     , backgroundObjects = []
     , wormholes = {}
-    , gameLoop;
+    , gameLoop
+    , inputHandler;
 
   Game.playing = false;
 
   Game.init = function(id) {
-    var i, x, y, dist;
+    var i, x, y, dist, ship;
+
+    inputHandler = new Game.InputHandler();
 
     canvas = document.getElementById(id);
     canvas.width = window.innerWidth;
@@ -31,8 +34,13 @@ var Game = (function(Game) {
       backgroundObjects.push(new Game.Star(x, y, dist));
     }
 
-    gameObjects.push(new Game.Ship(0.5*canvas.width, 0.5*canvas.height));
 
+    ship = new Game.Ship(0.5*canvas.width, 0.5*canvas.height);
+    for (var key in ship.controls) {
+      inputHandler.addKeyInput(key, ship.controls[key]);
+    }
+
+    gameObjects.push(ship);
   };
 
   Game.start = function() {
@@ -126,10 +134,29 @@ var Game = (function(Game) {
 })(Game || {});
 var Game = (function(Game) {
 
+  Game.InputHandler = function() {
+    this.addKeyInput = function(keyCode, controls) {
+      for (var evtType in controls) {
+        document.addEventListener(evtType, function(e) {
+          if (e.keyCode === parseInt(keyCode)) {
+            controls[e.type]();
+          }
+        });
+      }
+    };
+  };
+
+  return Game;
+})(Game || {});
+var Game = (function(Game) {
+
   Game.Ship = function(x, y) {
-    var sprite
+    var that = this
+      , sprite
       , spriteThrusting = new Game.Sprite(5)
-      , spriteNormal = new Game.Sprite();
+      , spriteNormal = new Game.Sprite()
+      , controlStates
+      , speed = 0;
 
     spriteThrusting.addImage('/images/ship_fire1.png');
     spriteThrusting.addImage('/images/ship_fire2.png');
@@ -151,7 +178,21 @@ var Game = (function(Game) {
     });
 
     this.update = function() {
-      this.angle += 0.01;
+      if (controlStates.thrust) {
+        speed += 0.02;
+      }
+
+      if (controlStates.turnLeft) {
+        this.angle -= 0.05;
+      }
+
+      if (controlStates.turnRight) {
+        this.angle += 0.05;
+      }
+
+      this.x += speed*Math.cos(this.angle);
+      this.y += speed*Math.sin(this.angle);
+      speed *= 0.99;
       sprite.update();
     };
 
@@ -159,7 +200,50 @@ var Game = (function(Game) {
       return sprite.render();
     };
 
-    this.controlStates = {
+    this.controls = {
+      '38': {
+        keydown: function() {
+          if (!controlStates.thrust) {
+            controlStates.thrust = true;
+            sprite = spriteThrusting;
+          }
+        },
+        keyup: function() {
+          if (controlStates.thrust) {
+            controlStates.thrust = false;
+            sprite = spriteNormal;
+          }
+        }
+      },
+
+      '37': {
+        keydown: function() {
+          if (!controlStates.turnLeft) {
+            controlStates.turnLeft = true;
+          }
+        },
+        keyup: function() {
+          if (controlStates.turnLeft) {
+            controlStates.turnLeft = false;
+          }
+        }
+      },
+
+      '39': {
+        keydown: function() {
+          if (!controlStates.turnRight) {
+            controlStates.turnRight = true;
+          }
+        },
+        keyup: function() {
+          if (controlStates.turnRight) {
+            controlStates.turnRight = false;
+          }
+        }
+      }
+    };
+
+    controlStates = {
       thrust: false,
       turnLeft: false,
       turnRight: false
