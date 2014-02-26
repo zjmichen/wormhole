@@ -75,7 +75,7 @@ var Game = (function(Game) {
   };
 
   Game.removeObject = function(obj) {
-    gameObjects.splice(gameObjects.indexof(obj), 1);
+    gameObjects.splice(gameObjects.indexOf(obj), 1);
   };
 
   function update() {
@@ -84,11 +84,11 @@ var Game = (function(Game) {
     });
 
     for (var id in wormholes) {
-      wormholes[id].update();
+      wormholes[id].update(gameObjects);
     }
 
     gameObjects.forEach(function(obj) {
-      obj.update();
+      obj.update(gameObjects);
     });
 
     frame++;
@@ -164,6 +164,7 @@ var Game = (function(Game) {
     this.x = x;
     this.y = y;
     this.angle = 0;
+    this.type = 'item';
 
     Object.defineProperty(this, 'width', {
       get: function() { return sprite.width; }
@@ -423,13 +424,27 @@ var Game = (function(Game) {
   img.src = '/images/wormhole.png';
 
   Game.Wormhole = function(x, y) {
+    var that = this;
+
     this.angle = 0;
     this.x = x;
     this.y = y;
     this.width = img.width;
     this.height = img.height;
 
-    this.update = function() {
+    this.update = function(gameObjects) {
+      gameObjects.forEach(function(obj) {
+        var dist;
+
+        if (obj.type !== 'item') { return; }
+
+        dist = Math.sqrt(Math.pow(that.x - obj.x, 2) + Math.pow(that.y - obj.y, 2));
+
+        if (dist < 100) {
+          Game.removeObject(obj);
+        }
+      });
+
       this.angle -= 0.01;
     };
 

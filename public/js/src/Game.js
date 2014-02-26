@@ -75,7 +75,7 @@ var Game = (function(Game) {
   };
 
   Game.removeObject = function(obj) {
-    gameObjects.splice(gameObjects.indexof(obj), 1);
+    gameObjects.splice(gameObjects.indexOf(obj), 1);
   };
 
   function update() {
@@ -84,11 +84,11 @@ var Game = (function(Game) {
     });
 
     for (var id in wormholes) {
-      wormholes[id].update();
+      wormholes[id].update(gameObjects);
     }
 
     gameObjects.forEach(function(obj) {
-      obj.update();
+      obj.update(gameObjects);
     });
 
     frame++;
