@@ -100,16 +100,6 @@ var Game = (function(Game) {
       ctx.drawImage(img, x, y);
     });
 
-    //for (var id in wormholes) {
-    //  var img = wormholes[id].render()
-    //    , x = wormholes[id].x || 0
-    //    , y = wormholes[id].y || 0;
-
-    //  ctx.drawImage(img, x, y);
-    //  ctx.fillStyle = 'white';
-    //  ctx.fillText(id, x, y);
-    //}
-
     gameObjects.forEach(function(obj) {
       var img = obj.render()
         , x = obj.x || 0
@@ -117,6 +107,9 @@ var Game = (function(Game) {
         , w = obj.width || 0
         , h = obj.height || 0
         , angle = obj.angle || 0;
+
+      x = ((x % canvas.width) + canvas.width) % canvas.width;
+      y = ((y % canvas.height) + canvas.height) % canvas.height;
 
       ctx.save();
       ctx.translate(x + 0.5*w, y + 0.5*h);
