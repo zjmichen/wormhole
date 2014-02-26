@@ -1,11 +1,17 @@
 var Game = (function(Game) {
 
   Game.Ship = function(x, y) {
-    var sprite = new Game.Sprite(5);
+    var sprite
+      , spriteThrusting = new Game.Sprite(5)
+      , spriteNormal = new Game.Sprite();
 
-    sprite.addImage('/images/ship_fire1.png');
-    sprite.addImage('/images/ship_fire2.png');
-    sprite.addImage('/images/ship_fire3.png');
+    spriteThrusting.addImage('/images/ship_fire1.png');
+    spriteThrusting.addImage('/images/ship_fire2.png');
+    spriteThrusting.addImage('/images/ship_fire3.png');
+
+    spriteNormal.addImage('/images/ship_normal.png');
+
+    sprite = spriteNormal;
 
     this.x = x;
     this.y = y;

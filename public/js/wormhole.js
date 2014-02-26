@@ -127,11 +127,17 @@ var Game = (function(Game) {
 var Game = (function(Game) {
 
   Game.Ship = function(x, y) {
-    var sprite = new Game.Sprite(5);
+    var sprite
+      , spriteThrusting = new Game.Sprite(5)
+      , spriteNormal = new Game.Sprite();
 
-    sprite.addImage('/images/ship_fire1.png');
-    sprite.addImage('/images/ship_fire2.png');
-    sprite.addImage('/images/ship_fire3.png');
+    spriteThrusting.addImage('/images/ship_fire1.png');
+    spriteThrusting.addImage('/images/ship_fire2.png');
+    spriteThrusting.addImage('/images/ship_fire3.png');
+
+    spriteNormal.addImage('/images/ship_normal.png');
+
+    sprite = spriteNormal;
 
     this.x = x;
     this.y = y;
@@ -188,11 +194,11 @@ var Game = (function(Game) {
     this.render = function() {
       var img = images[curFrame];
 
-      buf.width = img.width;
-      buf.height = img.height;
+      if (img !== undefined) {
+        buf.width = img.width;
+        buf.height = img.height;
 
-      ctx.clearRect(0, 0, buf.width, buf.height);
-      if (images.length > 0) {
+        ctx.clearRect(0, 0, buf.width, buf.height);
         ctx.drawImage(img, 0, 0);
       }
 

@@ -24,11 +24,11 @@ var Game = (function(Game) {
     this.render = function() {
       var img = images[curFrame];
 
-      buf.width = img.width;
-      buf.height = img.height;
+      if (img !== undefined) {
+        buf.width = img.width;
+        buf.height = img.height;
 
-      ctx.clearRect(0, 0, buf.width, buf.height);
-      if (images.length > 0) {
+        ctx.clearRect(0, 0, buf.width, buf.height);
         ctx.drawImage(img, 0, 0);
       }
 
