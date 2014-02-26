@@ -11,8 +11,12 @@ function GameController(redis) {
 
     getPlayers: function(gameid, next) {
       redis.smembers('game-' + gameid, next);
+    },
+
+    isInGame: function(playerid, gameid, next) {
+      redis.sismember(gameid, playerid, next);
     }
-  }
+  };
 
   return interface;
 }

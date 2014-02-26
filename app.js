@@ -79,8 +79,17 @@ io.sockets.on('connection', function(socket) {
   });
 
   socket.on('join', function(gameid) {
-    gameCon.addPlayer(socket.id, gameid);
-    socket.broadcast.to(gameid).emit('playerJoined', socket.id);
+    gameCon.getPlayers(gameid, function(err, players) {
+      if (err) { console.log(err); }
+
+      if (players.length < 5) {
+        gameCon.addPlayer(socket.id, gameid);
+        socket.broadcast.to(gameid).emit('playerJoined', socket.id);
+        socket.emit('startGame');
+      } else {
+        socket.emit('gameFull');
+      }
+    });
   });
 
   socket.on('disconnect', function() {
@@ -116,9 +125,15 @@ io.sockets.on('connection', function(socket) {
     socket.get('gameid', function(err, gameid) {
       if (err) { console.log(err); }
 
-      io.sockets.socket(msg.to).emit('wormhole', {
-        from: socket.id,
-        data: msg.data
+      gameCon.isInGame(socket.id, gameid, function(err, isInGame) {
+        if (isInGame) {
+          io.sockets.socket(msg.to).emit('wormhole', {
+            from: socket.id,
+            data: msg.data
+          });
+        } else {
+          console.log(socket.id + ' tried to wormhole but wasn\'t in a game.');
+        }
       });
     });
   });

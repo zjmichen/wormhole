@@ -12,21 +12,6 @@ var Sockman = (function(Sockman) {
   Sockman.join = function(gameid) {
     socket.emit('join', gameid);
     $('#join').remove();
-
-    $('canvas#wormhole').fadeIn();
-    Game.init('wormhole');
-
-    socket.emit('getPlayers');
-
-    socket.on('playerList', function(players) {
-      players.forEach(function(playerid) {
-        if (playerid !== socket.socket.sessionid) {
-          Game.addPlayer(playerid);
-        }
-      });
-    });
-
-    Game.start();
   };
 
   Sockman.send = function(data, playerid) {
@@ -52,6 +37,23 @@ var Sockman = (function(Sockman) {
     if (Game.playing) {
       Game.removePlayer(playerid);
     }
+  });
+
+  socket.on('startGame', function() {
+    $('canvas#wormhole').fadeIn();
+    Game.init('wormhole');
+
+    socket.emit('getPlayers');
+
+    socket.on('playerList', function(players) {
+      players.forEach(function(playerid) {
+        if (playerid !== socket.socket.sessionid) {
+          Game.addPlayer(playerid);
+        }
+      });
+    });
+
+    Game.start();
   });
 
   socket.on('wormhole', function(msg) {
