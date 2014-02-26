@@ -1,25 +1,30 @@
 var Game = (function(Game) {
-  Game.Ship = function(x, y) {
-    var buffer, ctx;
 
-    this.dist = dist;
+  Game.Ship = function(x, y) {
+    var sprite = new Game.Sprite(5);
+
+    sprite.addImage('/images/ship_fire1.png');
+    sprite.addImage('/images/ship_fire2.png');
+    sprite.addImage('/images/ship_fire3.png');
+
     this.x = x;
     this.y = y;
-    buffer = document.createElement('canvas');
-    buffer.width = 100;
-    buffer.height = 100;
+    this.angle = 0;
 
-    ctx = buffer.getContext('2d');
-    ctx.fillStyle = '#888';
-    ctx.fillRect(0, 0, 100, 100);
+    Object.defineProperty(this, 'width', {
+      get: function() { return sprite.width; }
+    });
+    Object.defineProperty(this, 'height', {
+      get: function() { return sprite.height; }
+    });
 
     this.update = function() {
-      this.x -= 1/this.dist;
-      this.y -= 0.5/this.dist;
+      this.angle += 0.01;
+      sprite.update();
     };
 
     this.render = function() {
-      return buffer;
+      return sprite.render();
     };
 
     this.controlStates = {

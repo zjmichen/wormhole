@@ -31,6 +31,8 @@ var Game = (function(Game) {
       backgroundObjects.push(new Game.Star(x, y, dist));
     }
 
+    gameObjects.push(new Game.Ship(0.5*canvas.width, 0.5*canvas.height));
+
   };
 
   Game.start = function() {
@@ -108,8 +110,6 @@ var Game = (function(Game) {
         , h = obj.height || 0
         , angle = obj.angle || 0;
 
-      console.log(w + ', ' + h);
-
       ctx.save();
       ctx.translate(x + 0.5*w, y + 0.5*h);
       ctx.rotate(obj.angle);
@@ -125,27 +125,32 @@ var Game = (function(Game) {
   return Game;
 })(Game || {});
 var Game = (function(Game) {
-  Game.Ship = function(x, y) {
-    var buffer, ctx;
 
-    this.dist = dist;
+  Game.Ship = function(x, y) {
+    var sprite = new Game.Sprite(5);
+
+    sprite.addImage('/images/ship_fire1.png');
+    sprite.addImage('/images/ship_fire2.png');
+    sprite.addImage('/images/ship_fire3.png');
+
     this.x = x;
     this.y = y;
-    buffer = document.createElement('canvas');
-    buffer.width = 100;
-    buffer.height = 100;
+    this.angle = 0;
 
-    ctx = buffer.getContext('2d');
-    ctx.fillStyle = '#888';
-    ctx.fillRect(0, 0, 100, 100);
+    Object.defineProperty(this, 'width', {
+      get: function() { return sprite.width; }
+    });
+    Object.defineProperty(this, 'height', {
+      get: function() { return sprite.height; }
+    });
 
     this.update = function() {
-      this.x -= 1/this.dist;
-      this.y -= 0.5/this.dist;
+      this.angle += 0.01;
+      sprite.update();
     };
 
     this.render = function() {
-      return buffer;
+      return sprite.render();
     };
 
     this.controlStates = {
@@ -158,30 +163,55 @@ var Game = (function(Game) {
   return Game;
 })(Game || {});
 var Game = (function(Game) {
-  Game.Sprite = function(I) {
-    I = I || {};
-
-    var image
+  Game.Sprite = function(frameRate) {
+    var images = []
+      , curFrame = 0
+      , frameRate = frameRate || 1
+      , subFrame = 0
       , buf = document.createElement('canvas')
       , ctx = buf.getContext('2d');
 
+    Object.defineProperty(this, 'width', {
+      get: function() { return buf.width; }
+    });
+    Object.defineProperty(this, 'height', {
+      get: function() { return buf.height; }
+    });
+
+    this.update = function() {
+      subFrame = (subFrame + 1) % frameRate;
+      if (subFrame === 0) {
+        curFrame = (curFrame + 1) % images.length;
+      }
+    };
+
     this.render = function() {
-      //ctx.save();
-      //ctx.translate(0.5*buf.width, 0.5*buf.height);
-      //ctx.rotate(options.angle);
-      //ctx.translate(-0.5*buf.width, -0.5*buf.height);
+      var img = images[curFrame];
+
+      buf.width = img.width;
+      buf.height = img.height;
+
       ctx.clearRect(0, 0, buf.width, buf.height);
-      ctx.drawImage(image, 0, 0);
-      //ctx.restore();
+      if (images.length > 0) {
+        ctx.drawImage(img, 0, 0);
+      }
 
       return buf;
     };
 
     this.addImage = function(img) {
-      buf.width = img.width;
-      buf.height = img.height;
+      var realImg;
 
-      image = img;
+      if (typeof img === 'string')
+      {
+        realImg = new Image();
+        realImg.addEventListener('load', function() {
+          images.push(realImg);
+        });
+        realImg.src = img;
+      } else {
+        images.push(img);
+      }
     };
 
   };

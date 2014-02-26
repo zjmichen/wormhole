@@ -31,6 +31,8 @@ var Game = (function(Game) {
       backgroundObjects.push(new Game.Star(x, y, dist));
     }
 
+    gameObjects.push(new Game.Ship(0.5*canvas.width, 0.5*canvas.height));
+
   };
 
   Game.start = function() {
