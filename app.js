@@ -59,7 +59,7 @@ app.get('/games/:gameid', function(req, res) {
         id: req.params.gameid,
         players: players
       });
-    };
+    }
   });
 });
 
