@@ -111,5 +111,15 @@ io.sockets.on('connection', function(socket) {
       }
     });
   });
+
+  socket.on('wormhole', function(msg) {
+    socket.get('gameid', function(err, gameid) {
+      if (err) { console.log(err); }
+
+      console.log(msg);
+      io.sockets.socket(msg.to).emit('wormhole', msg.data);
+    });
+  });
+
 });
 

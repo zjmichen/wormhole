@@ -29,6 +29,13 @@ var Sockman = (function(Sockman) {
     Game.start();
   };
 
+  Sockman.send = function(data, playerid) {
+    socket.emit('wormhole', {
+      to: playerid,
+      data: data
+    });
+  };
+
   socket.on('playerJoined', function(playerid) {
     console.log('Player joined: ' + playerid);
     $('#playerlist').append('<li id="' + playerid + '">' + playerid);
@@ -45,6 +52,10 @@ var Sockman = (function(Sockman) {
     if (Game.playing) {
       Game.removePlayer(playerid);
     }
+  });
+
+  socket.on('wormhole', function(data) {
+    console.log(data);
   });
 
   return Sockman;

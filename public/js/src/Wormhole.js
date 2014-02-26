@@ -7,7 +7,7 @@ var Game = (function(Game) {
   });
   img.src = '/images/wormhole.png';
 
-  Game.Wormhole = function(x, y) {
+  Game.Wormhole = function(x, y, id) {
     var that = this;
 
     this.angle = 0;
@@ -25,6 +25,7 @@ var Game = (function(Game) {
         dist = Math.sqrt(Math.pow(that.x - obj.x, 2) + Math.pow(that.y - obj.y, 2));
 
         if (dist < 100) {
+          Game.sendObject(JSON.stringify(obj), id);
           Game.removeObject(obj);
         }
       });

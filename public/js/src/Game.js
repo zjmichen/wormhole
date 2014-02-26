@@ -78,6 +78,10 @@ var Game = (function(Game) {
     gameObjects.splice(gameObjects.indexOf(obj), 1);
   };
 
+  Game.sendObject = function(obj, playerId) {
+    Sockman.send(obj, playerId);
+  };
+
   function update() {
     backgroundObjects.forEach(function(obj) {
       obj.update();
