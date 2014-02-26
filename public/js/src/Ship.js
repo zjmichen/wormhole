@@ -1,4 +1,13 @@
 var Game = (function(Game) {
+  var shipNormalImg = new Image()
+    , shipFire1 = new Image()
+    , shipFire2 = new Image()
+    , shipFire3 = new Image();
+
+  shipNormalImg.src = '/images/ship_normal.png';
+  shipFire1.src = '/images/ship_fire1.png';
+  shipFire2.src = '/images/ship_fire2.png';
+  shipFire3.src = '/images/ship_fire3.png';
 
   Game.Ship = function(x, y) {
     var that = this
@@ -9,11 +18,10 @@ var Game = (function(Game) {
       , speed = 0
       , driftAngle = 0;
 
-    spriteThrusting.addImage('/images/ship_fire1.png');
-    spriteThrusting.addImage('/images/ship_fire2.png');
-    spriteThrusting.addImage('/images/ship_fire3.png');
-
-    spriteNormal.addImage('/images/ship_normal.png');
+    spriteNormal.addImage(shipNormalImg);
+    spriteThrusting.addImage(shipFire1);
+    spriteThrusting.addImage(shipFire2);
+    spriteThrusting.addImage(shipFire3);
 
     sprite = spriteNormal;
 
@@ -108,6 +116,17 @@ var Game = (function(Game) {
           if (controlStates.turnRight) {
             controlStates.turnRight = false;
           }
+        }
+      },
+
+      '32': {
+        keydown: function() {
+          var item = new Game.Item(0, 0);
+          item.x = that.x;
+          item.y = that.y;
+          item.angle = that.angle;
+
+          Game.addObject(item);
         }
       }
     };

@@ -70,6 +70,14 @@ var Game = (function(Game) {
     delete wormholes[id];
   };
 
+  Game.addObject = function(obj) {
+    gameObjects.push(obj);
+  };
+
+  Game.removeObject = function(obj) {
+    gameObjects.splice(gameObjects.indexof(obj), 1);
+  };
+
   function update() {
     backgroundObjects.forEach(function(obj) {
       obj.update();
@@ -143,6 +151,51 @@ var Game = (function(Game) {
   return Game;
 })(Game || {});
 var Game = (function(Game) {
+  var itemImg = new Image();
+  itemImg.src = '/images/item_none.png';
+
+  Game.Item = function(x, y) {
+    var that = this
+      , sprite = new Game.Sprite()
+      , speed = 1;
+
+    sprite.addImage(itemImg);
+
+    this.x = x;
+    this.y = y;
+    this.angle = 0;
+
+    Object.defineProperty(this, 'width', {
+      get: function() { return sprite.width; }
+    });
+    Object.defineProperty(this, 'height', {
+      get: function() { return sprite.height; }
+    });
+
+    this.update = function() {
+      this.x += speed*Math.cos(this.angle);
+      this.y += speed*Math.sin(this.angle);
+      sprite.update();
+    };
+
+    this.render = function() {
+      return sprite.render();
+    };
+
+  };
+
+  return Game;
+})(Game || {});
+var Game = (function(Game) {
+  var shipNormalImg = new Image()
+    , shipFire1 = new Image()
+    , shipFire2 = new Image()
+    , shipFire3 = new Image();
+
+  shipNormalImg.src = '/images/ship_normal.png';
+  shipFire1.src = '/images/ship_fire1.png';
+  shipFire2.src = '/images/ship_fire2.png';
+  shipFire3.src = '/images/ship_fire3.png';
 
   Game.Ship = function(x, y) {
     var that = this
@@ -153,11 +206,10 @@ var Game = (function(Game) {
       , speed = 0
       , driftAngle = 0;
 
-    spriteThrusting.addImage('/images/ship_fire1.png');
-    spriteThrusting.addImage('/images/ship_fire2.png');
-    spriteThrusting.addImage('/images/ship_fire3.png');
-
-    spriteNormal.addImage('/images/ship_normal.png');
+    spriteNormal.addImage(shipNormalImg);
+    spriteThrusting.addImage(shipFire1);
+    spriteThrusting.addImage(shipFire2);
+    spriteThrusting.addImage(shipFire3);
 
     sprite = spriteNormal;
 
@@ -253,6 +305,17 @@ var Game = (function(Game) {
             controlStates.turnRight = false;
           }
         }
+      },
+
+      '32': {
+        keydown: function() {
+          var item = new Game.Item(0, 0);
+          item.x = that.x;
+          item.y = that.y;
+          item.angle = that.angle;
+
+          Game.addObject(item);
+        }
       }
     };
 
@@ -274,18 +337,17 @@ var Game = (function(Game) {
       , buf = document.createElement('canvas')
       , ctx = buf.getContext('2d');
 
-    Object.defineProperty(this, 'width', {
-      get: function() { return buf.width; }
-    });
-    Object.defineProperty(this, 'height', {
-      get: function() { return buf.height; }
-    });
+    this.width = 0;
+    this.height = 0;
 
     this.update = function() {
       subFrame = (subFrame + 1) % frameRate;
       if (subFrame === 0) {
         curFrame = (curFrame + 1) % images.length;
       }
+
+      this.width = buf.width;
+      this.height = buf.height;
     };
 
     this.render = function() {
@@ -314,6 +376,10 @@ var Game = (function(Game) {
         realImg.src = img;
       } else {
         images.push(img);
+        if (images.length === 1) {
+          this.width = img.width;
+          this.height = img.height;
+        }
       }
     };
 

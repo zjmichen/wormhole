@@ -70,6 +70,14 @@ var Game = (function(Game) {
     delete wormholes[id];
   };
 
+  Game.addObject = function(obj) {
+    gameObjects.push(obj);
+  };
+
+  Game.removeObject = function(obj) {
+    gameObjects.splice(gameObjects.indexof(obj), 1);
+  };
+
   function update() {
     backgroundObjects.forEach(function(obj) {
       obj.update();

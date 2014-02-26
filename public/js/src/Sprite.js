@@ -7,18 +7,17 @@ var Game = (function(Game) {
       , buf = document.createElement('canvas')
       , ctx = buf.getContext('2d');
 
-    Object.defineProperty(this, 'width', {
-      get: function() { return buf.width; }
-    });
-    Object.defineProperty(this, 'height', {
-      get: function() { return buf.height; }
-    });
+    this.width = 0;
+    this.height = 0;
 
     this.update = function() {
       subFrame = (subFrame + 1) % frameRate;
       if (subFrame === 0) {
         curFrame = (curFrame + 1) % images.length;
       }
+
+      this.width = buf.width;
+      this.height = buf.height;
     };
 
     this.render = function() {
@@ -47,6 +46,10 @@ var Game = (function(Game) {
         realImg.src = img;
       } else {
         images.push(img);
+        if (images.length === 1) {
+          this.width = img.width;
+          this.height = img.height;
+        }
       }
     };
 
