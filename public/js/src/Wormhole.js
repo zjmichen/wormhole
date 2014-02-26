@@ -20,7 +20,7 @@ var Game = (function(Game) {
       gameObjects.forEach(function(obj) {
         var dist;
 
-        if (obj.type !== 'item') { return; }
+        if (obj.type !== 'item' || obj.from === id) { return; }
 
         dist = Math.sqrt(Math.pow(that.x - obj.x, 2) + Math.pow(that.y - obj.y, 2));
 

@@ -121,7 +121,7 @@ var Game = (function(Game) {
 
       '32': {
         keydown: function() {
-          var item = new Game.Item(0, 0);
+          var item = new Game.Item();
           item.x = that.x;
           item.y = that.y;
           item.angle = that.angle;

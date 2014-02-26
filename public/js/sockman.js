@@ -54,8 +54,8 @@ var Sockman = (function(Sockman) {
     }
   });
 
-  socket.on('wormhole', function(data) {
-    console.log(data);
+  socket.on('wormhole', function(msg) {
+    Game.receiveObject(msg.data, msg.from);
   });
 
   return Sockman;

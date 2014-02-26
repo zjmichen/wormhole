@@ -2,16 +2,18 @@ var Game = (function(Game) {
   var itemImg = new Image();
   itemImg.src = '/images/item_none.png';
 
-  Game.Item = function(x, y) {
+  Game.Item = function(I) {
+    I = I || {};
+
     var that = this
       , sprite = new Game.Sprite()
-      , speed = 1;
+      , speed = I.speed || 1;
 
     sprite.addImage(itemImg);
 
-    this.x = x;
-    this.y = y;
-    this.angle = 0;
+    this.x = I.x || 0;
+    this.y = I.y || 0;
+    this.angle = I.angle || 0;
     this.type = 'item';
 
     Object.defineProperty(this, 'width', {

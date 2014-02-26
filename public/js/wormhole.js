@@ -82,6 +82,16 @@ var Game = (function(Game) {
     Sockman.send(obj, playerId);
   };
 
+  Game.receiveObject = function(obj, wormholeId) {
+    var item = new Game.Item(JSON.parse(obj));
+
+    item.from = wormholeId;
+    item.x = wormholes[wormholeId].x;
+    item.y = wormholes[wormholeId].y;
+
+    gameObjects.push(item);
+  };
+
   function update() {
     backgroundObjects.forEach(function(obj) {
       obj.update();
@@ -158,16 +168,18 @@ var Game = (function(Game) {
   var itemImg = new Image();
   itemImg.src = '/images/item_none.png';
 
-  Game.Item = function(x, y) {
+  Game.Item = function(I) {
+    I = I || {};
+
     var that = this
       , sprite = new Game.Sprite()
-      , speed = 1;
+      , speed = I.speed || 1;
 
     sprite.addImage(itemImg);
 
-    this.x = x;
-    this.y = y;
-    this.angle = 0;
+    this.x = I.x || 0;
+    this.y = I.y || 0;
+    this.angle = I.angle || 0;
     this.type = 'item';
 
     Object.defineProperty(this, 'width', {
@@ -314,7 +326,7 @@ var Game = (function(Game) {
 
       '32': {
         keydown: function() {
-          var item = new Game.Item(0, 0);
+          var item = new Game.Item();
           item.x = that.x;
           item.y = that.y;
           item.angle = that.angle;
@@ -440,7 +452,7 @@ var Game = (function(Game) {
       gameObjects.forEach(function(obj) {
         var dist;
 
-        if (obj.type !== 'item') { return; }
+        if (obj.type !== 'item' || obj.from === id) { return; }
 
         dist = Math.sqrt(Math.pow(that.x - obj.x, 2) + Math.pow(that.y - obj.y, 2));
 

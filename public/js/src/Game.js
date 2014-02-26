@@ -82,6 +82,16 @@ var Game = (function(Game) {
     Sockman.send(obj, playerId);
   };
 
+  Game.receiveObject = function(obj, wormholeId) {
+    var item = new Game.Item(JSON.parse(obj));
+
+    item.from = wormholeId;
+    item.x = wormholes[wormholeId].x;
+    item.y = wormholes[wormholeId].y;
+
+    gameObjects.push(item);
+  };
+
   function update() {
     backgroundObjects.forEach(function(obj) {
       obj.update();

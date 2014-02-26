@@ -116,8 +116,10 @@ io.sockets.on('connection', function(socket) {
     socket.get('gameid', function(err, gameid) {
       if (err) { console.log(err); }
 
-      console.log(msg);
-      io.sockets.socket(msg.to).emit('wormhole', msg.data);
+      io.sockets.socket(msg.to).emit('wormhole', {
+        from: socket.id,
+        data: msg.data
+      });
     });
   });
 
