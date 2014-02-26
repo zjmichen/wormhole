@@ -66,6 +66,7 @@ var Game = (function(Game) {
   };
 
   Game.removePlayer = function(id) {
+    gameObjects.splice(gameObjects.indexOf(wormholes[id]), 1)
     delete wormholes[id];
   };
 
