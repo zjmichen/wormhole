@@ -6,7 +6,8 @@ var Game = (function(Game) {
       , spriteThrusting = new Game.Sprite(5)
       , spriteNormal = new Game.Sprite()
       , controlStates
-      , speed = 0;
+      , speed = 0
+      , driftAngle = 0;
 
     spriteThrusting.addImage('/images/ship_fire1.png');
     spriteThrusting.addImage('/images/ship_fire2.png');
@@ -28,20 +29,38 @@ var Game = (function(Game) {
     });
 
     this.update = function() {
+      var driftX, driftY, thrustX, thrustY, thrust;
+
       if (controlStates.thrust) {
-        speed += 0.02;
+        // let's math this shit
+        thrust = 0.2;
+
+        driftX = speed*Math.cos(driftAngle);
+        driftY = speed*Math.sin(driftAngle);
+        thrustX = thrust*Math.cos(this.angle);
+        thrustY = thrust*Math.sin(this.angle);
+
+        driftX += thrustX;
+        driftY += thrustY;
+
+        speed = Math.sqrt(Math.pow(driftX, 2) + Math.pow(driftY, 2));
+        driftAngle = Math.acos(driftX / speed);
+        if (Math.asin(driftY / speed) < 0) {
+          driftAngle *= -1;
+        }
       }
 
       if (controlStates.turnLeft) {
-        this.angle -= 0.05;
+        this.angle -= 0.1;
       }
 
       if (controlStates.turnRight) {
-        this.angle += 0.05;
+        this.angle += 0.1;
       }
 
-      this.x += speed*Math.cos(this.angle);
-      this.y += speed*Math.sin(this.angle);
+      this.x += speed*Math.cos(driftAngle);
+      this.y += speed*Math.sin(driftAngle);
+
       speed *= 0.99;
       sprite.update();
     };

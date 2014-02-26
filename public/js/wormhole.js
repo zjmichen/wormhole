@@ -100,16 +100,6 @@ var Game = (function(Game) {
       ctx.drawImage(img, x, y);
     });
 
-    //for (var id in wormholes) {
-    //  var img = wormholes[id].render()
-    //    , x = wormholes[id].x || 0
-    //    , y = wormholes[id].y || 0;
-
-    //  ctx.drawImage(img, x, y);
-    //  ctx.fillStyle = 'white';
-    //  ctx.fillText(id, x, y);
-    //}
-
     gameObjects.forEach(function(obj) {
       var img = obj.render()
         , x = obj.x || 0
@@ -117,6 +107,9 @@ var Game = (function(Game) {
         , w = obj.width || 0
         , h = obj.height || 0
         , angle = obj.angle || 0;
+
+      x = ((x % canvas.width) + canvas.width) % canvas.width;
+      y = ((y % canvas.height) + canvas.height) % canvas.height;
 
       ctx.save();
       ctx.translate(x + 0.5*w, y + 0.5*h);
@@ -156,7 +149,8 @@ var Game = (function(Game) {
       , spriteThrusting = new Game.Sprite(5)
       , spriteNormal = new Game.Sprite()
       , controlStates
-      , speed = 0;
+      , speed = 0
+      , driftAngle = 0;
 
     spriteThrusting.addImage('/images/ship_fire1.png');
     spriteThrusting.addImage('/images/ship_fire2.png');
@@ -178,20 +172,38 @@ var Game = (function(Game) {
     });
 
     this.update = function() {
+      var driftX, driftY, thrustX, thrustY, thrust;
+
       if (controlStates.thrust) {
-        speed += 0.02;
+        // let's math this shit
+        thrust = 0.2;
+
+        driftX = speed*Math.cos(driftAngle);
+        driftY = speed*Math.sin(driftAngle);
+        thrustX = thrust*Math.cos(this.angle);
+        thrustY = thrust*Math.sin(this.angle);
+
+        driftX += thrustX;
+        driftY += thrustY;
+
+        speed = Math.sqrt(Math.pow(driftX, 2) + Math.pow(driftY, 2));
+        driftAngle = Math.acos(driftX / speed);
+        if (Math.asin(driftY / speed) < 0) {
+          driftAngle *= -1;
+        }
       }
 
       if (controlStates.turnLeft) {
-        this.angle -= 0.05;
+        this.angle -= 0.1;
       }
 
       if (controlStates.turnRight) {
-        this.angle += 0.05;
+        this.angle += 0.1;
       }
 
-      this.x += speed*Math.cos(this.angle);
-      this.y += speed*Math.sin(this.angle);
+      this.x += speed*Math.cos(driftAngle);
+      this.y += speed*Math.sin(driftAngle);
+
       speed *= 0.99;
       sprite.update();
     };
