@@ -121,10 +121,12 @@ var Game = (function(Game) {
 
       '32': {
         keydown: function() {
-          var item = new Game.Item();
-          item.x = that.x;
-          item.y = that.y;
-          item.angle = that.angle;
+          var item = new Game.Item({
+            x: that.x,
+            y: that.y,
+            angle: that.angle,
+            speed: that.speed + 1
+          });
 
           Game.addObject(item);
         }
