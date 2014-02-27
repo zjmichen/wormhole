@@ -2,7 +2,9 @@ var express = require('express')
   , app = express()
   , server = require('http').createServer(app)
   , io = require('socket.io').listen(server)
+  , url = require('url')
   , path = require('path')
+  , redisUrl
   , credentials = {}
   , redis = require('redis')
   , GameController = require('./controllers/GameController.js')
@@ -30,9 +32,12 @@ if ('development' == app.get('env')) {
 
 if ('production' == app.get('env')) {
   console.log("Running in production environment");
-  credentials.redisHost = process.env.REDIS_HOST;
-  credentials.redisPort = process.env.REDIS_PORT;
-  credentials.redisPass = process.env.REDIS_PASS;
+
+  redisUrl = url.parse(process.env.REDISCLOUD_URL);
+
+  credentials.redisHost = redisUrl.hostname;
+  credentials.redisPort = redisUrl.port;
+  credentials.redisPass = redisUrl.auth.split(':')[1];
 }
 
 redisClient = redis.createClient(credentials.redisPort, credentials.redisHost);
