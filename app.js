@@ -4,9 +4,9 @@ var express = require('express')
   , io = require('socket.io').listen(server)
   , url = require('url')
   , path = require('path')
+  , redis = require('redis')
   , redisUrl
   , credentials = {}
-  , redis = require('redis')
   , GameController = require('./controllers/GameController.js')
   , gameCon;
 
