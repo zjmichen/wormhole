@@ -14,7 +14,7 @@ function GameController(redis) {
     },
 
     isInGame: function(playerid, gameid, next) {
-      redis.sismember(gameid, playerid, next);
+      redis.sismember('game-' + gameid, playerid, next);
     }
   };
 
