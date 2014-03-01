@@ -34,19 +34,32 @@ var Game = (function(Game) {
       backgroundObjects.push(new Game.Star(x, y, dist));
     }
 
-
     ship = new Game.Ship(0.5*canvas.width, 0.5*canvas.height);
     for (var key in ship.controls) {
       inputHandler.addKeyInput(key, ship.controls[key]);
     }
 
     gameObjects.push(ship);
+
+    inputHandler.addKeyInput('80', {
+      keyup: function(e) {
+        Game.paused = !Game.paused;
+      }
+    });
+
+    Game.paused = false;
+
+    update();
+    draw();
+
   };
 
   Game.start = function() {
     gameLoop = setInterval(function() {
-      update();
-      draw();
+      if (!Game.paused) {
+        update();
+        draw();
+      }
     }, 1000/frameRate);
 
     Game.playing = true;

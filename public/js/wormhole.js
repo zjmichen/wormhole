@@ -34,19 +34,32 @@ var Game = (function(Game) {
       backgroundObjects.push(new Game.Star(x, y, dist));
     }
 
-
     ship = new Game.Ship(0.5*canvas.width, 0.5*canvas.height);
     for (var key in ship.controls) {
       inputHandler.addKeyInput(key, ship.controls[key]);
     }
 
     gameObjects.push(ship);
+
+    inputHandler.addKeyInput('80', {
+      keyup: function(e) {
+        Game.paused = !Game.paused;
+      }
+    });
+
+    Game.paused = false;
+
+    update();
+    draw();
+
   };
 
   Game.start = function() {
     gameLoop = setInterval(function() {
-      update();
-      draw();
+      if (!Game.paused) {
+        update();
+        draw();
+      }
     }, 1000/frameRate);
 
     Game.playing = true;
@@ -154,6 +167,7 @@ var Game = (function(Game) {
     this.addKeyInput = function(keyCode, controls) {
       for (var evtType in controls) {
         document.addEventListener(evtType, function(e) {
+          console.log(e.keyCode);
           if (e.keyCode === parseInt(keyCode)) {
             controls[e.type]();
           }
@@ -181,6 +195,7 @@ var Game = (function(Game) {
     this.y = I.y || 0;
     this.angle = I.angle || 0;
     this.type = 'item';
+    this.life = 0;
 
     Object.defineProperty(this, 'width', {
       get: function() { return sprite.width; }
@@ -326,14 +341,12 @@ var Game = (function(Game) {
 
       '32': {
         keydown: function() {
-          var item = new Game.Item({
+          Game.addObject(new Game.Item({
             x: that.x,
             y: that.y,
             angle: that.angle,
             speed: that.speed + 1
-          });
-
-          Game.addObject(item);
+          }));
         }
       }
     };
