@@ -47,6 +47,16 @@ var Game = (function(Game) {
       }
     });
 
+    inputHandler.addKeyInput('78', {
+      keydown: function(e) {
+        console.log(Game.paused);
+        if (Game.paused) {
+          update();
+          draw();
+        }
+      }
+    });
+
     Game.paused = false;
 
     update();

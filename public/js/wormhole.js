@@ -47,6 +47,16 @@ var Game = (function(Game) {
       }
     });
 
+    inputHandler.addKeyInput('78', {
+      keydown: function(e) {
+        console.log(Game.paused);
+        if (Game.paused) {
+          update();
+          draw();
+        }
+      }
+    });
+
     Game.paused = false;
 
     update();
@@ -167,7 +177,6 @@ var Game = (function(Game) {
     this.addKeyInput = function(keyCode, controls) {
       for (var evtType in controls) {
         document.addEventListener(evtType, function(e) {
-          console.log(e.keyCode);
           if (e.keyCode === parseInt(keyCode)) {
             controls[e.type]();
           }
@@ -195,7 +204,6 @@ var Game = (function(Game) {
     this.y = I.y || 0;
     this.angle = I.angle || 0;
     this.type = 'item';
-    this.life = 0;
 
     Object.defineProperty(this, 'width', {
       get: function() { return sprite.width; }
