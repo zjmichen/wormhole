@@ -49,7 +49,6 @@ var Game = (function(Game) {
 
     inputHandler.addKeyInput('78', {
       keydown: function(e) {
-        console.log(Game.paused);
         if (Game.paused) {
           update();
           draw();
@@ -162,6 +161,9 @@ var Game = (function(Game) {
       ctx.rotate(obj.angle);
       ctx.translate(-0.5*w, -0.5*h);
       ctx.drawImage(img, 0, 0);
+      ctx.strokeStyle = '#ff0';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(0, 0, w, h);
       ctx.restore();
     });
 
