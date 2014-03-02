@@ -99,7 +99,7 @@ var Game = (function(Game) {
   };
 
   Game.addObject = function(obj) {
-    obj.update();
+    obj.update(gameObjects);
     obj.render();
     gameObjects.push(obj);
   };
@@ -297,8 +297,7 @@ var Game = (function(Game) {
     I = I || {};
 
     var that = this
-      , sprite = new Game.Sprite()
-      , speed = I.speed || 1;
+      , sprite = new Game.Sprite();
 
     sprite.addImage(itemImg);
 
@@ -306,6 +305,7 @@ var Game = (function(Game) {
     this.y = I.y || 0;
     this.angle = I.angle || 0;
     this.scale = I.scale || 1;
+    this.speed = I.speed || 1;
     this.type = 'item';
 
     Object.defineProperty(this, 'width', {
