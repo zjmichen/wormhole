@@ -15,7 +15,6 @@ var Game = (function(Game) {
   Game.init = function(id) {
     var i, x, y, dist, ship;
 
-    window.wormholes = wormholes;
 
     inputHandler = new Game.InputHandler();
 

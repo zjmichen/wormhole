@@ -12,6 +12,7 @@ var Sockman = (function(Sockman) {
   Sockman.join = function(gameid) {
     socket.emit('join', gameid);
     $('#join').remove();
+    requestFullscreen(document.querySelector('#wormhole'));
   };
 
   Sockman.send = function(data, playerid) {
@@ -63,3 +64,15 @@ var Sockman = (function(Sockman) {
   return Sockman;
 
 })({});
+
+function requestFullscreen(elem) {
+  if (elem.requestFullscreen) {
+      elem.requestFullscreen();
+  } else if (elem.msRequestFullscreen) {
+      elem.msRequestFullscreen();
+  } else if (elem.mozRequestFullScreen) {
+      elem.mozRequestFullScreen();
+  } else if (elem.webkitRequestFullscreen) {
+      elem.webkitRequestFullscreen();
+  }
+}
