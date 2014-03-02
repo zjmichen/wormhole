@@ -49,7 +49,6 @@ var Game = (function(Game) {
 
     inputHandler.addKeyInput('78', {
       keydown: function(e) {
-        console.log(Game.paused);
         if (Game.paused) {
           update();
           draw();
@@ -162,6 +161,9 @@ var Game = (function(Game) {
       ctx.rotate(obj.angle);
       ctx.translate(-0.5*w, -0.5*h);
       ctx.drawImage(img, 0, 0);
+      ctx.strokeStyle = '#ff0';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(0, 0, w, h);
       ctx.restore();
     });
 
@@ -349,12 +351,17 @@ var Game = (function(Game) {
 
       '32': {
         keydown: function() {
-          Game.addObject(new Game.Item({
-            x: that.x,
-            y: that.y,
+          var item = new Game.Item({
+            x: that.x + 0.5*that.height,
+            y: that.y + 0.5*that.width,
             angle: that.angle,
             speed: that.speed + 1
-          }));
+          });
+
+          item.update();
+          item.render();
+
+          Game.addObject(item);
         }
       }
     };
