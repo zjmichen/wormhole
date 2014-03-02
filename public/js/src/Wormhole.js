@@ -16,27 +16,25 @@ var Game = (function(Game) {
     this.width = img.width;
     this.height = img.height;
 
-    this.update = function(gameObjects) {
-      gameObjects.forEach(function(obj) {
-        var dist;
-
-        if (obj.type !== 'item' || obj.from === id) { return; }
-
-        dist = Math.sqrt(Math.pow(that.x - obj.x, 2) + Math.pow(that.y - obj.y, 2));
-
-        if (dist < 100) {
-          Game.sendObject(JSON.stringify(obj), id);
-          Game.removeObject(obj);
-        }
-      });
-
+    this.updatePosition = function() {
       this.angle -= 0.01;
-
-      this.processTriggers();
     };
 
     this.render = function() {
       return sprite.render();
+    };
+
+    this.interactWith = function(obj) {
+      if (obj.type !== 'item' || obj.from === id) { return; }
+
+      if (that.distanceTo(obj) < 100) {
+        console.log('Caught an item');
+        obj.from = id;
+        obj.scaleTo(0, function() {
+          Game.sendObject(JSON.stringify(obj), id);
+          Game.removeObject(obj);
+        });
+      }
     };
   };
 

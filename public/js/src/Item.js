@@ -24,17 +24,13 @@ var Game = (function(Game) {
       get: function() { return sprite.height; }
     });
 
-    this.update = function() {
-      this.x += speed*Math.cos(this.angle);
-      this.y += speed*Math.sin(this.angle);
-      sprite.update();
-    };
-
     this.render = function() {
       return sprite.render();
     };
 
   };
+
+  Game.Item.prototype = Game.GameObject;
 
   return Game;
 })(Game || {});

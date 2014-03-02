@@ -124,7 +124,6 @@ var Game = (function(Game) {
             y: that.y,// + 0.5*that.width,
             angle: that.angle,
             speed: that.speed + 1,
-            scale: Math.random()
           }));
         }
       }

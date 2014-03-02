@@ -203,11 +203,18 @@ var Game = (function(Game) {
     angle: 0,
     speed: 0,
     triggers: [],
+    type: 'object',
 
-    update: function() {
+    update: function(gameObjects) {
+      var that = this;
+
       this.updatePosition();
       this.updateScale();
       this.processTriggers();
+
+      gameObjects.forEach(function(obj) {
+        that.interactWith(obj);
+      });
 
       if (this.sprite) {
         this.sprite.update();
@@ -234,13 +241,15 @@ var Game = (function(Game) {
     scaleTo: function(target, next) {
       var that = this;
       this.scaleTarget = target;
-      this.triggers.push({
-        condition: function() {
-          return that.scale === that.scaleTarget;
-        },
-        action: next,
-        selfDestruct: true
-      });
+      if (typeof next === 'function') {
+        this.triggers.push({
+          condition: function() {
+            return that.scale === that.scaleTarget;
+          },
+          action: next,
+          selfDestruct: true
+        });
+      }
     },
 
     processTriggers: function() {
@@ -252,6 +261,13 @@ var Game = (function(Game) {
           }
         }
       });
+    },
+
+    interactWith: function(obj) {
+    },
+
+    distanceTo: function(obj) {
+      return Math.sqrt(Math.pow(this.x - obj.x, 2) + Math.pow(this.y - obj.y, 2));
     }
   };
 
@@ -299,17 +315,13 @@ var Game = (function(Game) {
       get: function() { return sprite.height; }
     });
 
-    this.update = function() {
-      this.x += speed*Math.cos(this.angle);
-      this.y += speed*Math.sin(this.angle);
-      sprite.update();
-    };
-
     this.render = function() {
       return sprite.render();
     };
 
   };
+
+  Game.Item.prototype = Game.GameObject;
 
   return Game;
 })(Game || {});
@@ -439,7 +451,6 @@ var Game = (function(Game) {
             y: that.y,// + 0.5*that.width,
             angle: that.angle,
             speed: that.speed + 1,
-            scale: Math.random()
           }));
         }
       }
@@ -559,27 +570,25 @@ var Game = (function(Game) {
     this.width = img.width;
     this.height = img.height;
 
-    this.update = function(gameObjects) {
-      gameObjects.forEach(function(obj) {
-        var dist;
-
-        if (obj.type !== 'item' || obj.from === id) { return; }
-
-        dist = Math.sqrt(Math.pow(that.x - obj.x, 2) + Math.pow(that.y - obj.y, 2));
-
-        if (dist < 100) {
-          Game.sendObject(JSON.stringify(obj), id);
-          Game.removeObject(obj);
-        }
-      });
-
+    this.updatePosition = function() {
       this.angle -= 0.01;
-
-      this.processTriggers();
     };
 
     this.render = function() {
       return sprite.render();
+    };
+
+    this.interactWith = function(obj) {
+      if (obj.type !== 'item' || obj.from === id) { return; }
+
+      if (that.distanceTo(obj) < 100) {
+        console.log('Caught an item');
+        obj.from = id;
+        obj.scaleTo(0, function() {
+          Game.sendObject(JSON.stringify(obj), id);
+          Game.removeObject(obj);
+        });
+      }
     };
   };
 
