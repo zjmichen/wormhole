@@ -31,12 +31,16 @@ var Game = (function(Game) {
       });
 
       this.angle -= 0.01;
+
+      this.processTriggers();
     };
 
     this.render = function() {
       return sprite.render();
     };
   };
+
+  Game.Wormhole.prototype = Game.GameObject;
 
   return Game;
 })(Game || {});

@@ -15,6 +15,8 @@ var Game = (function(Game) {
   Game.init = function(id) {
     var i, x, y, dist, ship;
 
+    window.wormholes = wormholes;
+
     inputHandler = new Game.InputHandler();
 
     canvas = document.getElementById(id);
@@ -41,6 +43,7 @@ var Game = (function(Game) {
     }
 
     gameObjects.push(ship);
+    window.ship = ship;
 
     inputHandler.addKeyInput('80', {
       keyup: function(e) {
@@ -89,8 +92,11 @@ var Game = (function(Game) {
   };
 
   Game.removePlayer = function(id) {
-    gameObjects.splice(gameObjects.indexOf(wormholes[id]), 1)
-    delete wormholes[id];
+    wormholes[id].scaleTo(0, function() {
+      gameObjects.splice(gameObjects.indexOf(wormholes[id]), 1)
+      delete wormholes[id];
+      console.log('Wormhole removed.');
+    });
   };
 
   Game.addObject = function(obj) {

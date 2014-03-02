@@ -15,6 +15,8 @@ var Game = (function(Game) {
   Game.init = function(id) {
     var i, x, y, dist, ship;
 
+    window.wormholes = wormholes;
+
     inputHandler = new Game.InputHandler();
 
     canvas = document.getElementById(id);
@@ -41,6 +43,7 @@ var Game = (function(Game) {
     }
 
     gameObjects.push(ship);
+    window.ship = ship;
 
     inputHandler.addKeyInput('80', {
       keyup: function(e) {
@@ -89,8 +92,11 @@ var Game = (function(Game) {
   };
 
   Game.removePlayer = function(id) {
-    gameObjects.splice(gameObjects.indexOf(wormholes[id]), 1)
-    delete wormholes[id];
+    wormholes[id].scaleTo(0, function() {
+      gameObjects.splice(gameObjects.indexOf(wormholes[id]), 1)
+      delete wormholes[id];
+      console.log('Wormhole removed.');
+    });
   };
 
   Game.addObject = function(obj) {
@@ -184,6 +190,75 @@ var Game = (function(Game) {
   return Game;
 })(Game || {});
 var Game = (function(Game) {
+  var buf = document.createElement('canvas')
+    , ctx = buf.getContext('2d');
+
+  Game.GameObject = {
+    x: 0,
+    y: 0,
+    width: 0,
+    height: 0,
+    scale: 1,
+    scaleTarget: 1,
+    scaleSpeed: 0.5,
+    angle: 0,
+    speed: 0,
+    triggers: [],
+
+    update: function() {
+      this.updatePosition();
+      this.updateScale();
+      this.processTriggers();
+
+      if (this.sprite) {
+        this.sprite.update();
+      }
+    },
+
+    updateScale: function() {
+      this.scale += this.scaleSpeed*(this.scaleTarget - this.scale);
+    },
+
+    updatePosition: function() {
+      this.x += this.speed*Math.cos(this.angle);
+      this.y += this.speed*Math.sin(this.angle);
+    },
+
+    render: function() {
+      ctx.clearRect(0, 0, this.width, this.height);
+      ctx.fillStyle = '#777';
+      ctx.fillRect(0, 0, this.width, this.height);
+
+      return buf;
+    },
+
+    scaleTo: function(target, next) {
+      var that = this;
+      this.scaleTarget = target;
+      this.triggers.push({
+        condition: function() {
+          return that.scale === that.scaleTarget;
+        },
+        action: next,
+        selfDestruct: true
+      });
+    },
+
+    processTriggers: function() {
+      this.triggers.forEach(function(trigger, i, triggerArr) {
+        if (trigger.condition()) {
+          trigger.action();
+          if (trigger.selfDestruct) {
+            triggerArr.splice(i, 1);
+          }
+        }
+      });
+    }
+  };
+
+  return Game;
+})(Game || {});
+var Game = (function(Game) {
 
   Game.InputHandler = function() {
     this.addKeyInput = function(keyCode, controls) {
@@ -252,7 +327,6 @@ var Game = (function(Game) {
 
   Game.Ship = function(x, y) {
     var that = this
-      , sprite
       , spriteThrusting = new Game.Sprite(5)
       , spriteNormal = new Game.Sprite()
       , controlStates
@@ -264,37 +338,37 @@ var Game = (function(Game) {
     spriteThrusting.addImage(shipFire2);
     spriteThrusting.addImage(shipFire3);
 
-    sprite = spriteNormal;
+    this.sprite = spriteNormal;
 
     this.x = x;
     this.y = y;
-    this.angle = 0;
 
     Object.defineProperty(this, 'width', {
-      get: function() { return sprite.width; }
+      get: function() { return this.sprite.width; }
     });
     Object.defineProperty(this, 'height', {
-      get: function() { return sprite.height; }
+      get: function() { return this.sprite.height; }
     });
 
-    this.update = function() {
-      var driftX, driftY, thrustX, thrustY, thrust;
+    this.updatePosition = function() {
+      var driftX, driftY, thrustX, thrustY, thrust
+        , that = this;
 
       if (controlStates.thrust) {
         // let's math this shit
         thrust = 0.2;
 
-        driftX = speed*Math.cos(driftAngle);
-        driftY = speed*Math.sin(driftAngle);
+        driftX = this.speed*Math.cos(driftAngle);
+        driftY = this.speed*Math.sin(driftAngle);
         thrustX = thrust*Math.cos(this.angle);
         thrustY = thrust*Math.sin(this.angle);
 
         driftX += thrustX;
         driftY += thrustY;
 
-        speed = Math.sqrt(Math.pow(driftX, 2) + Math.pow(driftY, 2));
-        driftAngle = Math.acos(driftX / speed);
-        if (Math.asin(driftY / speed) < 0) {
+        this.speed = Math.sqrt(Math.pow(driftX, 2) + Math.pow(driftY, 2));
+        driftAngle = Math.acos(driftX / this.speed);
+        if (Math.asin(driftY / this.speed) < 0) {
           driftAngle *= -1;
         }
       }
@@ -307,15 +381,14 @@ var Game = (function(Game) {
         this.angle += 0.1;
       }
 
-      this.x += speed*Math.cos(driftAngle);
-      this.y += speed*Math.sin(driftAngle);
+      this.x += this.speed*Math.cos(driftAngle);
+      this.y += this.speed*Math.sin(driftAngle);
 
-      speed *= 0.99;
-      sprite.update();
+      this.speed *= 0.99;
     };
 
     this.render = function() {
-      return sprite.render();
+      return this.sprite.render();
     };
 
     this.controls = {
@@ -323,13 +396,13 @@ var Game = (function(Game) {
         keydown: function() {
           if (!controlStates.thrust) {
             controlStates.thrust = true;
-            sprite = spriteThrusting;
+            that.sprite = spriteThrusting;
           }
         },
         keyup: function() {
           if (controlStates.thrust) {
             controlStates.thrust = false;
-            sprite = spriteNormal;
+            that.sprite = spriteNormal;
           }
         }
       },
@@ -379,6 +452,8 @@ var Game = (function(Game) {
       turnRight: false
     };
   };
+
+  Game.Ship.prototype = Game.GameObject;
 
   return Game;
 })(Game || {});
@@ -500,12 +575,16 @@ var Game = (function(Game) {
       });
 
       this.angle -= 0.01;
+
+      this.processTriggers();
     };
 
     this.render = function() {
       return sprite.render();
     };
   };
+
+  Game.Wormhole.prototype = Game.GameObject;
 
   return Game;
 })(Game || {});

@@ -11,7 +11,6 @@ var Game = (function(Game) {
 
   Game.Ship = function(x, y) {
     var that = this
-      , sprite
       , spriteThrusting = new Game.Sprite(5)
       , spriteNormal = new Game.Sprite()
       , controlStates
@@ -23,37 +22,37 @@ var Game = (function(Game) {
     spriteThrusting.addImage(shipFire2);
     spriteThrusting.addImage(shipFire3);
 
-    sprite = spriteNormal;
+    this.sprite = spriteNormal;
 
     this.x = x;
     this.y = y;
-    this.angle = 0;
 
     Object.defineProperty(this, 'width', {
-      get: function() { return sprite.width; }
+      get: function() { return this.sprite.width; }
     });
     Object.defineProperty(this, 'height', {
-      get: function() { return sprite.height; }
+      get: function() { return this.sprite.height; }
     });
 
-    this.update = function() {
-      var driftX, driftY, thrustX, thrustY, thrust;
+    this.updatePosition = function() {
+      var driftX, driftY, thrustX, thrustY, thrust
+        , that = this;
 
       if (controlStates.thrust) {
         // let's math this shit
         thrust = 0.2;
 
-        driftX = speed*Math.cos(driftAngle);
-        driftY = speed*Math.sin(driftAngle);
+        driftX = this.speed*Math.cos(driftAngle);
+        driftY = this.speed*Math.sin(driftAngle);
         thrustX = thrust*Math.cos(this.angle);
         thrustY = thrust*Math.sin(this.angle);
 
         driftX += thrustX;
         driftY += thrustY;
 
-        speed = Math.sqrt(Math.pow(driftX, 2) + Math.pow(driftY, 2));
-        driftAngle = Math.acos(driftX / speed);
-        if (Math.asin(driftY / speed) < 0) {
+        this.speed = Math.sqrt(Math.pow(driftX, 2) + Math.pow(driftY, 2));
+        driftAngle = Math.acos(driftX / this.speed);
+        if (Math.asin(driftY / this.speed) < 0) {
           driftAngle *= -1;
         }
       }
@@ -66,15 +65,14 @@ var Game = (function(Game) {
         this.angle += 0.1;
       }
 
-      this.x += speed*Math.cos(driftAngle);
-      this.y += speed*Math.sin(driftAngle);
+      this.x += this.speed*Math.cos(driftAngle);
+      this.y += this.speed*Math.sin(driftAngle);
 
-      speed *= 0.99;
-      sprite.update();
+      this.speed *= 0.99;
     };
 
     this.render = function() {
-      return sprite.render();
+      return this.sprite.render();
     };
 
     this.controls = {
@@ -82,13 +80,13 @@ var Game = (function(Game) {
         keydown: function() {
           if (!controlStates.thrust) {
             controlStates.thrust = true;
-            sprite = spriteThrusting;
+            that.sprite = spriteThrusting;
           }
         },
         keyup: function() {
           if (controlStates.thrust) {
             controlStates.thrust = false;
-            sprite = spriteNormal;
+            that.sprite = spriteNormal;
           }
         }
       },
@@ -138,6 +136,8 @@ var Game = (function(Game) {
       turnRight: false
     };
   };
+
+  Game.Ship.prototype = Game.GameObject;
 
   return Game;
 })(Game || {});
