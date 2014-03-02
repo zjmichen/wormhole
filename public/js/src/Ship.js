@@ -121,17 +121,12 @@ var Game = (function(Game) {
 
       '32': {
         keydown: function() {
-          var item = new Game.Item({
+          Game.addObject(new Game.Item({
             x: that.x + 0.5*that.height,
-            y: that.y + 0.5*that.width,
+            y: that.y,// + 0.5*that.width,
             angle: that.angle,
             speed: that.speed + 1
-          });
-
-          item.update();
-          item.render();
-
-          Game.addObject(item);
+          }));
         }
       }
     };

@@ -93,6 +93,8 @@ var Game = (function(Game) {
   };
 
   Game.addObject = function(obj) {
+    obj.update();
+    obj.render();
     gameObjects.push(obj);
   };
 
