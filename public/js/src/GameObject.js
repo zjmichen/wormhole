@@ -13,11 +13,18 @@ var Game = (function(Game) {
     angle: 0,
     speed: 0,
     triggers: [],
+    type: 'object',
 
-    update: function() {
+    update: function(gameObjects) {
+      var that = this;
+
       this.updatePosition();
       this.updateScale();
       this.processTriggers();
+
+      gameObjects.forEach(function(obj) {
+        that.interactWith(obj);
+      });
 
       if (this.sprite) {
         this.sprite.update();
@@ -44,13 +51,15 @@ var Game = (function(Game) {
     scaleTo: function(target, next) {
       var that = this;
       this.scaleTarget = target;
-      this.triggers.push({
-        condition: function() {
-          return that.scale === that.scaleTarget;
-        },
-        action: next,
-        selfDestruct: true
-      });
+      if (typeof next === 'function') {
+        this.triggers.push({
+          condition: function() {
+            return that.scale === that.scaleTarget;
+          },
+          action: next,
+          selfDestruct: true
+        });
+      }
     },
 
     processTriggers: function() {
@@ -62,6 +71,13 @@ var Game = (function(Game) {
           }
         }
       });
+    },
+
+    interactWith: function(obj) {
+    },
+
+    distanceTo: function(obj) {
+      return Math.sqrt(Math.pow(this.x - obj.x, 2) + Math.pow(this.y - obj.y, 2));
     }
   };
 
