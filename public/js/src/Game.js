@@ -7,7 +7,8 @@ var Game = (function(Game) {
     , backgroundObjects = []
     , wormholes = {}
     , gameLoop
-    , inputHandler;
+    , inputHandler
+    , drawOutlines = true;
 
   Game.playing = false;
 
@@ -153,6 +154,8 @@ var Game = (function(Game) {
         , y = obj.y || 0
         , w = obj.width || 0
         , h = obj.height || 0
+        , sx = obj.scale || 1
+        , sy = obj.scale || 1
         , angle = obj.angle || 0;
 
       x = ((x % canvas.width) + canvas.width) % canvas.width;
@@ -162,10 +165,15 @@ var Game = (function(Game) {
       ctx.translate(x + 0.5*w, y + 0.5*h);
       ctx.rotate(obj.angle);
       ctx.translate(-0.5*w, -0.5*h);
+      ctx.scale(sx, sy);
       ctx.drawImage(img, 0, 0);
-      ctx.strokeStyle = '#ff0';
-      ctx.lineWidth = 2;
-      ctx.strokeRect(0, 0, w, h);
+
+      if (drawOutlines) {
+        ctx.strokeStyle = '#ff0';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(0, 0, w, h);
+      }
+
       ctx.restore();
     });
 

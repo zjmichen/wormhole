@@ -125,7 +125,8 @@ var Game = (function(Game) {
             x: that.x + 0.5*that.height,
             y: that.y,// + 0.5*that.width,
             angle: that.angle,
-            speed: that.speed + 1
+            speed: that.speed + 1,
+            scale: Math.random()
           }));
         }
       }

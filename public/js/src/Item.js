@@ -14,6 +14,7 @@ var Game = (function(Game) {
     this.x = I.x || 0;
     this.y = I.y || 0;
     this.angle = I.angle || 0;
+    this.scale = I.scale || 1;
     this.type = 'item';
 
     Object.defineProperty(this, 'width', {
