@@ -50,6 +50,11 @@ var Game = (function(Game) {
 
     scaleTo: function(target, next) {
       var that = this;
+
+      if (target <= 0) {
+        target = 0.000001;
+      }
+
       this.scaleTarget = target;
       if (typeof next === 'function') {
         this.triggers.push({

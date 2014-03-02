@@ -28,7 +28,6 @@ var Game = (function(Game) {
       if (obj.type !== 'item' || obj.from === id) { return; }
 
       if (that.distanceTo(obj) < 100) {
-        console.log('Caught an item');
         obj.from = id;
         obj.scaleTo(0, function() {
           Game.sendObject(JSON.stringify(obj), id);

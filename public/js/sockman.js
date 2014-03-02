@@ -12,7 +12,7 @@ var Sockman = (function(Sockman) {
   Sockman.join = function(gameid) {
     socket.emit('join', gameid);
     $('#join').remove();
-    requestFullscreen(document.querySelector('#wormhole'));
+    //requestFullscreen(document.querySelector('#wormhole'));
   };
 
   Sockman.send = function(data, playerid) {
