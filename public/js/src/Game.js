@@ -92,7 +92,7 @@ var Game = (function(Game) {
 
   Game.removePlayer = function(id) {
     wormholes[id].scaleTo(0, function() {
-      gameObjects.splice(gameObjects.indexOf(wormholes[id]), 1)
+      gameObjects.splice(gameObjects.indexOf(wormholes[id]), 1);
       delete wormholes[id];
       console.log('Wormhole removed.');
     });

@@ -92,7 +92,7 @@ var Game = (function(Game) {
 
   Game.removePlayer = function(id) {
     wormholes[id].scaleTo(0, function() {
-      gameObjects.splice(gameObjects.indexOf(wormholes[id]), 1)
+      gameObjects.splice(gameObjects.indexOf(wormholes[id]), 1);
       delete wormholes[id];
       console.log('Wormhole removed.');
     });
@@ -105,6 +105,7 @@ var Game = (function(Game) {
   };
 
   Game.removeObject = function(obj) {
+    console.log("removing object");
     gameObjects.splice(gameObjects.indexOf(obj), 1);
   };
 
@@ -584,15 +585,30 @@ var Game = (function(Game) {
     };
 
     this.interactWith = function(obj) {
-      if (obj.type !== 'item' || obj.from === id) { return; }
+      if (obj.type !== 'item') { return; }
 
       if (that.distanceTo(obj) < 100) {
-        obj.from = id;
-        obj.scaleTo(0, function() {
-          Game.sendObject(JSON.stringify(obj), id);
-          Game.removeObject(obj);
-        });
+        this.pullToward(obj);
+
+        if (obj.from !== id) {
+          obj.from = id;
+          obj.scaleSpeed = 0.1;
+          obj.scaleTo(0, function() {
+            Game.sendObject(JSON.stringify(obj), id);
+            Game.removeObject(obj);
+          });
+        }
       }
+    };
+
+    this.pullToward = function(obj) {
+      var wormholeAngle = Math.atan( (this.y - obj.y) /
+                                     (this.x - obj.x) );
+      if (this.x - obj.x < 0) {
+        wormholeAngle += Math.PI;
+      }
+
+      obj.angle += 0.8*(wormholeAngle - obj.angle);
     };
   };
 
