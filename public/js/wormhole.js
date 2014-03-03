@@ -449,11 +449,15 @@ var Game = (function(Game) {
 
       '32': {
         keydown: function() {
+          var itemSpeedX = that.speed*Math.cos(driftAngle) + Math.cos(that.angle)
+            , itemSpeedY = that.speed*Math.sin(driftAngle) + Math.sin(that.angle)
+            , itemSpeed = Math.sqrt(Math.pow(itemSpeedX, 2) + Math.pow(itemSpeedY, 2));
+
           Game.addObject(new Game.Item({
             x: that.x + 0.5*that.height,
-            y: that.y,// + 0.5*that.width,
+            y: that.y,
             angle: that.angle,
-            speed: that.speed + 1,
+            speed: itemSpeed
           }));
         }
       }
