@@ -49,19 +49,20 @@ var Game = (function(Game) {
     },
 
     scaleTo: function(target, next) {
-      var that = this;
-
-      if (target <= 0) {
-        target = 0.000001;
-      }
+      var that = this
+        , threshhold = 0.0001
+        , startFrame = Game.frame;
 
       this.scaleTarget = target;
       if (typeof next === 'function') {
         this.triggers.push({
           condition: function() {
-            return that.scale === that.scaleTarget;
+            return Math.abs(that.scale - that.scaleTarget) < threshhold;
           },
-          action: next,
+          action: function() {
+            console.log('Time to scale: ' + (Game.frame - startFrame));
+            next();
+          },
           selfDestruct: true
         });
       }
