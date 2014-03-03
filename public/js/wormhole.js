@@ -105,7 +105,6 @@ var Game = (function(Game) {
   };
 
   Game.removeObject = function(obj) {
-    console.log("removing object");
     gameObjects.splice(gameObjects.indexOf(obj), 1);
   };
 
@@ -168,10 +167,10 @@ var Game = (function(Game) {
       y = ((y % canvas.height) + canvas.height) % canvas.height;
 
       ctx.save();
-      ctx.translate(x + 0.5*w, y + 0.5*h);
+      ctx.translate(x, y);
       ctx.rotate(obj.angle);
-      ctx.translate(-0.5*w, -0.5*h);
       ctx.scale(sx, sy);
+      ctx.translate(-0.5*sx*w, -0.5*sy*h);
       ctx.drawImage(img, 0, 0);
 
       if (drawOutlines) {
