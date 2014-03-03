@@ -50,8 +50,7 @@ var Game = (function(Game) {
 
     scaleTo: function(target, next) {
       var that = this
-        , threshhold = 0.0001
-        , startFrame = Game.frame;
+        , threshhold = 0.0001;
 
       this.scaleTarget = target;
       if (typeof next === 'function') {
@@ -59,10 +58,7 @@ var Game = (function(Game) {
           condition: function() {
             return Math.abs(that.scale - that.scaleTarget) < threshhold;
           },
-          action: function() {
-            console.log('Time to scale: ' + (Game.frame - startFrame));
-            next();
-          },
+          action: next,
           selfDestruct: true
         });
       }
