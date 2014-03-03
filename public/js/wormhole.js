@@ -163,11 +163,12 @@ var Game = (function(Game) {
         , sy = obj.scale || 1
         , angle = obj.angle || 0;
 
-      x = ((x % canvas.width) + canvas.width) % canvas.width;
-      y = ((y % canvas.height) + canvas.height) % canvas.height;
+      obj.x = ((x % canvas.width) + canvas.width) % canvas.width;
+      obj.y = ((y % canvas.height) + canvas.height) % canvas.height;
+      obj.angle = ((angle % (2*Math.PI)) + (2*Math.PI)) % (2*Math.PI);
 
       ctx.save();
-      ctx.translate(x, y);
+      ctx.translate(obj.x, obj.y);
       ctx.rotate(obj.angle);
       ctx.scale(sx, sy);
       ctx.translate(-0.5*sx*w, -0.5*sy*h);
@@ -240,8 +241,7 @@ var Game = (function(Game) {
 
     scaleTo: function(target, next) {
       var that = this
-        , threshhold = 0.0001
-        , startFrame = Game.frame;
+        , threshhold = 0.0001;
 
       this.scaleTarget = target;
       if (typeof next === 'function') {
@@ -249,10 +249,7 @@ var Game = (function(Game) {
           condition: function() {
             return Math.abs(that.scale - that.scaleTarget) < threshhold;
           },
-          action: function() {
-            console.log('Time to scale: ' + (Game.frame - startFrame));
-            next();
-          },
+          action: next,
           selfDestruct: true
         });
       }
@@ -591,9 +588,8 @@ var Game = (function(Game) {
         this.pullToward(obj);
 
         if (obj.from !== id) {
-          console.log('Caught an item going ' + obj.speed);
           obj.from = id;
-          obj.scaleSpeed = obj.speed / 10;
+          obj.scaleSpeed = 0.03*obj.speed;
           obj.scaleTo(0, function() {
             Game.sendObject(JSON.stringify(obj), id);
             Game.removeObject(obj);

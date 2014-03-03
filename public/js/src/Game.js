@@ -163,11 +163,12 @@ var Game = (function(Game) {
         , sy = obj.scale || 1
         , angle = obj.angle || 0;
 
-      x = ((x % canvas.width) + canvas.width) % canvas.width;
-      y = ((y % canvas.height) + canvas.height) % canvas.height;
+      obj.x = ((x % canvas.width) + canvas.width) % canvas.width;
+      obj.y = ((y % canvas.height) + canvas.height) % canvas.height;
+      obj.angle = ((angle % (2*Math.PI)) + (2*Math.PI)) % (2*Math.PI);
 
       ctx.save();
-      ctx.translate(x, y);
+      ctx.translate(obj.x, obj.y);
       ctx.rotate(obj.angle);
       ctx.scale(sx, sy);
       ctx.translate(-0.5*sx*w, -0.5*sy*h);
