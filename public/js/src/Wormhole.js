@@ -32,7 +32,7 @@ var Game = (function(Game) {
 
         if (obj.from !== id) {
           obj.from = id;
-          obj.scaleSpeed = 0.1;
+          obj.scaleSpeed = obj.speed / 10;
           obj.scaleTo(0, function() {
             Game.sendObject(JSON.stringify(obj), id);
             Game.removeObject(obj);

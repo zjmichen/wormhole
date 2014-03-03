@@ -1,7 +1,6 @@
 var Game = (function(Game) {
 
   var canvas, ctx
-    , frame = 0
     , frameRate = 60
     , gameObjects = []
     , backgroundObjects = []
@@ -11,6 +10,7 @@ var Game = (function(Game) {
     , drawOutlines = true;
 
   Game.playing = false;
+  Game.frame = 0;
 
   Game.init = function(id) {
     var i, x, y, dist, ship;
@@ -135,7 +135,7 @@ var Game = (function(Game) {
       obj.update(gameObjects);
     });
 
-    frame++;
+    Game.frame++;
   }
 
   function draw() {
@@ -183,7 +183,7 @@ var Game = (function(Game) {
     });
 
     ctx.fillStyle = '#fff';
-    ctx.fillText(frame, 0, 10);
+    ctx.fillText(Game.frame, 0, 10);
   }
 
   return Game;
@@ -239,19 +239,20 @@ var Game = (function(Game) {
     },
 
     scaleTo: function(target, next) {
-      var that = this;
-
-      if (target <= 0) {
-        target = 0.000001;
-      }
+      var that = this
+        , threshhold = 0.0001
+        , startFrame = Game.frame;
 
       this.scaleTarget = target;
       if (typeof next === 'function') {
         this.triggers.push({
           condition: function() {
-            return that.scale === that.scaleTarget;
+            return Math.abs(that.scale - that.scaleTarget) < threshhold;
           },
-          action: next,
+          action: function() {
+            console.log('Time to scale: ' + (Game.frame - startFrame));
+            next();
+          },
           selfDestruct: true
         });
       }
@@ -590,8 +591,9 @@ var Game = (function(Game) {
         this.pullToward(obj);
 
         if (obj.from !== id) {
+          console.log('Caught an item going ' + obj.speed);
           obj.from = id;
-          obj.scaleSpeed = 0.1;
+          obj.scaleSpeed = obj.speed / 10;
           obj.scaleTo(0, function() {
             Game.sendObject(JSON.stringify(obj), id);
             Game.removeObject(obj);
