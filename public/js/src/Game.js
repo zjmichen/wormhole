@@ -1,7 +1,6 @@
 var Game = (function(Game) {
 
   var canvas, ctx
-    , frame = 0
     , frameRate = 60
     , gameObjects = []
     , backgroundObjects = []
@@ -11,6 +10,7 @@ var Game = (function(Game) {
     , drawOutlines = true;
 
   Game.playing = false;
+  Game.frame = 0;
 
   Game.init = function(id) {
     var i, x, y, dist, ship;
@@ -135,7 +135,7 @@ var Game = (function(Game) {
       obj.update(gameObjects);
     });
 
-    frame++;
+    Game.frame++;
   }
 
   function draw() {
@@ -183,7 +183,7 @@ var Game = (function(Game) {
     });
 
     ctx.fillStyle = '#fff';
-    ctx.fillText(frame, 0, 10);
+    ctx.fillText(Game.frame, 0, 10);
   }
 
   return Game;
