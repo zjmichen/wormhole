@@ -46,8 +46,7 @@ var Game = (function(Game) {
         }));
 
         Game.removeObject(that);
-      },
-      selfDestruct: true
+      }
     });
 
   };

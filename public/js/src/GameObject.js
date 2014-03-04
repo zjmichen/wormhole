@@ -66,8 +66,7 @@ var Game = (function(Game) {
           condition: function() {
             return Math.abs(that.scale - that.scaleTarget) < threshhold;
           },
-          action: next,
-          selfDestruct: true
+          action: next
         });
       }
     },
@@ -78,7 +77,7 @@ var Game = (function(Game) {
       this.triggers.forEach(function(trigger, i, triggerArr) {
         if (trigger.condition()) {
           trigger.action();
-          if (trigger.selfDestruct) {
+          if (!trigger.repeat) {
             triggerArr.splice(i, 1);
           }
         }

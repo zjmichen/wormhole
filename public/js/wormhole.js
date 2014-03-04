@@ -19,6 +19,7 @@ var Game = (function(Game) {
     this.angle = 0;
     this.scale = 1;
     this.speed = 0;
+    this.ttl = I.ttl || 100;
     this.type = 'explosion';
 
     Object.defineProperty(this, 'width', {
@@ -26,6 +27,21 @@ var Game = (function(Game) {
     });
     Object.defineProperty(this, 'height', {
       get: function() { return this.sprite.height; }
+    });
+
+    this.updateExtra = function() {
+      this.ttl--;
+    };
+
+    this.addTrigger({
+      condition: function() {
+        return that.ttl <= 0;
+      },
+      action: function() {
+        that.scaleTo(0, function() {
+          Game.removeObject(that);
+        });
+      }
     });
 
   };
@@ -299,8 +315,7 @@ var Game = (function(Game) {
           condition: function() {
             return Math.abs(that.scale - that.scaleTarget) < threshhold;
           },
-          action: next,
-          selfDestruct: true
+          action: next
         });
       }
     },
@@ -311,7 +326,7 @@ var Game = (function(Game) {
       this.triggers.forEach(function(trigger, i, triggerArr) {
         if (trigger.condition()) {
           trigger.action();
-          if (trigger.selfDestruct) {
+          if (!trigger.repeat) {
             triggerArr.splice(i, 1);
           }
         }
@@ -434,8 +449,7 @@ var Game = (function(Game) {
         }));
 
         Game.removeObject(that);
-      },
-      selfDestruct: true
+      }
     });
 
   };
