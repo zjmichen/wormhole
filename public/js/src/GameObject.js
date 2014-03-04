@@ -20,6 +20,7 @@ var Game = (function(Game) {
 
       this.updatePosition();
       this.updateScale();
+      this.updateExtra();
       this.processTriggers();
 
       gameObjects.forEach(function(obj) {
@@ -40,12 +41,19 @@ var Game = (function(Game) {
       this.y += this.speed*Math.sin(this.angle);
     },
 
-    render: function() {
-      ctx.clearRect(0, 0, this.width, this.height);
-      ctx.fillStyle = '#777';
-      ctx.fillRect(0, 0, this.width, this.height);
+    updateExtra: function() {
+    },
 
-      return buf;
+    render: function() {
+      if (this.sprite && typeof this.sprite.render === 'function') {
+        return this.sprite.render();
+      } else {
+        ctx.clearRect(0, 0, this.width, this.height);
+        ctx.fillStyle = '#777';
+        ctx.fillRect(0, 0, this.width, this.height);
+
+        return buf;
+      }
     },
 
     scaleTo: function(target, next) {

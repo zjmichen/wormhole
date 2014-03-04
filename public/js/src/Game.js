@@ -15,6 +15,12 @@ var Game = (function(Game) {
   Game.init = function(id) {
     var i, x, y, dist, ship;
 
+    // set up prototype chain here to avoid parallel loading bug
+    Game.Explosion.prototype = Game.GameObject;
+    Game.Ship.prototype = Game.GameObject;
+    Game.Missile.prototype = Game.GameObject;
+    Game.Wormhole.prototype = Game.GameObject;
+    Game.Item.prototype = Game.GameObject;
 
     inputHandler = new Game.InputHandler();
 

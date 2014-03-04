@@ -30,7 +30,5 @@ var Game = (function(Game) {
 
   };
 
-  Game.Item.prototype = Game.GameObject;
-
   return Game;
 })(Game || {});

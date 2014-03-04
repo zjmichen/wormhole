@@ -1,4 +1,41 @@
 var Game = (function(Game) {
+  var img1 = new Image()
+    , img2 = new Image();
+
+  img1.src = '/images/explosion1.png';
+  img2.src = '/images/explosion2.png';
+
+  Game.Explosion = function(I) {
+    I = I || {};
+
+    var that = this;
+
+    this.sprite = new Game.Sprite(5);
+    this.sprite.addImage(img1);
+    this.sprite.addImage(img2);
+
+    this.x = I.x || 0;
+    this.y = I.y || 0;
+    this.angle = 0;
+    this.scale = 1;
+    this.speed = 0;
+    this.type = 'explosion';
+
+    Object.defineProperty(this, 'width', {
+      get: function() { return this.sprite.width; }
+    });
+    Object.defineProperty(this, 'height', {
+      get: function() { return this.sprite.height; }
+    });
+
+  };
+
+  Game.Explosion.prototype = Game.GameObject;
+  console.log(Game.GameObject);
+
+  return Game;
+})(Game || {});
+var Game = (function(Game) {
 
   var canvas, ctx
     , frameRate = 60
@@ -15,6 +52,11 @@ var Game = (function(Game) {
   Game.init = function(id) {
     var i, x, y, dist, ship;
 
+    Game.Explosion.prototype = Game.GameObject;
+    Game.Ship.prototype = Game.GameObject;
+    Game.Missile.prototype = Game.GameObject;
+    Game.Wormhole.prototype = Game.GameObject;
+    Game.Item.prototype = Game.GameObject;
 
     inputHandler = new Game.InputHandler();
 
@@ -211,6 +253,7 @@ var Game = (function(Game) {
 
       this.updatePosition();
       this.updateScale();
+      this.updateExtra();
       this.processTriggers();
 
       gameObjects.forEach(function(obj) {
@@ -231,12 +274,19 @@ var Game = (function(Game) {
       this.y += this.speed*Math.sin(this.angle);
     },
 
-    render: function() {
-      ctx.clearRect(0, 0, this.width, this.height);
-      ctx.fillStyle = '#777';
-      ctx.fillRect(0, 0, this.width, this.height);
+    updateExtra: function() {
+    },
 
-      return buf;
+    render: function() {
+      if (this.sprite && typeof this.sprite.render === 'function') {
+        return this.sprite.render();
+      } else {
+        ctx.clearRect(0, 0, this.width, this.height);
+        ctx.fillStyle = '#777';
+        ctx.fillRect(0, 0, this.width, this.height);
+
+        return buf;
+      }
     },
 
     scaleTo: function(target, next) {
@@ -325,6 +375,64 @@ var Game = (function(Game) {
   };
 
   Game.Item.prototype = Game.GameObject;
+
+  return Game;
+})(Game || {});
+var Game = (function(Game) {
+  var missileImg1 = new Image()
+    , missileImg2 = new Image();
+
+  missileImg1.src = '/images/missile1.png';
+  missileImg2.src = '/images/missile2.png';
+
+  Game.Missile = function(I) {
+    I = I || {};
+
+    var that = this;
+
+    this.sprite = new Game.Sprite(5);
+    this.sprite.addImage(missileImg1);
+    this.sprite.addImage(missileImg2);
+
+    this.x = I.x || 0;
+    this.y = I.y || 0;
+    this.angle = I.angle || 0;
+    this.scale = I.scale || 1;
+    this.speed = I.speed || 1;
+    this.ttl = 100;
+    this.type = 'weapon';
+
+    Object.defineProperty(this, 'width', {
+      get: function() { return this.sprite.width; }
+    });
+    Object.defineProperty(this, 'height', {
+      get: function() { return this.sprite.height; }
+    });
+
+    this.updateExtra = function() {
+      if (this.ttl > 0) {
+        this.ttl--;
+      }
+    };
+
+    this.triggers.push({
+      condition: function() {
+        return that.ttl <= 0;
+      },
+      action: function() {
+        Game.addObject(new Game.Explosion({
+          x: that.x,
+          y: that.y
+        }));
+
+        Game.removeObject(that);
+      },
+      selfDestruct: true
+    });
+
+  };
+
+  Game.Missile.prototype = Game.GameObject;
 
   return Game;
 })(Game || {});
@@ -453,7 +561,7 @@ var Game = (function(Game) {
             , itemSpeedY = that.speed*Math.sin(driftAngle) + Math.sin(that.angle)
             , itemSpeed = Math.sqrt(Math.pow(itemSpeedX, 2) + Math.pow(itemSpeedY, 2));
 
-          Game.addObject(new Game.Item({
+          Game.addObject(new Game.Missile({
             x: that.x + 0.5*that.height,
             y: that.y,
             angle: that.angle,
@@ -586,7 +694,7 @@ var Game = (function(Game) {
     };
 
     this.interactWith = function(obj) {
-      if (obj.type !== 'item') { return; }
+      if (obj.type !== 'weapon') { return; }
 
       if (that.distanceTo(obj) < 100) {
         this.pullToward(obj);

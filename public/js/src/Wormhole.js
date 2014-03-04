@@ -25,7 +25,7 @@ var Game = (function(Game) {
     };
 
     this.interactWith = function(obj) {
-      if (obj.type !== 'item') { return; }
+      if (obj.type !== 'weapon') { return; }
 
       if (that.distanceTo(obj) < 100) {
         this.pullToward(obj);
@@ -51,8 +51,6 @@ var Game = (function(Game) {
       obj.angle += 0.8*(wormholeAngle - obj.angle);
     };
   };
-
-  Game.Wormhole.prototype = Game.GameObject;
 
   return Game;
 })(Game || {});
