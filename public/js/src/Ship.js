@@ -119,8 +119,9 @@ var Game = (function(Game) {
 
       '32': {
         keydown: function() {
-          var itemSpeedX = that.speed*Math.cos(driftAngle) + Math.cos(that.angle)
-            , itemSpeedY = that.speed*Math.sin(driftAngle) + Math.sin(that.angle)
+          var itemBoost = 3
+            , itemSpeedX = that.speed*Math.cos(driftAngle) + itemBoost*Math.cos(that.angle)
+            , itemSpeedY = that.speed*Math.sin(driftAngle) + itemBoost*Math.sin(that.angle)
             , itemSpeed = Math.sqrt(Math.pow(itemSpeedX, 2) + Math.pow(itemSpeedY, 2));
 
           Game.addObject(new Game.Missile({

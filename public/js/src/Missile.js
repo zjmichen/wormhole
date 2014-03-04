@@ -19,7 +19,7 @@ var Game = (function(Game) {
     this.angle = I.angle || 0;
     this.scale = I.scale || 1;
     this.speed = I.speed || 1;
-    this.ttl = 100;
+    this.ttl = 200;
     this.type = 'weapon';
 
     Object.defineProperty(this, 'width', {
