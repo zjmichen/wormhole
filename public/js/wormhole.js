@@ -30,9 +30,6 @@ var Game = (function(Game) {
 
   };
 
-  Game.Explosion.prototype = Game.GameObject;
-  console.log(Game.GameObject);
-
   return Game;
 })(Game || {});
 var Game = (function(Game) {
@@ -43,15 +40,18 @@ var Game = (function(Game) {
     , backgroundObjects = []
     , wormholes = {}
     , gameLoop
-    , inputHandler
-    , drawOutlines = true;
+    , inputHandler;
 
   Game.playing = false;
   Game.frame = 0;
+  Game.debug = {
+    drawOutlines: false
+  };
 
   Game.init = function(id) {
     var i, x, y, dist, ship;
 
+    // set up prototype chain here to avoid parallel loading bug
     Game.Explosion.prototype = Game.GameObject;
     Game.Ship.prototype = Game.GameObject;
     Game.Missile.prototype = Game.GameObject;
@@ -181,7 +181,7 @@ var Game = (function(Game) {
   }
 
   function draw() {
-    ctx.fillStyle = '#000';
+    ctx.fillStyle = 'white';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     backgroundObjects.forEach(function(obj) {
@@ -216,7 +216,7 @@ var Game = (function(Game) {
       ctx.translate(-0.5*sx*w, -0.5*sy*h);
       ctx.drawImage(img, 0, 0);
 
-      if (drawOutlines) {
+      if (Game.debug.drawOutlines) {
         ctx.strokeStyle = '#ff0';
         ctx.lineWidth = 2;
         ctx.strokeRect(0, 0, w, h);
@@ -374,8 +374,6 @@ var Game = (function(Game) {
 
   };
 
-  Game.Item.prototype = Game.GameObject;
-
   return Game;
 })(Game || {});
 var Game = (function(Game) {
@@ -431,8 +429,6 @@ var Game = (function(Game) {
     });
 
   };
-
-  Game.Missile.prototype = Game.GameObject;
 
   return Game;
 })(Game || {});
@@ -578,8 +574,6 @@ var Game = (function(Game) {
     };
   };
 
-  Game.Ship.prototype = Game.GameObject;
-
   return Game;
 })(Game || {});
 var Game = (function(Game) {
@@ -647,7 +641,7 @@ var Game = (function(Game) {
 
   starImg.width = 2;
   starImg.height = 2;
-  ctx.fillStyle = 'white';
+  ctx.fillStyle = 'black';
   ctx.fillRect(0, 0, starImg.width, starImg.height);
 
   Game.Star = function(x, y, dist) {
@@ -674,7 +668,7 @@ var Game = (function(Game) {
   img.addEventListener('load', function() {
     sprite.addImage(img);
   });
-  img.src = '/images/wormhole.png';
+  img.src = '/images/wormhole_inverted.png';
 
   Game.Wormhole = function(x, y, id) {
     var that = this;
@@ -720,8 +714,6 @@ var Game = (function(Game) {
       obj.angle += 0.8*(wormholeAngle - obj.angle);
     };
   };
-
-  Game.Wormhole.prototype = Game.GameObject;
 
   return Game;
 })(Game || {});

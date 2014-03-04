@@ -6,11 +6,13 @@ var Game = (function(Game) {
     , backgroundObjects = []
     , wormholes = {}
     , gameLoop
-    , inputHandler
-    , drawOutlines = true;
+    , inputHandler;
 
   Game.playing = false;
   Game.frame = 0;
+  Game.debug = {
+    drawOutlines: false
+  };
 
   Game.init = function(id) {
     var i, x, y, dist, ship;
@@ -145,7 +147,7 @@ var Game = (function(Game) {
   }
 
   function draw() {
-    ctx.fillStyle = '#000';
+    ctx.fillStyle = 'white';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     backgroundObjects.forEach(function(obj) {
@@ -180,7 +182,7 @@ var Game = (function(Game) {
       ctx.translate(-0.5*sx*w, -0.5*sy*h);
       ctx.drawImage(img, 0, 0);
 
-      if (drawOutlines) {
+      if (Game.debug.drawOutlines) {
         ctx.strokeStyle = '#ff0';
         ctx.lineWidth = 2;
         ctx.strokeRect(0, 0, w, h);
