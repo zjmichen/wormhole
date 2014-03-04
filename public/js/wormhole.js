@@ -346,7 +346,18 @@ var Game = (function(Game) {
 
     distanceTo: function(obj) {
       return Math.sqrt(Math.pow(this.x - obj.x, 2) + Math.pow(this.y - obj.y, 2));
+    },
+
+    turnToward: function(obj, amount) {
+      var objAngle = Math.atan( (obj.y - this.y) /
+                                (obj.x - this.x) );
+      if (obj.x - this.x < 0) {
+        objAngle += Math.PI;
+      }
+
+      this.angle += amount*(objAngle - this.angle);
     }
+
   };
 
   return Game;
@@ -716,7 +727,7 @@ var Game = (function(Game) {
       if (obj.type !== 'weapon') { return; }
 
       if (that.distanceTo(obj) < 100) {
-        this.pullToward(obj);
+        obj.turnToward(this, 0.8);
 
         if (obj.from !== id) {
           obj.from = id;

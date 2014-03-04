@@ -28,7 +28,7 @@ var Game = (function(Game) {
       if (obj.type !== 'weapon') { return; }
 
       if (that.distanceTo(obj) < 100) {
-        this.pullToward(obj);
+        obj.turnToward(this, 0.8);
 
         if (obj.from !== id) {
           obj.from = id;
