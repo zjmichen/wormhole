@@ -245,7 +245,7 @@ var Game = (function(Game) {
     scaleSpeed: 0.5,
     angle: 0,
     speed: 0,
-    triggers: [],
+    triggers: undefined,
     type: 'object',
 
     update: function(gameObjects) {
@@ -295,7 +295,7 @@ var Game = (function(Game) {
 
       this.scaleTarget = target;
       if (typeof next === 'function') {
-        this.triggers.push({
+        this.addTrigger({
           condition: function() {
             return Math.abs(that.scale - that.scaleTarget) < threshhold;
           },
@@ -306,6 +306,8 @@ var Game = (function(Game) {
     },
 
     processTriggers: function() {
+      if (this.triggers === undefined) { return; }
+
       this.triggers.forEach(function(trigger, i, triggerArr) {
         if (trigger.condition()) {
           trigger.action();
@@ -314,6 +316,14 @@ var Game = (function(Game) {
           }
         }
       });
+    },
+
+    addTrigger: function(trigger) {
+      if (this.triggers === undefined) {
+        this.triggers = [];
+      }
+
+      this.triggers.push(trigger);
     },
 
     interactWith: function(obj) {
@@ -413,7 +423,7 @@ var Game = (function(Game) {
       }
     };
 
-    this.triggers.push({
+    this.addTrigger({
       condition: function() {
         return that.ttl <= 0;
       },

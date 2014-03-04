@@ -35,7 +35,7 @@ var Game = (function(Game) {
       }
     };
 
-    this.triggers.push({
+    this.addTrigger({
       condition: function() {
         return that.ttl <= 0;
       },
