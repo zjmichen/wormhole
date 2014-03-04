@@ -1,5 +1,17 @@
 extends layout
 
 block content
-  p Stuff goes here.
-  canvas#wormhole
+  h1 Wormhole
+  h2 Current Games
+
+  if games.length > 0
+    ul
+      each gameid in games
+        li= gameid
+          a(href='/games/' + gameid) View game
+  else
+    p No games
+
+  form(method='post', action='/games')
+    input(type='submit', value='Create new game')
+

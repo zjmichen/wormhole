@@ -46,11 +46,28 @@ redisClient.auth(credentials.redisPass, function(err) {
 });
 
 redisClient.flushall();
+redisClient.set('nextGameId', 1);
 
 gameCon = new GameController(redisClient);
 
 app.get('/', function(req, res) {
-  res.render('index');
+  res.redirect('/games');
+});
+
+app.get('/games', function(req, res) {
+  gameCon.getGames(function(err, games) {
+    if (err) { console.log(err); }
+
+    res.render('index', {games: games});
+  });
+});
+
+app.post('/games', function(req, res) {
+  gameCon.createGame(function(err, gameid) {
+    if (err) { console.log(err); }
+
+    res.redirect('/games/' + gameid);
+  });
 });
 
 app.get('/games/:gameid', function(req, res) {
