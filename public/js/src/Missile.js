@@ -49,6 +49,12 @@ var Game = (function(Game) {
       }
     });
 
+    this.interactWith = function(obj) {
+      if (this.from === undefined || obj.type !== 'ship') { return; }
+
+      this.turnToward(obj, 0.4);
+    };
+
   };
 
   return Game;
