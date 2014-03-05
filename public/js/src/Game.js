@@ -121,7 +121,7 @@ var Game = (function(Game) {
   };
 
   Game.receiveObject = function(obj, wormholeId) {
-    var item = new Game.Item(JSON.parse(obj));
+    var item = new Game.Missile(JSON.parse(obj));
 
     item.from = wormholeId;
     item.x = wormholes[wormholeId].x;
