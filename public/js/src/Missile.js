@@ -20,7 +20,7 @@ var Game = (function(Game) {
     this.scale = I.scale || 1;
     this.speed = I.speed || 1;
     this.from = I.from || undefined;
-    this.ttl = 200;
+    this.ttl = 200;//1000;
     this.type = 'weapon';
 
     Object.defineProperty(this, 'width', {
@@ -36,25 +36,37 @@ var Game = (function(Game) {
       }
     };
 
+    this.interactWith = function(obj) {
+      if (this.from === undefined || obj.type !== 'ship') { return; }
+
+      if (this.distanceTo(obj) < 40) {
+        this.detonate();
+      }
+
+      this.turnToward(obj, 0.1);
+    };
+
+    this.detonate = function() {
+      var that = this;
+
+      console.log(this);
+
+      Game.addObject(new Game.Explosion({
+        x: that.x,
+        y: that.y
+      }));
+
+      Game.removeObject(this);
+    };
+
     this.addTrigger({
       condition: function() {
         return that.ttl <= 0;
       },
       action: function() {
-        Game.addObject(new Game.Explosion({
-          x: that.x,
-          y: that.y
-        }));
-
-        Game.removeObject(that);
+        that.detonate();
       }
     });
-
-    this.interactWith = function(obj) {
-      if (this.from === undefined || obj.type !== 'ship') { return; }
-
-      this.turnToward(obj, 0.1);
-    };
 
   };
 
