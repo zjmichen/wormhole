@@ -19,6 +19,7 @@ var Game = (function(Game) {
     this.angle = I.angle || 0;
     this.scale = I.scale || 1;
     this.speed = I.speed || 1;
+    this.from = I.from || undefined;
     this.ttl = 200;
     this.type = 'weapon';
 
@@ -52,7 +53,7 @@ var Game = (function(Game) {
     this.interactWith = function(obj) {
       if (this.from === undefined || obj.type !== 'ship') { return; }
 
-      this.turnToward(obj, 0.4);
+      this.turnToward(obj, 0.1);
     };
 
   };
