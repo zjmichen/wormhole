@@ -1,6 +1,7 @@
 var Game = (function(Game) {
 
-  var canvas, ctx
+  var that = this
+    , canvas, ctx
     , frameRate = 60
     , gameObjects = []
     , backgroundObjects = []
@@ -64,6 +65,18 @@ var Game = (function(Game) {
           update();
           draw();
         }
+      }
+    });
+
+    inputHandler.addMouseInput({
+      click: function(e) {
+        Game.addObject(new Game.Missile({
+          x: e.clientX,
+          y: e.clientY,
+          from: 'other',
+          speed: 3,
+          angle: 0.5*Math.PI
+        }));
       }
     });
 

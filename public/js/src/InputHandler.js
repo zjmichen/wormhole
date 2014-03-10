@@ -10,6 +10,14 @@ var Game = (function(Game) {
         });
       }
     };
+
+    this.addMouseInput = function(controls) {
+      for (var evtType in controls) {
+        document.addEventListener(evtType, function(e) {
+          controls[e.type](e);
+        });
+      }
+    };
   };
 
   return Game;
