@@ -100,10 +100,19 @@ var Game = (function(Game) {
     },
 
     turnToward: function(obj, amount) {
-      var objAngle = Math.atan( (obj.y - this.y) /
+      var dy = obj.y - this.y
+        , dx = obj.x - this.x
+        , objAngle = Math.atan( (obj.y - this.y) /
                                 (obj.x - this.x) );
-      if (obj.x - this.x < 0) {
+
+      if (dx < 0) {
         objAngle += Math.PI;
+      } else if (dy < 0) {
+        objAngle += 2*Math.PI;
+      }
+
+      if (Math.abs(dy) < objAngle - this.angle) {
+        amount = 1;
       }
 
       this.angle += amount*(objAngle - this.angle);
