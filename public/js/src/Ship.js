@@ -26,6 +26,7 @@ var Game = (function(Game) {
 
     this.x = x;
     this.y = y;
+    this.type = 'ship';
 
     Object.defineProperty(this, 'width', {
       get: function() { return this.sprite.width; }
