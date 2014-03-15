@@ -87,19 +87,10 @@ var Game = (function(Game) {
   };
 
   Game.start = function() {
-    gameLoop = setInterval(function() {
-      if (!Game.paused) {
-        update();
-        draw();
-      }
-    }, 1000/frameRate);
+    requestAnimationFrame(gameLoop);
 
     Game.playing = true;
     console.log('Game started.');
-  };
-
-  Game.stop = function() {
-    clearInterval(gameLoop);
   };
 
   Game.addPlayer = function(id) {
@@ -162,6 +153,17 @@ var Game = (function(Game) {
   Game.lose = function() {
     console.log('You lose!');
   };
+
+  function gameLoop(ts) {
+    if (!Game.paused) {
+      update();
+      draw();
+    }
+
+    if (Game.playing) {
+      requestAnimationFrame(gameLoop);
+    }
+  }
 
   function update() {
     backgroundObjects.forEach(function(obj) {
