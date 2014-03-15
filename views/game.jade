@@ -7,19 +7,21 @@ block head
   script(type='text/javascript' src='/js/sockman.js')
 
 block content
-  h1= 'This is game #' + id
+  h1= 'Welcome to game #' + id
 
-  h2 Other players:
-  ul#playerlist
-    - players = players || ['No other players']
-    each player in players
-      li(id=player)
-        = player
+  h2 Who's playing:
+  if players.length > 0
+    ul#playerlist
+      each player in players
+        li(id=player)
+          = player
+  else
+    p No one's here yet.  Jump in!
 
   if (players.length >= 5)
     p This game is full.
   else
     script(type='text/javascript')= 'Sockman.ready(' + id + ')'
-    button#join(type='button' onclick='Sockman.join(' + id + ')') Join game!
+    button.btn.btn-success#join(type='button' onclick='Sockman.join(' + id + ')') Join game!
 
     canvas#wormhole
