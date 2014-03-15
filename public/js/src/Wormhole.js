@@ -25,13 +25,13 @@ var Game = (function(Game) {
     };
 
     this.interactWith = function(obj) {
-      if (obj.type !== 'weapon') { return; }
+      if (obj.type !== 'weapon' || obj.from === id) { return; }
 
       if (that.distanceTo(obj) < 100) {
         obj.turnToward(this, 0.8);
 
-        if (obj.from !== id) {
-          obj.from = id;
+        if (obj.to !== id) {
+          obj.to = id;
           obj.scaleSpeed = 0.03*obj.speed;
           obj.scaleTo(0, function() {
             Game.sendObject(JSON.stringify(obj), id);

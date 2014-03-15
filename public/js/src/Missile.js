@@ -40,23 +40,10 @@ var Game = (function(Game) {
       if (this.from === undefined || obj.type !== 'ship') { return; }
 
       if (this.distanceTo(obj) < 40) {
-        this.detonate();
+        this.blowUp();
       } else if (this.distanceTo(obj) < 500) {
         this.turnToward(obj, 0.1);
       }
-    };
-
-    this.detonate = function() {
-      var that = this;
-
-      console.log(this);
-
-      Game.addObject(new Game.Explosion({
-        x: that.x,
-        y: that.y
-      }));
-
-      Game.removeObject(this);
     };
 
     this.addTrigger({
