@@ -27,6 +27,7 @@ var Game = (function(Game) {
     this.x = x;
     this.y = y;
     this.type = 'ship';
+    this.health = 100;
 
     Object.defineProperty(this, 'width', {
       get: function() { return this.sprite.width; }
@@ -140,6 +141,15 @@ var Game = (function(Game) {
       turnLeft: false,
       turnRight: false
     };
+
+    this.addTrigger({
+      condition: function() {
+        return that.health <= 0;
+      },
+      action: function() {
+        that.blowUp();
+      }
+    })
   };
 
   return Game;

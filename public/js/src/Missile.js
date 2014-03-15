@@ -64,7 +64,7 @@ var Game = (function(Game) {
         return that.ttl <= 0;
       },
       action: function() {
-        that.detonate();
+        that.blowUp();
       }
     });
 

@@ -33,6 +33,14 @@ var Game = (function(Game) {
       this.ttl--;
     };
 
+    this.interactWith = function(obj) {
+      if (obj.type !== 'ship') { return; }
+
+      if (this.distanceTo(obj) < 100 && obj.health > 0) {
+        obj.health--;
+      }
+    };
+
     this.addTrigger({
       condition: function() {
         return that.ttl <= 0;

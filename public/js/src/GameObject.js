@@ -116,7 +116,18 @@ var Game = (function(Game) {
       }
 
       this.angle += amount*(objAngle - this.angle);
-    }
+    },
+
+    blowUp: function() {
+      var that = this;
+
+      Game.addObject(new Game.Explosion({
+        x: that.x,
+        y: that.y
+      }));
+
+      Game.removeObject(this);
+    },
 
   };
 
