@@ -68,17 +68,17 @@ var Game = (function(Game) {
       }
     });
 
-    inputHandler.addMouseInput({
-      click: function(e) {
-        Game.addObject(new Game.Missile({
-          x: e.clientX,
-          y: e.clientY,
-          from: 'other',
-          speed: 3,
-          angle: 0.5*Math.PI
-        }));
-      }
-    });
+    // inputHandler.addMouseInput({
+      // click: function(e) {
+        // Game.addObject(new Game.Missile({
+          // x: e.clientX,
+          // y: e.clientY,
+          // from: 'other',
+          // speed: 3,
+          // angle: 0.5*Math.PI
+        // }));
+      // }
+    // });
 
     Game.paused = false;
 
