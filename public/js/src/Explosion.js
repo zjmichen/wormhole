@@ -37,7 +37,7 @@ var Game = (function(Game) {
       if (obj.type !== 'ship') { return; }
 
       if (this.distanceTo(obj) < 100 && obj.health > 0) {
-        obj.health--;
+        obj.health -= 0.1;
       }
     };
 
