@@ -7,16 +7,21 @@ var Game = (function(Game) {
     , backgroundObjects = []
     , wormholes = {}
     , gameLoop
-    , inputHandler;
+    , inputHandler
+    , ship
+    , lifeImg = new Image();
+
+  lifeImg.src = '/images/ship_normal.png';
 
   Game.playing = false;
   Game.frame = 0;
+  Game.lives = 3;
   Game.debug = {
     drawOutlines: false
   };
 
   Game.init = function(id) {
-    var i, x, y, dist, ship;
+    var i, x, y, dist;
 
     // set up prototype chain here to avoid parallel loading bug
     Game.Explosion.prototype = Game.GameObject;
@@ -45,13 +50,7 @@ var Game = (function(Game) {
       backgroundObjects.push(new Game.Star(x, y, dist));
     }
 
-    ship = new Game.Ship(0.5*canvas.width, 0.5*canvas.height);
-    for (var key in ship.controls) {
-      inputHandler.addKeyInput(key, ship.controls[key]);
-    }
-
-    gameObjects.push(ship);
-    window.ship = ship;
+    Game.respawn();
 
     inputHandler.addKeyInput('80', {
       keyup: function(e) {
@@ -143,6 +142,27 @@ var Game = (function(Game) {
     gameObjects.push(item);
   };
 
+  Game.respawn = function() {
+    if (Game.lives <= 0) {
+      Game.lose();
+      return;
+    }
+
+    ship = new Game.Ship(0.5*canvas.width, 0.5*canvas.height);
+
+    for (var key in ship.controls) {
+      inputHandler.addKeyInput(key, ship.controls[key]);
+    }
+
+    gameObjects.push(ship);
+    window.ship = ship;
+
+  };
+
+  Game.lose = function() {
+    console.log('You lose!');
+  };
+
   function update() {
     backgroundObjects.forEach(function(obj) {
       obj.update();
@@ -211,8 +231,20 @@ var Game = (function(Game) {
   }
 
   function drawHUD() {
+    var i;
+
     ctx.fillStyle = 'red';
-    ctx.fillRect(0, 0, (ship.health / 100) * canvas.width, 20);
+    ctx.fillRect(0, canvas.height - 20, (ship.health / 100) * canvas.width, 20);
+
+    for (i = 0; i < Game.lives; i++) {
+      ctx.save();
+      ctx.translate(30*i, 0);
+      ctx.rotate(-0.5*Math.PI);
+      ctx.translate(-0.5*lifeImg.width, 0.5*lifeImg.height);
+      ctx.scale(0.5, 0.5);
+      ctx.drawImage(lifeImg, 0, 0);
+      ctx.restore();
+    }
   }
 
   return Game;

@@ -147,7 +147,11 @@ var Game = (function(Game) {
         return that.health <= 0;
       },
       action: function() {
+        Game.lives--;
         that.blowUp();
+        setTimeout(function() {
+          Game.respawn();
+        }, 2000);
       }
     })
   };
