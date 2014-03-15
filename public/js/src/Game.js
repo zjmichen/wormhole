@@ -9,6 +9,7 @@ var Game = (function(Game) {
     , gameLoop
     , inputHandler
     , ship
+    , message = {}
     , lifeImg = new Image();
 
   lifeImg.src = '/images/ship_normal.png';
@@ -91,6 +92,8 @@ var Game = (function(Game) {
 
     Game.playing = true;
     console.log('Game started.');
+
+    Game.showMessage('Wormhole', 'Move with arrow keys, shoot with space.', 6);
   };
 
   Game.addPlayer = function(id) {
@@ -152,6 +155,17 @@ var Game = (function(Game) {
 
   Game.lose = function() {
     console.log('You lose!');
+    Game.showMessage('You lose!', '', 0);
+  };
+
+  Game.showMessage = function(title, detail, secs) {
+    message = {title: title, detail: detail};
+
+    if (secs > 0) {
+      setTimeout(function() {
+        message = {};
+      }, 1000*secs);
+    }
   };
 
   function gameLoop(ts) {
@@ -229,6 +243,8 @@ var Game = (function(Game) {
     drawHUD();
 
     ctx.fillStyle = '#fff';
+    ctx.font = '10px Arial';
+    ctx.textAlign = 'left';
     ctx.fillText(Game.frame, 0, 10);
   }
 
@@ -246,6 +262,28 @@ var Game = (function(Game) {
       ctx.scale(0.5, 0.5);
       ctx.drawImage(lifeImg, 0, 0);
       ctx.restore();
+    }
+
+    if (message.title !== undefined) {
+      var centerX = 0.5*canvas.width
+        , centerY = 0.5*canvas.height
+        , boxHeight = 60;
+
+      if (message.detail !== '') {
+        boxHeight += 48;
+      }
+
+      ctx.fillStyle = 'rgba(50, 50, 50, 0.5)';
+      ctx.fillRect(0, centerY - 34, canvas.width, boxHeight);
+
+      ctx.fillStyle = 'white';
+      ctx.font = '48px Arial';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(message.title, centerX, centerY, 600);
+
+      ctx.font = '22px Arial';
+      ctx.fillText(message.detail, centerX, centerY + 48);
     }
   }
 
