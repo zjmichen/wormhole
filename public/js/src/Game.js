@@ -204,8 +204,15 @@ var Game = (function(Game) {
       ctx.restore();
     });
 
+    drawHUD();
+
     ctx.fillStyle = '#fff';
     ctx.fillText(Game.frame, 0, 10);
+  }
+
+  function drawHUD() {
+    ctx.fillStyle = 'red';
+    ctx.fillRect(0, 0, (ship.health / 100) * canvas.width, 20);
   }
 
   return Game;
