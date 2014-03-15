@@ -4,7 +4,7 @@ var Game = (function(Game) {
 
   starImg.width = 2;
   starImg.height = 2;
-  ctx.fillStyle = 'black';
+  ctx.fillStyle = 'white';
   ctx.fillRect(0, 0, starImg.width, starImg.height);
 
   Game.Star = function(x, y, dist) {

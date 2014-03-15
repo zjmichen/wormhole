@@ -180,7 +180,7 @@ var Game = (function(Game) {
   }
 
   function draw() {
-    ctx.fillStyle = 'white';
+    ctx.fillStyle = 'black';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     backgroundObjects.forEach(function(obj) {
