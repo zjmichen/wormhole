@@ -20,7 +20,7 @@ var Game = (function(Game) {
     this.scale = I.scale || 1;
     this.speed = I.speed || 1;
     this.from = I.from || undefined;
-    this.ttl = 200;//1000;
+    this.ttl = 500;
     this.type = 'weapon';
 
     Object.defineProperty(this, 'width', {
@@ -41,9 +41,9 @@ var Game = (function(Game) {
 
       if (this.distanceTo(obj) < 40) {
         this.detonate();
+      } else if (this.distanceTo(obj) < 500) {
+        this.turnToward(obj, 0.1);
       }
-
-      this.turnToward(obj, 0.1);
     };
 
     this.detonate = function() {
