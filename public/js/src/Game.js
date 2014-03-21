@@ -179,6 +179,14 @@ var Game = (function(Game) {
   }
 
   function update() {
+    if (Math.random() < 0.001) {
+      Game.addObject(new Item({
+        angle: Math.random() * 2 * Math.PI,
+        x: Game.width + 10,
+        y: Game.height + 10
+      }));
+    }
+
     backgroundObjects.forEach(function(obj) {
       obj.update();
     });

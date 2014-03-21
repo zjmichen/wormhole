@@ -28,6 +28,7 @@ var Game = (function(Game) {
     this.y = y;
     this.type = 'ship';
     this.health = 100;
+    this.items = [];
 
     Object.defineProperty(this, 'width', {
       get: function() { return this.sprite.width; }
@@ -75,6 +76,13 @@ var Game = (function(Game) {
 
     this.render = function() {
       return this.sprite.render();
+    };
+
+    this.pickUp = function(item) {
+      if (item.type !== 'item') { return; }
+
+      this.items.push(new Game.Item(item));
+      Game.removeObject(item);
     };
 
     this.controls = {

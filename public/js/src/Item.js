@@ -28,6 +28,12 @@ var Game = (function(Game) {
       return sprite.render();
     };
 
+    this.interactWith = function(obj) {
+      if (obj.type !== 'ship') { return; }
+
+      obj.pickUp(this);
+    };
+
   };
 
   return Game;
