@@ -17,6 +17,8 @@ var Game = (function(Game) {
   Game.playing = false;
   Game.frame = 0;
   Game.lives = 3;
+  Game.width = 0;
+  Game.height = 0;
   Game.debug = {
     drawOutlines: false
   };
@@ -28,6 +30,7 @@ var Game = (function(Game) {
     Game.Explosion.prototype = Game.GameObject;
     Game.Ship.prototype = Game.GameObject;
     Game.Missile.prototype = Game.GameObject;
+    Game.Nuke.prototype = Game.GameObject;
     Game.Wormhole.prototype = Game.GameObject;
     Game.Item.prototype = Game.GameObject;
 
@@ -42,6 +45,14 @@ var Game = (function(Game) {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
     };
+
+    Object.defineProperty(Game, 'width', {
+      get: function() { return canvas.width; }
+    });
+
+    Object.defineProperty(Game, 'height', {
+      get: function() { return canvas.height; }
+    });
 
     for (i = 0; i < 0.0005*canvas.width*canvas.height; i++) {
       x = Math.random()*canvas.width;
@@ -67,18 +78,6 @@ var Game = (function(Game) {
         }
       }
     });
-
-    // inputHandler.addMouseInput({
-      // click: function(e) {
-        // Game.addObject(new Game.Missile({
-          // x: e.clientX,
-          // y: e.clientY,
-          // from: 'other',
-          // speed: 3,
-          // angle: 0.5*Math.PI
-        // }));
-      // }
-    // });
 
     Game.paused = false;
 

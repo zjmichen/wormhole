@@ -126,7 +126,7 @@ var Game = (function(Game) {
             , itemSpeedY = that.speed*Math.sin(driftAngle) + itemBoost*Math.sin(that.angle)
             , itemSpeed = Math.sqrt(Math.pow(itemSpeedX, 2) + Math.pow(itemSpeedY, 2));
 
-          Game.addObject(new Game.Missile({
+          Game.addObject(new Game.Nuke({
             x: that.x + 0.5*that.height,
             y: that.y,
             angle: that.angle,
