@@ -28,6 +28,7 @@ var Game = (function(Game) {
     this.y = y;
     this.type = 'ship';
     this.health = 100;
+    this.reach = 50;
     this.items = [];
 
     Object.defineProperty(this, 'width', {

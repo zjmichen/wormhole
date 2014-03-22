@@ -31,7 +31,9 @@ var Game = (function(Game) {
     this.interactWith = function(obj) {
       if (obj.type !== 'ship') { return; }
 
-      obj.pickUp(this);
+      if (this.distanceTo(obj) < obj.reach) {
+        obj.pickUp(this);
+      }
     };
 
   };

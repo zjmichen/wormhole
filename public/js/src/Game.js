@@ -8,6 +8,7 @@ var Game = (function(Game) {
     , wormholes = {}
     , gameLoop
     , inputHandler
+    , canvas
     , ship
     , message = {}
     , lifeImg = new Image();
@@ -112,8 +113,6 @@ var Game = (function(Game) {
   };
 
   Game.addObject = function(obj) {
-    obj.update(gameObjects);
-    obj.render();
     gameObjects.push(obj);
   };
 
@@ -141,7 +140,7 @@ var Game = (function(Game) {
       return;
     }
 
-    ship = new Game.Ship(0.5*canvas.width, 0.5*canvas.height);
+    ship = new Game.Ship(0.5*Game.width, 0.5*Game.height);
 
     for (var key in ship.controls) {
       inputHandler.addKeyInput(key, ship.controls[key]);
@@ -180,7 +179,8 @@ var Game = (function(Game) {
 
   function update() {
     if (Math.random() < 0.001) {
-      Game.addObject(new Item({
+      console.log('New item!');
+      Game.addObject(new Game.Item({
         angle: Math.random() * 2 * Math.PI,
         x: Game.width + 10,
         y: Game.height + 10
