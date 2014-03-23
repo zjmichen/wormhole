@@ -7,7 +7,6 @@ var Game = (function(Game) {
     , backgroundObjects = []
     , wormholes = {}
     , gameLoop
-    , inputHandler
     , canvas
     , message = {}
     , lifeImg = new Image();
@@ -33,8 +32,6 @@ var Game = (function(Game) {
     Game.Nuke.prototype = Game.GameObject;
     Game.Wormhole.prototype = Game.GameObject;
     Game.Item.prototype = Game.GameObject;
-
-    inputHandler = new Game.InputHandler();
 
     canvas = document.getElementById(id);
     canvas.width = window.innerWidth;
@@ -62,15 +59,22 @@ var Game = (function(Game) {
       backgroundObjects.push(new Game.Star(x, y, dist));
     }
 
-    Game.respawn();
+    Game.Player.respawn();
 
-    inputHandler.addKeyInput('80', {
+    Game.InputHandler.addKeyInput('80', {
       keyup: function(e) {
         Game.paused = !Game.paused;
+
+        if (Game.paused) {
+          Game.showMessage('Paused');
+          draw();
+        } else {
+          message = {};
+        }
       }
     });
 
-    inputHandler.addKeyInput('78', {
+    Game.InputHandler.addKeyInput('78', {
       keydown: function(e) {
         if (Game.paused) {
           update();
@@ -133,36 +137,9 @@ var Game = (function(Game) {
     gameObjects.push(item);
   };
 
-  Game.respawn = function() {
-    var ship;
-
-    if (Game.lives <= 0) {
-      Game.lose();
-      return;
-    }
-
-    ship = new Game.Ship(0.5*Game.width, 0.5*Game.height);
-
-    for (var key in ship.controls) {
-      inputHandler.addKeyInput(key, ship.controls[key]);
-    }
-
-    Game.Player = {
-      lives: Game.Player.lives - 1,
-      items: [],
-      health: 100,
-      ship: ship
-    };
-    
-    gameObjects.push(ship);
-  };
-
-  Game.lose = function() {
-    console.log('You lose!');
-    Game.showMessage('You lose!', '', 0);
-  };
-
   Game.showMessage = function(title, detail, secs) {
+    if (detail === undefined) { detail = ''; }
+    
     message = {title: title, detail: detail};
 
     if (secs > 0) {
@@ -170,6 +147,11 @@ var Game = (function(Game) {
         message = {};
       }, 1000*secs);
     }
+  };
+
+  Game.lose = function() {
+    console.log('You lose!');
+    Game.showMessage('You lose!', '', 0);
   };
 
   function gameLoop(ts) {

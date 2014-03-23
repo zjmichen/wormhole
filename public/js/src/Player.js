@@ -3,7 +3,22 @@ var Game = (function(Game) {
     lives: 3,
     items: [],
     health: 100,
-    ship: undefined
+    ship: undefined,
+
+    respawn: function() {
+      if (this.lives <= 0) {
+        Game.lose();
+        return;
+      }
+
+      this.ship = new Game.Ship(0.5*Game.width, 0.5*Game.height);
+
+      this.lives--;
+      this.health = 100;
+      this.items = [];
+
+      Game.addObject(this.ship);
+    }
   };
 
   return Game;

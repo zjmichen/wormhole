@@ -89,64 +89,62 @@ var Game = (function(Game) {
       Game.removeObject(item);
     };
 
-    this.controls = {
-      '38': {
-        keydown: function() {
-          if (!controlStates.thrust) {
-            controlStates.thrust = true;
-            that.sprite = spriteThrusting;
-          }
-        },
-        keyup: function() {
-          if (controlStates.thrust) {
-            controlStates.thrust = false;
-            that.sprite = spriteNormal;
-          }
+    Game.InputHandler.addKeyInput('38', {
+      keydown: function() {
+        if (!controlStates.thrust) {
+          controlStates.thrust = true;
+          that.sprite = spriteThrusting;
         }
       },
-
-      '37': {
-        keydown: function() {
-          if (!controlStates.turnLeft) {
-            controlStates.turnLeft = true;
-          }
-        },
-        keyup: function() {
-          if (controlStates.turnLeft) {
-            controlStates.turnLeft = false;
-          }
-        }
-      },
-
-      '39': {
-        keydown: function() {
-          if (!controlStates.turnRight) {
-            controlStates.turnRight = true;
-          }
-        },
-        keyup: function() {
-          if (controlStates.turnRight) {
-            controlStates.turnRight = false;
-          }
-        }
-      },
-
-      '32': {
-        keydown: function() {
-          var itemBoost = 3
-            , itemSpeedX = that.speed*Math.cos(driftAngle) + itemBoost*Math.cos(that.angle)
-            , itemSpeedY = that.speed*Math.sin(driftAngle) + itemBoost*Math.sin(that.angle)
-            , itemSpeed = Math.sqrt(Math.pow(itemSpeedX, 2) + Math.pow(itemSpeedY, 2));
-
-          Game.addObject(new Game.Nuke({
-            x: that.x + 0.5*that.height,
-            y: that.y,
-            angle: that.angle,
-            speed: itemSpeed
-          }));
+      keyup: function() {
+        if (controlStates.thrust) {
+          controlStates.thrust = false;
+          that.sprite = spriteNormal;
         }
       }
-    };
+    });
+
+    Game.InputHandler.addKeyInput('37', {
+      keydown: function() {
+        if (!controlStates.turnLeft) {
+          controlStates.turnLeft = true;
+        }
+      },
+      keyup: function() {
+        if (controlStates.turnLeft) {
+          controlStates.turnLeft = false;
+        }
+      }
+    });
+
+    Game.InputHandler.addKeyInput('39', {
+      keydown: function() {
+        if (!controlStates.turnRight) {
+          controlStates.turnRight = true;
+        }
+      },
+      keyup: function() {
+        if (controlStates.turnRight) {
+          controlStates.turnRight = false;
+        }
+      }
+    });
+
+    Game.InputHandler.addKeyInput('32', {
+      keydown: function() {
+        var itemBoost = 3
+          , itemSpeedX = that.speed*Math.cos(driftAngle) + itemBoost*Math.cos(that.angle)
+          , itemSpeedY = that.speed*Math.sin(driftAngle) + itemBoost*Math.sin(that.angle)
+          , itemSpeed = Math.sqrt(Math.pow(itemSpeedX, 2) + Math.pow(itemSpeedY, 2));
+
+        Game.addObject(new Game.Nuke({
+          x: that.x + 0.5*that.height,
+          y: that.y,
+          angle: that.angle,
+          speed: itemSpeed
+        }));
+      }
+    });
 
     controlStates = {
       thrust: false,
@@ -162,7 +160,7 @@ var Game = (function(Game) {
         Game.lives--;
         that.blowUp();
         setTimeout(function() {
-          Game.respawn();
+          Game.Player.respawn();
         }, 2000);
       }
     })

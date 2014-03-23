@@ -1,7 +1,7 @@
 var Game = (function(Game) {
 
-  Game.InputHandler = function() {
-    this.addKeyInput = function(keyCode, controls) {
+  Game.InputHandler = {
+    addKeyInput: function(keyCode, controls) {
       for (var evtType in controls) {
         document.addEventListener(evtType, function(e) {
           if (e.keyCode === parseInt(keyCode)) {
@@ -9,15 +9,15 @@ var Game = (function(Game) {
           }
         });
       }
-    };
+    },
 
-    this.addMouseInput = function(controls) {
+    addInput: function(controls) {
       for (var evtType in controls) {
         document.addEventListener(evtType, function(e) {
           controls[e.type](e);
         });
       }
-    };
+    }
   };
 
   return Game;
