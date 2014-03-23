@@ -89,7 +89,7 @@ var Game = (function(Game) {
       Game.removeObject(item);
     };
 
-    Game.InputHandler.addKeyInput('38', {
+    Game.InputHandler.addKeyInput('up', {
       keydown: function() {
         if (!controlStates.thrust) {
           controlStates.thrust = true;
@@ -104,7 +104,7 @@ var Game = (function(Game) {
       }
     });
 
-    Game.InputHandler.addKeyInput('37', {
+    Game.InputHandler.addKeyInput('left', {
       keydown: function() {
         if (!controlStates.turnLeft) {
           controlStates.turnLeft = true;
@@ -117,7 +117,7 @@ var Game = (function(Game) {
       }
     });
 
-    Game.InputHandler.addKeyInput('39', {
+    Game.InputHandler.addKeyInput('right', {
       keydown: function() {
         if (!controlStates.turnRight) {
           controlStates.turnRight = true;
@@ -130,7 +130,7 @@ var Game = (function(Game) {
       }
     });
 
-    Game.InputHandler.addKeyInput('32', {
+    Game.InputHandler.addKeyInput('space', {
       keydown: function() {
         var itemBoost = 3
           , itemSpeedX = that.speed*Math.cos(driftAngle) + itemBoost*Math.cos(that.angle)
