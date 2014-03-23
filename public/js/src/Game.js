@@ -9,7 +9,6 @@ var Game = (function(Game) {
     , gameLoop
     , inputHandler
     , canvas
-    , ship
     , message = {}
     , lifeImg = new Image();
 
@@ -135,6 +134,8 @@ var Game = (function(Game) {
   };
 
   Game.respawn = function() {
+    var ship;
+
     if (Game.lives <= 0) {
       Game.lose();
       return;
@@ -146,9 +147,14 @@ var Game = (function(Game) {
       inputHandler.addKeyInput(key, ship.controls[key]);
     }
 
+    Game.Player = {
+      lives: Game.Player.lives - 1,
+      items: [],
+      health: 100,
+      ship: ship
+    };
+    
     gameObjects.push(ship);
-    window.ship = ship;
-
   };
 
   Game.lose = function() {
@@ -259,7 +265,7 @@ var Game = (function(Game) {
     var i;
 
     ctx.fillStyle = 'red';
-    ctx.fillRect(0, canvas.height - 20, (ship.health / 100) * canvas.width, 20);
+    ctx.fillRect(0, canvas.height - 20, (Game.Player.ship.health / 100) * canvas.width, 20);
 
     for (i = 0; i < Game.lives; i++) {
       ctx.save();
