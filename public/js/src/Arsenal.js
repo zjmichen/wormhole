@@ -2,15 +2,18 @@ var Game = (function(Game) {
   var types = {
     'nuke': {
       prob: 0.1,
-      img: new Image()
+      img: new Image(),
+      constructor: Game.Nuke
     },
     'missile': {
       prob: 0.9,
-      img: new Image()
+      img: new Image(),
+      constructor: Game.Missile
     },
     'none': {
       prob: 0,
-      img: new Image()
+      img: new Image(),
+      constructor: Game.Explosion
     }
   };
 
@@ -27,7 +30,6 @@ var Game = (function(Game) {
 
       for (var weapon in types) {
         if (r < probSum + types[weapon].prob) {
-          console.log('Yes.');
           return weapon;
         }
 
@@ -41,6 +43,10 @@ var Game = (function(Game) {
       }
 
       return types[type].img;
+    },
+
+    getConstructor: function(type) {
+      return types[type].constructor;
     }
 
   };

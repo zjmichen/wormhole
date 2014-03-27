@@ -135,9 +135,13 @@ var Game = (function(Game) {
         var itemBoost = 3
           , itemSpeedX = that.speed*Math.cos(driftAngle) + itemBoost*Math.cos(that.angle)
           , itemSpeedY = that.speed*Math.sin(driftAngle) + itemBoost*Math.sin(that.angle)
-          , itemSpeed = Math.sqrt(Math.pow(itemSpeedX, 2) + Math.pow(itemSpeedY, 2));
+          , itemSpeed = Math.sqrt(Math.pow(itemSpeedX, 2) + Math.pow(itemSpeedY, 2))
+          , item, weapon;
 
-        Game.addObject(new Game.Nuke({
+        item = Game.Player.items.pop();
+        Weapon = Game.Arsenal.getConstructor(item.itemType);
+
+        Game.addObject(new Weapon({
           x: that.x + 0.5*that.height,
           y: that.y,
           angle: that.angle,
