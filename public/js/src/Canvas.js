@@ -104,6 +104,7 @@ var Game = (function(Game) {
 
       drawHealth(player.ship.health, 30, 60, 100, 10);
       drawLives(player.lives, 0, 0, 0.5);
+      drawItems(player.items, Game.Canvas.width, 20, 0.75);
 
       if (message.title !== undefined) {
         drawMessage();
@@ -132,6 +133,19 @@ var Game = (function(Game) {
       ctx.translate(-0.5*lifeImg.width, 0.5*lifeImg.height);
       ctx.scale(scale, scale);
       ctx.drawImage(lifeImg, 0, 0);
+      ctx.restore();
+    }
+  }
+
+  function drawItems(items, x, y, scale) {
+    var img;
+
+    for (var i = 0; i < items.length; i++) {
+      img = items[i].render();
+      ctx.save();
+      ctx.translate(x - 0.5*img.width*i - img.width, y);
+      ctx.scale(scale, scale);
+      ctx.drawImage(img, 0, 0);
       ctx.restore();
     }
   }
