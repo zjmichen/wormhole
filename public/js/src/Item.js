@@ -1,22 +1,21 @@
 var Game = (function(Game) {
-  var itemImg = new Image();
-  itemImg.src = '/images/item_none.png';
-
   Game.Item = function(I) {
     I = I || {};
 
     var that = this
       , sprite = new Game.Sprite();
 
-    sprite.addImage(itemImg);
 
     this.x = I.x || 0;
     this.y = I.y || 0;
     this.angle = I.angle || 0;
     this.scale = I.scale || 1;
     this.speed = I.speed || 1;
+    this.itemType = I.itemType || 'none';
     this.type = 'item';
     this.ttl = I.ttl || 1000;
+
+    sprite.addImage(Game.Arsenal.getImage(this.itemType));
 
     Object.defineProperty(this, 'width', {
       get: function() { return sprite.width; }

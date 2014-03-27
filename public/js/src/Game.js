@@ -134,9 +134,9 @@ var Game = (function(Game) {
   }
 
   function update() {
-    if (Math.random() < 0.001) {
-      console.log('New item!');
+    if (Math.random() < 0.01) {
       Game.addObject(new Game.Item({
+        itemType: Game.Arsenal.getRandomType(),
         angle: Math.random() * 2 * Math.PI,
         x: Game.Canvas.width + 10,
         y: Game.Canvas.height + 10,
