@@ -59,8 +59,8 @@ var Game = (function(Game) {
       for (i = 0; i < this.payload; i++) {
         theta = Math.random() * 2 * Math.PI;
         dist = Math.random() * 250;
-        x = (this.x + dist*Math.cos(theta)) % Game.width;
-        y = (this.y + dist*Math.sin(theta)) % Game.height;
+        x = (this.x + dist*Math.cos(theta)) % Game.Canvas.width;
+        y = (this.y + dist*Math.sin(theta)) % Game.Canvas.height;
 
         Game.addObject(new Game.Explosion({ x: x, y: y }));
       }

@@ -11,7 +11,7 @@ var Game = (function(Game) {
         return;
       }
 
-      this.ship = new Game.Ship(0.5*Game.width, 0.5*Game.height);
+      this.ship = new Game.Ship(0.5*Game.Canvas.width, 0.5*Game.Canvas.height);
 
       this.lives--;
       this.health = 100;

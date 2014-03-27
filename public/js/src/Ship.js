@@ -157,7 +157,7 @@ var Game = (function(Game) {
         return that.health <= 0;
       },
       action: function() {
-        Game.lives--;
+        Game.Player.lives--;
         that.blowUp();
         setTimeout(function() {
           Game.Player.respawn();

@@ -16,6 +16,7 @@ var Game = (function(Game) {
     this.scale = I.scale || 1;
     this.speed = I.speed || 1;
     this.type = 'item';
+    this.ttl = I.ttl || 1000;
 
     Object.defineProperty(this, 'width', {
       get: function() { return sprite.width; }
@@ -23,6 +24,10 @@ var Game = (function(Game) {
     Object.defineProperty(this, 'height', {
       get: function() { return sprite.height; }
     });
+
+    this.updateExtra = function() {
+      this.ttl--;
+    };
 
     this.render = function() {
       return sprite.render();
@@ -35,6 +40,15 @@ var Game = (function(Game) {
         obj.pickUp(this);
       }
     };
+
+    this.addTrigger({
+      condition: function() {
+        return that.ttl <= 0;
+      },
+      action: function() {
+        Game.removeObject(that);
+      }
+    });
 
   };
 

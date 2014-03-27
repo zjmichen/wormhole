@@ -8,16 +8,10 @@ var Game = (function(Game) {
     , wormholes = {}
     , gameLoop
     , canvas
-    , message = {}
-    , lifeImg = new Image();
-
-  lifeImg.src = '/images/ship_normal.png';
+    , message = {};
 
   Game.playing = false;
   Game.frame = 0;
-  Game.lives = 3;
-  Game.width = 0;
-  Game.height = 0;
   Game.debug = {
     drawOutlines: false
   };
@@ -34,22 +28,7 @@ var Game = (function(Game) {
     Game.Item.prototype = Game.GameObject;
 
     canvas = document.getElementById(id);
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-    ctx = canvas.getContext('2d');
-
-    window.onresize = function() {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    };
-
-    Object.defineProperty(Game, 'width', {
-      get: function() { return canvas.width; }
-    });
-
-    Object.defineProperty(Game, 'height', {
-      get: function() { return canvas.height; }
-    });
+    Game.Canvas.init(canvas);
 
     for (i = 0; i < 0.0005*canvas.width*canvas.height; i++) {
       x = Math.random()*canvas.width;
@@ -60,13 +39,14 @@ var Game = (function(Game) {
     }
 
     Game.Player.respawn();
+    Game.Player.lives = 3;
 
     Game.InputHandler.addKeyInput('80', {
       keyup: function(e) {
         Game.paused = !Game.paused;
 
         if (Game.paused) {
-          Game.showMessage('Paused');
+          Game.Canvas.showMessage('Paused');
           draw();
         } else {
           message = {};
@@ -96,7 +76,7 @@ var Game = (function(Game) {
     Game.playing = true;
     console.log('Game started.');
 
-    Game.showMessage('Wormhole', 'Move with arrow keys, shoot with space.', 6);
+    Game.Canvas.showMessage('Wormhole', 'Move with arrow keys, shoot with space.', 6);
   };
 
   Game.addPlayer = function(id) {
@@ -137,21 +117,9 @@ var Game = (function(Game) {
     gameObjects.push(item);
   };
 
-  Game.showMessage = function(title, detail, secs) {
-    if (detail === undefined) { detail = ''; }
-
-    message = {title: title, detail: detail};
-
-    if (secs > 0) {
-      setTimeout(function() {
-        message = {};
-      }, 1000*secs);
-    }
-  };
-
   Game.lose = function() {
     console.log('You lose!');
-    Game.showMessage('You lose!', '', 0);
+    Game.Canvas.showMessage('You lose!', 0);
   };
 
   function gameLoop(ts) {
@@ -170,8 +138,9 @@ var Game = (function(Game) {
       console.log('New item!');
       Game.addObject(new Game.Item({
         angle: Math.random() * 2 * Math.PI,
-        x: Game.width + 10,
-        y: Game.height + 10
+        x: Game.Canvas.width + 10,
+        y: Game.Canvas.height + 10,
+        ttl: 300
       }));
     }
 
@@ -191,95 +160,12 @@ var Game = (function(Game) {
   }
 
   function draw() {
-    ctx.fillStyle = 'black';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    Game.Canvas.clear();
+    Game.Canvas.drawSimple(backgroundObjects);
+    Game.Canvas.drawComplex(gameObjects);
+    Game.Canvas.drawHUD(Game.Player);
+    Game.Canvas.drawFrameCount(Game.frame);
 
-    backgroundObjects.forEach(function(obj) {
-      var img = obj.render()
-        , x = obj.x || 0
-        , y = obj.y || 0;
-
-      x = ((x % canvas.width) + canvas.width) % canvas.width;
-      y = ((y % canvas.height) + canvas.height) % canvas.height;
-
-      ctx.drawImage(img, x, y);
-    });
-
-    gameObjects.forEach(function(obj) {
-      var img = obj.render()
-        , x = obj.x || 0
-        , y = obj.y || 0
-        , w = obj.width || 0
-        , h = obj.height || 0
-        , sx = obj.scale || 1
-        , sy = obj.scale || 1
-        , angle = obj.angle || 0;
-
-      obj.x = ((x % canvas.width) + canvas.width) % canvas.width;
-      obj.y = ((y % canvas.height) + canvas.height) % canvas.height;
-      obj.angle = ((angle % (2*Math.PI)) + (2*Math.PI)) % (2*Math.PI);
-
-      ctx.save();
-      ctx.translate(obj.x, obj.y);
-      ctx.rotate(obj.angle);
-      ctx.scale(sx, sy);
-      ctx.translate(-0.5*sx*w, -0.5*sy*h);
-      ctx.drawImage(img, 0, 0);
-
-      if (Game.debug.drawOutlines) {
-        ctx.strokeStyle = '#ff0';
-        ctx.lineWidth = 2;
-        ctx.strokeRect(0, 0, w, h);
-      }
-
-      ctx.restore();
-    });
-
-    drawHUD();
-
-    ctx.fillStyle = '#fff';
-    ctx.font = '10px Arial';
-    ctx.textAlign = 'left';
-    ctx.fillText(Game.frame, 0, 10);
-  }
-
-  function drawHUD() {
-    var i;
-
-    ctx.fillStyle = 'red';
-    ctx.fillRect(0, canvas.height - 20, (Game.Player.ship.health / 100) * canvas.width, 20);
-
-    for (i = 0; i < Game.lives; i++) {
-      ctx.save();
-      ctx.translate(30*i, 0);
-      ctx.rotate(-0.5*Math.PI);
-      ctx.translate(-0.5*lifeImg.width, 0.5*lifeImg.height);
-      ctx.scale(0.5, 0.5);
-      ctx.drawImage(lifeImg, 0, 0);
-      ctx.restore();
-    }
-
-    if (message.title !== undefined) {
-      var centerX = 0.5*canvas.width
-        , centerY = 0.5*canvas.height
-        , boxHeight = 60;
-
-      if (message.detail !== '') {
-        boxHeight += 48;
-      }
-
-      ctx.fillStyle = 'rgba(50, 50, 50, 0.5)';
-      ctx.fillRect(0, centerY - 34, canvas.width, boxHeight);
-
-      ctx.fillStyle = 'white';
-      ctx.font = '48px Arial';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText(message.title, centerX, centerY, 600);
-
-      ctx.font = '22px Arial';
-      ctx.fillText(message.detail, centerX, centerY + 48);
-    }
   }
 
   return Game;
