@@ -139,7 +139,7 @@ var Game = (function(Game) {
 
   Game.showMessage = function(title, detail, secs) {
     if (detail === undefined) { detail = ''; }
-    
+
     message = {title: title, detail: detail};
 
     if (secs > 0) {
