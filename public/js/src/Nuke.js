@@ -37,16 +37,6 @@ var Game = (function(Game) {
       }
     };
 
-    this.interactWith = function(obj) {
-      if (this.from === undefined || obj.type !== 'ship') { return; }
-
-      if (this.distanceTo(obj) < 40) {
-        this.blowUp();
-      } else if (this.distanceTo(obj) < 500) {
-        this.turnToward(obj, 0.1);
-      }
-    };
-
     this.addTrigger({
       condition: function() {
         return that.ttl <= 0;
