@@ -22,6 +22,7 @@ var Game = (function(Game) {
     this.scale = I.scale || 1;
     this.speed = I.speed || 1;
     this.from = I.from || undefined;
+    this.damage = I.damage || 10;
     this.ttl = 500;
     this.type = 'weapon';
 
@@ -42,6 +43,7 @@ var Game = (function(Game) {
       if (this.from === undefined || obj.type !== 'ship') { return; }
 
       if (this.distanceTo(obj) < 40) {
+        Game.Player.health -= this.damage;
         this.blowUp();
       } else if (this.distanceTo(obj) < 500) {
         this.turnToward(obj, 0.1);
