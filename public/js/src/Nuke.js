@@ -21,6 +21,7 @@ var Game = (function(Game) {
     this.from = I.from || undefined;
     this.ttl = 500;
     this.type = 'weapon';
+    this.weaponType = 'nuke';
     this.payload = 100;
 
     Object.defineProperty(this, 'width', {

@@ -24,6 +24,7 @@ var Game = (function(Game) {
     this.from = I.from || undefined;
     this.damage = I.damage || 10;
     this.type = 'weapon';
+    this.weaponType = 'mine';
 
     if (this.from === undefined) {
       this.sprite.addImage(mineImg3);

@@ -25,6 +25,7 @@ var Game = (function(Game) {
     this.damage = I.damage || 10;
     this.ttl = 500;
     this.type = 'weapon';
+    this.weaponType = 'missile';
 
     Object.defineProperty(this, 'width', {
       get: function() { return this.sprite.width; }
