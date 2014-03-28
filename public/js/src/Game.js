@@ -41,13 +41,13 @@ var Game = (function(Game) {
     Game.Player.respawn();
     Game.Player.lives = 3;
 
-    Game.InputHandler.addKeyInput('80', {
+    Game.InputHandler.addKeyInput('p', {
       keyup: function(e) {
         Game.pause();
       }
     });
 
-    Game.InputHandler.addKeyInput('78', {
+    Game.InputHandler.addKeyInput('n', {
       keydown: function(e) {
         if (Game.paused) {
           update();

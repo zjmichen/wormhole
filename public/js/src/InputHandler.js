@@ -6,6 +6,13 @@ var Game = (function(Game) {
     'right': 39
   };
 
+  var alphabet = 'abcdefghijklmnopqrstuvwxyz';
+  for (var i = 0; i < 26; i++) {
+    codes[alphabet.substring(i, i+1)] = 65 + i;
+  }
+
+  console.log(codes);
+
   Game.InputHandler = {
     addKeyInput: function(keyCode, controls) {
       if (isNaN(parseInt(keyCode))) {
