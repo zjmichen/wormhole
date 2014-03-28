@@ -26,6 +26,7 @@ var Game = (function(Game) {
     Game.Nuke.prototype = Game.GameObject;
     Game.Wormhole.prototype = Game.GameObject;
     Game.Item.prototype = Game.GameObject;
+    Game.Mine.prototype = Game.GameObject;
 
     canvas = document.getElementById(id);
     Game.Canvas.init(canvas);
