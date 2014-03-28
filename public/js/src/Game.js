@@ -6,8 +6,6 @@ var Game = (function(Game) {
     , gameObjects = []
     , backgroundObjects = []
     , wormholes = {}
-    , gameLoop
-    , canvas
     , message = {};
 
   Game.playing = false;
@@ -44,14 +42,7 @@ var Game = (function(Game) {
 
     Game.InputHandler.addKeyInput('80', {
       keyup: function(e) {
-        Game.paused = !Game.paused;
-
-        if (Game.paused) {
-          Game.Canvas.showMessage('Paused');
-          draw();
-        } else {
-          Game.Canvas.clearMessage();
-        }
+        Game.pause();
       }
     });
 
@@ -78,6 +69,19 @@ var Game = (function(Game) {
     console.log('Game started.');
 
     Game.Canvas.showMessage('Wormhole', 'Move with arrow keys. Pick up floating objects and shoot them into your opponents\' wormholes with space.', 6);
+  };
+
+  Game.pause = function() {
+    Game.paused = !Game.paused;
+
+    if (Game.paused) {
+      Game.Canvas.showMessage('Paused');
+      draw();
+    } else {
+      Game.Canvas.clearMessage();
+    }
+
+    return Game.paused;
   };
 
   Game.addPlayer = function(id) {
@@ -109,8 +113,8 @@ var Game = (function(Game) {
   };
 
   Game.receiveObject = function(obj, wormholeId) {
-    var obj = JSON.parse(obj)
-      , Weapon = Game.Arsenal.getConstructor(obj.weaponType);
+    obj = JSON.parse(obj);
+    var Weapon = Game.Arsenal.getConstructor(obj.weaponType);
 
     obj.from = wormholeId;
     obj.x = wormholes[wormholeId].x;
