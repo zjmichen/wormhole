@@ -169,7 +169,7 @@ var Game = (function(Game) {
           Game.Player.respawn();
         }, 2000);
       }
-    })
+    });
   };
 
   return Game;

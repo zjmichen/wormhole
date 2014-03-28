@@ -132,7 +132,7 @@ var Game = (function(Game) {
   function drawHealth(health, x, y, width, height) {
     ctx.fillStyle = 'red';
     ctx.fillRect(x, y, width*(0.01*health), height);
-  };
+  }
 
   function drawLives(numLives, x, y, scale) {
     for (var i = 0; i < numLives; i++) {
