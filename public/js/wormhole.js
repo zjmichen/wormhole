@@ -1,4 +1,242 @@
 var Game = (function(Game) {
+  var types = {
+    'none': {
+      prob: 0,
+      img: new Image(),
+      constructor: Game.Explosion
+    }
+  };
+
+  Game.Arsenal = {
+
+    getRandomType: function() {
+      var r = Math.random()
+        , probSum = 0
+        , threshhold = 0;
+
+      for (var weapon in types) {
+        if (r < probSum + types[weapon].prob) {
+          return weapon;
+        }
+
+        probSum += types[weapon].prob;
+      };
+    },
+
+    getImage: function(type) {
+      if (types[type] === undefined) {
+        return null;
+      }
+
+      return types[type].img;
+    },
+
+    getConstructor: function(type) {
+      return types[type].constructor;
+    },
+
+    addType: function(typeObj) {
+      if (typeof typeObj.img === "string") {
+        var imgUrl = typeObj.img;
+        typeObj.img = new Image();
+        typeObj.img.src = imgUrl;
+      }
+
+      typeObj.img = typeObj.img || new Image();
+      typeObj.prob = typeObj.prob || 0;
+      types[typeObj.name] = typeObj;
+    }
+
+  };
+
+  return Game;
+})(Game || {});
+var Game = (function(Game) {
+  var ctx
+    , message = {}
+    , lifeImg = new Image();
+
+  lifeImg.src = '/images/ship_normal.png';
+
+  Game.Canvas = {
+    init: function(canvas) {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      ctx = canvas.getContext('2d');
+
+      window.onresize = function() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+      };
+
+      Object.defineProperty(Game.Canvas, 'width', {
+        get: function() { return canvas.width; }
+      });
+
+      Object.defineProperty(Game.Canvas, 'height', {
+        get: function() { return canvas.height; }
+      });
+    },
+
+    showMessage: function(title, detail, secs) {
+      if (secs === undefined) {
+        if (typeof detail === "number") {
+          secs = detail;
+          detail = '';
+        } else {
+          secs = 0;
+        }
+      }
+
+      detail = detail || '';
+
+      message = {
+        title: title,
+        detail: detail
+      };
+
+      if (secs > 0) {
+        setTimeout(function() {
+          message = {};
+        }, 1000*secs);
+      }
+    },
+
+    clearMessage: function() {
+      message = {};
+    },
+
+    clear: function() {
+      ctx.fillStyle = 'black';
+      ctx.fillRect(0, 0, Game.Canvas.width, Game.Canvas.height);
+    },
+
+    drawSimple: function(objects) {
+      objects.forEach(function(obj) {
+        var img = obj.render()
+          , x = obj.x || 0
+          , y = obj.y || 0;
+
+        x = ((x % Game.Canvas.width) + Game.Canvas.width) % Game.Canvas.width;
+        y = ((y % Game.Canvas.height) + Game.Canvas.height) % Game.Canvas.height;
+
+        ctx.drawImage(img, x, y);
+      });
+    },
+
+    drawComplex: function(objects) {
+      objects.forEach(function(obj) {
+        var img = obj.render()
+          , x = obj.x || 0
+          , y = obj.y || 0
+          , w = obj.width || 0
+          , h = obj.height || 0
+          , sx = obj.scale || 1
+          , sy = obj.scale || 1
+          , angle = obj.angle || 0;
+
+        obj.x = ((x % Game.Canvas.width) + Game.Canvas.width) % Game.Canvas.width;
+        obj.y = ((y % Game.Canvas.height) + Game.Canvas.height) % Game.Canvas.height;
+        obj.angle = ((angle % (2*Math.PI)) + (2*Math.PI)) % (2*Math.PI);
+
+        ctx.save();
+        ctx.translate(obj.x, obj.y);
+        ctx.rotate(obj.angle);
+        ctx.scale(sx, sy);
+        ctx.translate(-0.5*sx*w, -0.5*sy*h);
+        try {
+          ctx.drawImage(img, 0, 0);
+        } catch (e) {
+          Game.removeObject(obj);
+          console.log(e);
+        }
+
+        if (Game.debug.drawOutlines) {
+          ctx.strokeStyle = '#ff0';
+          ctx.lineWidth = 2;
+          ctx.strokeRect(0, 0, w, h);
+        }
+
+        ctx.restore();
+      });
+    },
+
+    drawHUD: function(player) {
+      var i;
+
+      drawHealth(player.ship.health, 30, 60, 100, 10);
+      drawLives(player.lives, 0, 0, 0.5);
+      drawItems(player.items, Game.Canvas.width, 20, 0.75);
+
+      if (message.title !== undefined) {
+        drawMessage();
+      }
+    },
+
+    drawFrameCount: function(frame) {
+      ctx.fillStyle = '#fff';
+      ctx.font = '10px Arial';
+      ctx.textAlign = 'left';
+      ctx.fillText(frame, 0, 10);
+    }
+
+  };
+
+  function drawHealth(health, x, y, width, height) {
+    ctx.fillStyle = 'red';
+    ctx.fillRect(x, y, width*(0.01*health), height);
+  };
+
+  function drawLives(numLives, x, y, scale) {
+    for (var i = 0; i < numLives; i++) {
+      ctx.save();
+      ctx.translate(x + 30*i, y);
+      ctx.rotate(-0.5*Math.PI);
+      ctx.translate(-0.5*lifeImg.width, 0.5*lifeImg.height);
+      ctx.scale(scale, scale);
+      ctx.drawImage(lifeImg, 0, 0);
+      ctx.restore();
+    }
+  }
+
+  function drawItems(items, x, y, scale) {
+    var img;
+
+    for (var i = 0; i < items.length; i++) {
+      img = items[i].render();
+      ctx.save();
+      ctx.translate(x - 0.5*img.width*i - img.width, y);
+      ctx.scale(scale, scale);
+      ctx.drawImage(img, 0, 0);
+      ctx.restore();
+    }
+  }
+
+  function drawMessage() {
+    var centerX = 0.5*Game.Canvas.width
+      , centerY = 0.5*Game.Canvas.height
+      , boxHeight = 60;
+
+    if (message.detail !== '') {
+      boxHeight += 48;
+    }
+
+    ctx.fillStyle = 'rgba(50, 50, 50, 0.5)';
+    ctx.fillRect(0, centerY - 34, Game.Canvas.width, boxHeight);
+
+    ctx.fillStyle = 'white';
+    ctx.font = '48px Arial';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(message.title, centerX, centerY, 600);
+
+    ctx.font = '22px Arial';
+    ctx.fillText(message.detail, centerX, centerY + 48);
+  }
+
+  return Game;
+})(Game || {});
+var Game = (function(Game) {
   var img1 = new Image()
     , img2 = new Image();
 
@@ -65,15 +303,11 @@ var Game = (function(Game) {
     , backgroundObjects = []
     , wormholes = {}
     , gameLoop
-    , inputHandler
-    , ship
-    , lifeImg = new Image();
-
-  lifeImg.src = '/images/ship_normal.png';
+    , canvas
+    , message = {};
 
   Game.playing = false;
   Game.frame = 0;
-  Game.lives = 3;
   Game.debug = {
     drawOutlines: false
   };
@@ -85,20 +319,13 @@ var Game = (function(Game) {
     Game.Explosion.prototype = Game.GameObject;
     Game.Ship.prototype = Game.GameObject;
     Game.Missile.prototype = Game.GameObject;
+    Game.Nuke.prototype = Game.GameObject;
     Game.Wormhole.prototype = Game.GameObject;
     Game.Item.prototype = Game.GameObject;
-
-    inputHandler = new Game.InputHandler();
+    Game.Mine.prototype = Game.GameObject;
 
     canvas = document.getElementById(id);
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-    ctx = canvas.getContext('2d');
-
-    window.onresize = function() {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    };
+    Game.Canvas.init(canvas);
 
     for (i = 0; i < 0.0005*canvas.width*canvas.height; i++) {
       x = Math.random()*canvas.width;
@@ -108,32 +335,28 @@ var Game = (function(Game) {
       backgroundObjects.push(new Game.Star(x, y, dist));
     }
 
-    Game.respawn();
+    Game.Player.respawn();
+    Game.Player.lives = 3;
 
-    inputHandler.addKeyInput('80', {
+    Game.InputHandler.addKeyInput('80', {
       keyup: function(e) {
         Game.paused = !Game.paused;
+
+        if (Game.paused) {
+          Game.Canvas.showMessage('Paused');
+          draw();
+        } else {
+          Game.Canvas.clearMessage();
+        }
       }
     });
 
-    inputHandler.addKeyInput('78', {
+    Game.InputHandler.addKeyInput('78', {
       keydown: function(e) {
         if (Game.paused) {
           update();
           draw();
         }
-      }
-    });
-
-    inputHandler.addMouseInput({
-      click: function(e) {
-        Game.addObject(new Game.Missile({
-          x: e.clientX,
-          y: e.clientY,
-          from: 'other',
-          speed: 3,
-          angle: 0.5*Math.PI
-        }));
       }
     });
 
@@ -145,19 +368,12 @@ var Game = (function(Game) {
   };
 
   Game.start = function() {
-    gameLoop = setInterval(function() {
-      if (!Game.paused) {
-        update();
-        draw();
-      }
-    }, 1000/frameRate);
+    requestAnimationFrame(gameLoop);
 
     Game.playing = true;
     console.log('Game started.');
-  };
 
-  Game.stop = function() {
-    clearInterval(gameLoop);
+    Game.Canvas.showMessage('Wormhole', 'Move with arrow keys. Pick up floating objects and shoot them into your opponents\' wormholes with space.', 6);
   };
 
   Game.addPlayer = function(id) {
@@ -177,8 +393,6 @@ var Game = (function(Game) {
   };
 
   Game.addObject = function(obj) {
-    obj.update(gameObjects);
-    obj.render();
     gameObjects.push(obj);
   };
 
@@ -191,37 +405,43 @@ var Game = (function(Game) {
   };
 
   Game.receiveObject = function(obj, wormholeId) {
-    var item = new Game.Missile(JSON.parse(obj));
+    var obj = JSON.parse(obj)
+      , Weapon = Game.Arsenal.getConstructor(obj.weaponType);
 
-    item.from = wormholeId;
-    item.x = wormholes[wormholeId].x;
-    item.y = wormholes[wormholeId].y;
+    obj.from = wormholeId;
+    obj.x = wormholes[wormholeId].x;
+    obj.y = wormholes[wormholeId].y;
 
-    gameObjects.push(item);
-  };
-
-  Game.respawn = function() {
-    if (Game.lives <= 0) {
-      Game.lose();
-      return;
-    }
-
-    ship = new Game.Ship(0.5*canvas.width, 0.5*canvas.height);
-
-    for (var key in ship.controls) {
-      inputHandler.addKeyInput(key, ship.controls[key]);
-    }
-
-    gameObjects.push(ship);
-    window.ship = ship;
-
+    gameObjects.push(new Weapon(obj));
   };
 
   Game.lose = function() {
     console.log('You lose!');
+    Game.Canvas.showMessage('You lose!', 0);
   };
 
+  function gameLoop(ts) {
+    if (!Game.paused) {
+      update();
+      draw();
+    }
+
+    if (Game.playing) {
+      requestAnimationFrame(gameLoop);
+    }
+  }
+
   function update() {
+    if (Math.random() < 0.001 || Game.frame < 4) {
+      Game.addObject(new Game.Item({
+        itemType: Game.Arsenal.getRandomType(),
+        angle: Math.random() * 2 * Math.PI,
+        x: Game.Canvas.width + 10,
+        y: Game.Canvas.height + 10,
+        ttl: 800
+      }));
+    }
+
     backgroundObjects.forEach(function(obj) {
       obj.update();
     });
@@ -238,71 +458,12 @@ var Game = (function(Game) {
   }
 
   function draw() {
-    ctx.fillStyle = 'black';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    Game.Canvas.clear();
+    Game.Canvas.drawSimple(backgroundObjects);
+    Game.Canvas.drawComplex(gameObjects);
+    Game.Canvas.drawHUD(Game.Player);
+    Game.Canvas.drawFrameCount(Game.frame);
 
-    backgroundObjects.forEach(function(obj) {
-      var img = obj.render()
-        , x = obj.x || 0
-        , y = obj.y || 0;
-
-      x = ((x % canvas.width) + canvas.width) % canvas.width;
-      y = ((y % canvas.height) + canvas.height) % canvas.height;
-
-      ctx.drawImage(img, x, y);
-    });
-
-    gameObjects.forEach(function(obj) {
-      var img = obj.render()
-        , x = obj.x || 0
-        , y = obj.y || 0
-        , w = obj.width || 0
-        , h = obj.height || 0
-        , sx = obj.scale || 1
-        , sy = obj.scale || 1
-        , angle = obj.angle || 0;
-
-      obj.x = ((x % canvas.width) + canvas.width) % canvas.width;
-      obj.y = ((y % canvas.height) + canvas.height) % canvas.height;
-      obj.angle = ((angle % (2*Math.PI)) + (2*Math.PI)) % (2*Math.PI);
-
-      ctx.save();
-      ctx.translate(obj.x, obj.y);
-      ctx.rotate(obj.angle);
-      ctx.scale(sx, sy);
-      ctx.translate(-0.5*sx*w, -0.5*sy*h);
-      ctx.drawImage(img, 0, 0);
-
-      if (Game.debug.drawOutlines) {
-        ctx.strokeStyle = '#ff0';
-        ctx.lineWidth = 2;
-        ctx.strokeRect(0, 0, w, h);
-      }
-
-      ctx.restore();
-    });
-
-    drawHUD();
-
-    ctx.fillStyle = '#fff';
-    ctx.fillText(Game.frame, 0, 10);
-  }
-
-  function drawHUD() {
-    var i;
-
-    ctx.fillStyle = 'red';
-    ctx.fillRect(0, canvas.height - 20, (ship.health / 100) * canvas.width, 20);
-
-    for (i = 0; i < Game.lives; i++) {
-      ctx.save();
-      ctx.translate(30*i, 0);
-      ctx.rotate(-0.5*Math.PI);
-      ctx.translate(-0.5*lifeImg.width, 0.5*lifeImg.height);
-      ctx.scale(0.5, 0.5);
-      ctx.drawImage(lifeImg, 0, 0);
-      ctx.restore();
-    }
   }
 
   return Game;
@@ -443,9 +604,19 @@ var Game = (function(Game) {
   return Game;
 })(Game || {});
 var Game = (function(Game) {
+  var codes = {
+    'space': 32,
+    'left': 37,
+    'up': 38,
+    'right': 39
+  };
 
-  Game.InputHandler = function() {
-    this.addKeyInput = function(keyCode, controls) {
+  Game.InputHandler = {
+    addKeyInput: function(keyCode, controls) {
+      if (isNaN(parseInt(keyCode))) {
+        keyCode = codes[keyCode];
+      }
+
       for (var evtType in controls) {
         document.addEventListener(evtType, function(e) {
           if (e.keyCode === parseInt(keyCode)) {
@@ -453,37 +624,37 @@ var Game = (function(Game) {
           }
         });
       }
-    };
+    },
 
-    this.addMouseInput = function(controls) {
+    addInput: function(controls) {
       for (var evtType in controls) {
         document.addEventListener(evtType, function(e) {
           controls[e.type](e);
         });
       }
-    };
+    }
   };
 
   return Game;
 })(Game || {});
 var Game = (function(Game) {
-  var itemImg = new Image();
-  itemImg.src = '/images/item_none.png';
-
   Game.Item = function(I) {
     I = I || {};
 
     var that = this
       , sprite = new Game.Sprite();
 
-    sprite.addImage(itemImg);
 
     this.x = I.x || 0;
     this.y = I.y || 0;
     this.angle = I.angle || 0;
     this.scale = I.scale || 1;
     this.speed = I.speed || 1;
+    this.itemType = I.itemType || 'none';
     this.type = 'item';
+    this.ttl = I.ttl || 1000;
+
+    sprite.addImage(Game.Arsenal.getImage(this.itemType));
 
     Object.defineProperty(this, 'width', {
       get: function() { return sprite.width; }
@@ -492,20 +663,109 @@ var Game = (function(Game) {
       get: function() { return sprite.height; }
     });
 
+    this.updateExtra = function() {
+      this.ttl--;
+    };
+
     this.render = function() {
       return sprite.render();
     };
+
+    this.interactWith = function(obj) {
+      if (obj.type !== 'ship') { return; }
+
+      if (this.distanceTo(obj) < obj.reach) {
+        obj.pickUp(this);
+      }
+    };
+
+    this.addTrigger({
+      condition: function() {
+        return that.ttl <= 0;
+      },
+      action: function() {
+        Game.removeObject(that);
+      }
+    });
 
   };
 
   return Game;
 })(Game || {});
 var Game = (function(Game) {
+  var mineImg1 = new Image()
+    , mineImg2 = new Image()
+    , mineImg3 = new Image()
+    , itemImg = new Image();
+
+  mineImg1.src = '/images/mine1.png';
+  mineImg2.src = '/images/mine2.png';
+  mineImg3.src = '/images/mine3.png';
+  itemImg.src = '/images/item_mine.png';
+
+  Game.Mine = function(I) {
+    I = I || {};
+
+    var that = this;
+    this.sprite = new Game.Sprite(5);
+    this.sprite.addImage(mineImg1);
+
+    this.x = I.x || 0;
+    this.y = I.y || 0;
+    this.angle = I.angle || 0;
+    this.scale = I.scale || 1;
+    this.speed = I.speed || 1;
+    this.from = I.from || undefined;
+    this.damage = I.damage || 20;
+    this.type = 'weapon';
+    this.weaponType = 'mine';
+
+    if (this.from === undefined) {
+      this.sprite.addImage(mineImg3);
+    } else {
+      this.sprite.addImage(mineImg2);
+    }
+
+    Object.defineProperty(this, 'width', {
+      get: function() { return this.sprite.width; }
+    });
+    Object.defineProperty(this, 'height', {
+      get: function() { return this.sprite.height; }
+    });
+
+    this.interactWith = function(obj) {
+      if (this.from === undefined) { return; }
+      if (obj.type === 'weapon' && obj.from !== this.from) {
+        this.blowUp();
+      }
+
+      if (obj.type !== 'ship') { return; }
+
+      if (this.distanceTo(obj) < 40) {
+        Game.Player.health -= this.damage;
+        this.blowUp();
+      }
+    };
+
+  };
+
+  Game.Arsenal.addType({
+    name: 'mine',
+    img: itemImg,
+    prob: 0.4,
+    constructor: Game.Mine
+  });
+
+  return Game;
+})(Game || {});
+var Game = (function(Game) {
   var missileImg1 = new Image()
-    , missileImg2 = new Image();
+    , missileImg2 = new Image()
+    , itemImg = new Image();
 
   missileImg1.src = '/images/missile1.png';
   missileImg2.src = '/images/missile2.png';
+  itemImg.src = '/images/item_missile.png';
 
   Game.Missile = function(I) {
     I = I || {};
@@ -522,8 +782,10 @@ var Game = (function(Game) {
     this.scale = I.scale || 1;
     this.speed = I.speed || 1;
     this.from = I.from || undefined;
+    this.damage = I.damage || 10;
     this.ttl = 500;
     this.type = 'weapon';
+    this.weaponType = 'missile';
 
     Object.defineProperty(this, 'width', {
       get: function() { return this.sprite.width; }
@@ -542,23 +804,11 @@ var Game = (function(Game) {
       if (this.from === undefined || obj.type !== 'ship') { return; }
 
       if (this.distanceTo(obj) < 40) {
-        this.detonate();
+        Game.Player.health -= this.damage;
+        this.blowUp();
       } else if (this.distanceTo(obj) < 500) {
         this.turnToward(obj, 0.1);
       }
-    };
-
-    this.detonate = function() {
-      var that = this;
-
-      console.log(this);
-
-      Game.addObject(new Game.Explosion({
-        x: that.x,
-        y: that.y
-      }));
-
-      Game.removeObject(this);
     };
 
     this.addTrigger({
@@ -570,6 +820,112 @@ var Game = (function(Game) {
       }
     });
 
+  };
+
+  Game.Arsenal.addType({
+    name: 'missile',
+    img: itemImg,
+    prob: 0.4,
+    constructor: Game.Missile
+  });
+
+  return Game;
+})(Game || {});
+var Game = (function(Game) {
+  var nukeImg = new Image()
+    , itemImg = new Image();
+
+  nukeImg.src = '/images/nuke.png';
+  itemImg.src = '/images/item_nuke.png';
+
+  Game.Nuke = function(I) {
+    I = I || {};
+
+    var that = this;
+
+    this.sprite = new Game.Sprite(5);
+    this.sprite.addImage(nukeImg);
+
+    this.x = I.x || 0;
+    this.y = I.y || 0;
+    this.angle = I.angle || 0;
+    this.scale = I.scale || 1;
+    this.speed = I.speed || 1;
+    this.from = I.from || undefined;
+    this.ttl = 500;
+    this.type = 'weapon';
+    this.weaponType = 'nuke';
+    this.payload = 100;
+
+    Object.defineProperty(this, 'width', {
+      get: function() { return this.sprite.width; }
+    });
+    Object.defineProperty(this, 'height', {
+      get: function() { return this.sprite.height; }
+    });
+
+    this.updateExtra = function() {
+      if (this.ttl > 0) {
+        this.ttl--;
+      }
+    };
+
+    this.addTrigger({
+      condition: function() {
+        return that.ttl <= 0;
+      },
+      action: function() {
+        that.blowUp();
+      }
+    });
+
+    this.blowUp = function() {
+      var i, x, y, dist, theta;
+
+      for (i = 0; i < this.payload; i++) {
+        theta = Math.random() * 2 * Math.PI;
+        dist = Math.random() * 250;
+        x = (this.x + dist*Math.cos(theta)) % Game.Canvas.width;
+        y = (this.y + dist*Math.sin(theta)) % Game.Canvas.height;
+
+        Game.addObject(new Game.Explosion({ x: x, y: y }));
+      }
+
+      Game.removeObject(this);
+    };
+
+  };
+
+  Game.Arsenal.addType({
+    name: 'nuke',
+    img: itemImg,
+    prob: 0.1,
+    constructor: Game.Nuke
+  });
+
+  return Game;
+})(Game || {});
+var Game = (function(Game) {
+  Game.Player = {
+    lives: 3,
+    items: [],
+    health: 100,
+    ship: undefined,
+
+    respawn: function() {
+      if (this.lives <= 0) {
+        Game.lose();
+        return;
+      }
+
+      this.ship = new Game.Ship(0.5*Game.Canvas.width, 0.5*Game.Canvas.height);
+
+      this.lives--;
+      this.health = 100;
+      this.items = [];
+
+      Game.addObject(this.ship);
+    }
   };
 
   return Game;
@@ -603,7 +959,12 @@ var Game = (function(Game) {
     this.x = x;
     this.y = y;
     this.type = 'ship';
-    this.health = 100;
+    this.reach = 50;
+
+    Object.defineProperty(this, 'health', {
+      get: function() { return Game.Player.health; },
+      set: function(h) { Game.Player.health = h; }
+    });
 
     Object.defineProperty(this, 'width', {
       get: function() { return this.sprite.width; }
@@ -653,64 +1014,75 @@ var Game = (function(Game) {
       return this.sprite.render();
     };
 
-    this.controls = {
-      '38': {
-        keydown: function() {
-          if (!controlStates.thrust) {
-            controlStates.thrust = true;
-            that.sprite = spriteThrusting;
-          }
-        },
-        keyup: function() {
-          if (controlStates.thrust) {
-            controlStates.thrust = false;
-            that.sprite = spriteNormal;
-          }
+    this.pickUp = function(item) {
+      if (item.type !== 'item') { return; }
+
+      Game.Player.items.push(new Game.Item(item));
+      Game.removeObject(item);
+    };
+
+    Game.InputHandler.addKeyInput('up', {
+      keydown: function() {
+        if (!controlStates.thrust) {
+          controlStates.thrust = true;
+          that.sprite = spriteThrusting;
         }
       },
-
-      '37': {
-        keydown: function() {
-          if (!controlStates.turnLeft) {
-            controlStates.turnLeft = true;
-          }
-        },
-        keyup: function() {
-          if (controlStates.turnLeft) {
-            controlStates.turnLeft = false;
-          }
-        }
-      },
-
-      '39': {
-        keydown: function() {
-          if (!controlStates.turnRight) {
-            controlStates.turnRight = true;
-          }
-        },
-        keyup: function() {
-          if (controlStates.turnRight) {
-            controlStates.turnRight = false;
-          }
-        }
-      },
-
-      '32': {
-        keydown: function() {
-          var itemBoost = 3
-            , itemSpeedX = that.speed*Math.cos(driftAngle) + itemBoost*Math.cos(that.angle)
-            , itemSpeedY = that.speed*Math.sin(driftAngle) + itemBoost*Math.sin(that.angle)
-            , itemSpeed = Math.sqrt(Math.pow(itemSpeedX, 2) + Math.pow(itemSpeedY, 2));
-
-          Game.addObject(new Game.Missile({
-            x: that.x + 0.5*that.height,
-            y: that.y,
-            angle: that.angle,
-            speed: itemSpeed
-          }));
+      keyup: function() {
+        if (controlStates.thrust) {
+          controlStates.thrust = false;
+          that.sprite = spriteNormal;
         }
       }
-    };
+    });
+
+    Game.InputHandler.addKeyInput('left', {
+      keydown: function() {
+        if (!controlStates.turnLeft) {
+          controlStates.turnLeft = true;
+        }
+      },
+      keyup: function() {
+        if (controlStates.turnLeft) {
+          controlStates.turnLeft = false;
+        }
+      }
+    });
+
+    Game.InputHandler.addKeyInput('right', {
+      keydown: function() {
+        if (!controlStates.turnRight) {
+          controlStates.turnRight = true;
+        }
+      },
+      keyup: function() {
+        if (controlStates.turnRight) {
+          controlStates.turnRight = false;
+        }
+      }
+    });
+
+    Game.InputHandler.addKeyInput('space', {
+      keydown: function() {
+        if (Game.Player.items.length <= 0) { return; }
+
+        var itemBoost = 3
+          , itemSpeedX = that.speed*Math.cos(driftAngle) + itemBoost*Math.cos(that.angle)
+          , itemSpeedY = that.speed*Math.sin(driftAngle) + itemBoost*Math.sin(that.angle)
+          , itemSpeed = Math.sqrt(Math.pow(itemSpeedX, 2) + Math.pow(itemSpeedY, 2))
+          , item, weapon;
+
+        item = Game.Player.items.pop();
+        Weapon = Game.Arsenal.getConstructor(item.itemType);
+
+        Game.addObject(new Weapon({
+          x: that.x + 0.5*that.height,
+          y: that.y,
+          angle: that.angle,
+          speed: itemSpeed
+        }));
+      }
+    });
 
     controlStates = {
       thrust: false,
@@ -723,10 +1095,10 @@ var Game = (function(Game) {
         return that.health <= 0;
       },
       action: function() {
-        Game.lives--;
+        Game.Player.lives--;
         that.blowUp();
         setTimeout(function() {
-          Game.respawn();
+          Game.Player.respawn();
         }, 2000);
       }
     })
@@ -764,7 +1136,14 @@ var Game = (function(Game) {
         buf.height = img.height;
 
         ctx.clearRect(0, 0, buf.width, buf.height);
-        ctx.drawImage(img, 0, 0);
+        try {
+          ctx.drawImage(img, 0, 0);
+        } catch (e) {
+          console.log(e);
+          ctx.fillStye = 'red';
+          ctx.fillRect(0, 0, buf.width, buf.height);
+          console.log(buf);
+        }
       }
 
       return buf;
@@ -846,13 +1225,13 @@ var Game = (function(Game) {
     };
 
     this.interactWith = function(obj) {
-      if (obj.type !== 'weapon') { return; }
+      if (obj.type !== 'weapon' || obj.from === id) { return; }
 
       if (that.distanceTo(obj) < 100) {
         obj.turnToward(this, 0.8);
 
-        if (obj.from !== id) {
-          obj.from = id;
+        if (obj.to !== id) {
+          obj.to = id;
           obj.scaleSpeed = 0.03*obj.speed;
           obj.scaleTo(0, function() {
             Game.sendObject(JSON.stringify(obj), id);
