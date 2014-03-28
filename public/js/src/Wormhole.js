@@ -5,7 +5,9 @@ var Game = (function(Game) {
   img.addEventListener('load', function() {
     sprite.addImage(img);
   });
-  img.src = '/images/wormhole.png';
+  img.src = (Game.debug.inverted) ?
+    '/images/wormhole_inverted.png' :
+    '/images/wormhole.png';
 
   Game.Wormhole = function(x, y, id) {
     var that = this;

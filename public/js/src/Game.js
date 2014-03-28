@@ -11,7 +11,8 @@ var Game = (function(Game) {
   Game.playing = false;
   Game.frame = 0;
   Game.debug = {
-    drawOutlines: false
+    drawOutlines: false,
+    inverted: true
   };
 
   Game.init = function(id) {

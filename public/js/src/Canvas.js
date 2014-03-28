@@ -54,7 +54,7 @@ var Game = (function(Game) {
     },
 
     clear: function() {
-      ctx.fillStyle = 'black';
+      ctx.fillStyle = (Game.debug.inverted) ? 'white' : 'black';
       ctx.fillRect(0, 0, Game.Canvas.width, Game.Canvas.height);
     },
 
@@ -121,7 +121,7 @@ var Game = (function(Game) {
     },
 
     drawFrameCount: function(frame) {
-      ctx.fillStyle = '#fff';
+      ctx.fillStyle = (Game.debug.inverted) ? 'black' : 'white';
       ctx.font = '10px Arial';
       ctx.textAlign = 'left';
       ctx.fillText(frame, 0, 10);
