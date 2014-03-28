@@ -109,13 +109,14 @@ var Game = (function(Game) {
   };
 
   Game.receiveObject = function(obj, wormholeId) {
-    var item = new Game.Missile(JSON.parse(obj));
+    var obj = JSON.parse(obj)
+      , Weapon = Game.Arsenal.getConstructor(obj.weaponType);
 
-    item.from = wormholeId;
-    item.x = wormholes[wormholeId].x;
-    item.y = wormholes[wormholeId].y;
+    obj.from = wormholeId;
+    obj.x = wormholes[wormholeId].x;
+    obj.y = wormholes[wormholeId].y;
 
-    gameObjects.push(item);
+    gameObjects.push(new Weapon(obj));
   };
 
   Game.lose = function() {
