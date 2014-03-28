@@ -1,9 +1,11 @@
 var Game = (function(Game) {
   var missileImg1 = new Image()
-    , missileImg2 = new Image();
+    , missileImg2 = new Image()
+    , itemImg = new Image();
 
   missileImg1.src = '/images/missile1.png';
   missileImg2.src = '/images/missile2.png';
+  itemImg.src = '/images/item_missile.png';
 
   Game.Missile = function(I) {
     I = I || {};
@@ -56,6 +58,13 @@ var Game = (function(Game) {
     });
 
   };
+
+  Game.Arsenal.addType({
+    name: 'missile',
+    img: itemImg,
+    prob: 0.9,
+    constructor: Game.Missile
+  });
 
   return Game;
 })(Game || {});

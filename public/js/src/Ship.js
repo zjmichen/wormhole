@@ -132,6 +132,8 @@ var Game = (function(Game) {
 
     Game.InputHandler.addKeyInput('space', {
       keydown: function() {
+        if (Game.Player.items.length <= 0) { return; }
+
         var itemBoost = 3
           , itemSpeedX = that.speed*Math.cos(driftAngle) + itemBoost*Math.cos(that.angle)
           , itemSpeedY = that.speed*Math.sin(driftAngle) + itemBoost*Math.sin(that.angle)

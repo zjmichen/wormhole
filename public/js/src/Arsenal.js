@@ -47,6 +47,18 @@ var Game = (function(Game) {
 
     getConstructor: function(type) {
       return types[type].constructor;
+    },
+
+    addType: function(typeObj) {
+      if (typeof typeObj.img === "string") {
+        var imgUrl = typeObj.img;
+        typeObj.img = new Image();
+        typeObj.img.src = imgUrl;
+      }
+
+      typeObj.img = typeObj.img || new Image();
+      typeObj.prob = typeObj.prob || 0;
+      types[typeObj.name] = typeObj;
     }
 
   };

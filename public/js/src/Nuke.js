@@ -1,7 +1,9 @@
 var Game = (function(Game) {
-  var nukeImg = new Image();
+  var nukeImg = new Image()
+    , itemImg = new Image();
 
   nukeImg.src = '/images/nuke.png';
+  itemImg.src = '/images/item_nuke.png';
 
   Game.Nuke = function(I) {
     I = I || {};
@@ -69,6 +71,13 @@ var Game = (function(Game) {
     };
 
   };
+
+  Game.Arsenal.addType({
+    name: 'nuke',
+    img: itemImg,
+    prob: 0.1,
+    constructor: Game.Nuke
+  });
 
   return Game;
 })(Game || {});
