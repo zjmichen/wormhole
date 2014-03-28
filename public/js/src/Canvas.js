@@ -91,7 +91,12 @@ var Game = (function(Game) {
         ctx.rotate(obj.angle);
         ctx.scale(sx, sy);
         ctx.translate(-0.5*sx*w, -0.5*sy*h);
-        ctx.drawImage(img, 0, 0);
+        try {
+          ctx.drawImage(img, 0, 0);
+        } catch (e) {
+          Game.removeObject(obj);
+          console.log(e);
+        }
 
         if (Game.debug.drawOutlines) {
           ctx.strokeStyle = '#ff0';
