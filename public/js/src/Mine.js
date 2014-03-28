@@ -22,7 +22,7 @@ var Game = (function(Game) {
     this.scale = I.scale || 1;
     this.speed = I.speed || 1;
     this.from = I.from || undefined;
-    this.damage = I.damage || 10;
+    this.damage = I.damage || 20;
     this.type = 'weapon';
     this.weaponType = 'mine';
 
