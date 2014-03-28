@@ -7,11 +7,11 @@ block content
   if games.length > 0
     ul
       each gameid in games
-        li= gameid
-          a(href='/games/' + gameid) View game
+        li
+          a(href='/games/' + gameid)= 'Game ' + gameid
   else
     p No games
 
   form(method='post', action='/games')
-    input(type='submit', value='Create new game')
+    button.btn.btn-primary(type='submit') Create new game
 

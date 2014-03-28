@@ -2,8 +2,11 @@ doctype html
 html
   head
     title Wormhole
-    script(type='text/javascript' src='/js/lib/jquery.min.js')
+    link(rel='stylesheet', href='//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css')
+    link(rel='stylesheet', href='//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css')
+    script(type='text/javascript', src='/js/lib/jquery.min.js')
     block head
 
   body
-    block content
+    .container
+      block content
