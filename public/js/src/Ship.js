@@ -27,7 +27,12 @@ var Game = (function(Game) {
     this.x = x;
     this.y = y;
     this.type = 'ship';
-    this.health = 100;
+    this.reach = 50;
+
+    Object.defineProperty(this, 'health', {
+      get: function() { return Game.Player.health; },
+      set: function(h) { Game.Player.health = h; }
+    });
 
     Object.defineProperty(this, 'width', {
       get: function() { return this.sprite.width; }
@@ -77,64 +82,75 @@ var Game = (function(Game) {
       return this.sprite.render();
     };
 
-    this.controls = {
-      '38': {
-        keydown: function() {
-          if (!controlStates.thrust) {
-            controlStates.thrust = true;
-            that.sprite = spriteThrusting;
-          }
-        },
-        keyup: function() {
-          if (controlStates.thrust) {
-            controlStates.thrust = false;
-            that.sprite = spriteNormal;
-          }
+    this.pickUp = function(item) {
+      if (item.type !== 'item') { return; }
+
+      Game.Player.items.push(new Game.Item(item));
+      Game.removeObject(item);
+    };
+
+    Game.InputHandler.addKeyInput('up', {
+      keydown: function() {
+        if (!controlStates.thrust) {
+          controlStates.thrust = true;
+          that.sprite = spriteThrusting;
         }
       },
-
-      '37': {
-        keydown: function() {
-          if (!controlStates.turnLeft) {
-            controlStates.turnLeft = true;
-          }
-        },
-        keyup: function() {
-          if (controlStates.turnLeft) {
-            controlStates.turnLeft = false;
-          }
-        }
-      },
-
-      '39': {
-        keydown: function() {
-          if (!controlStates.turnRight) {
-            controlStates.turnRight = true;
-          }
-        },
-        keyup: function() {
-          if (controlStates.turnRight) {
-            controlStates.turnRight = false;
-          }
-        }
-      },
-
-      '32': {
-        keydown: function() {
-          var itemBoost = 3
-            , itemSpeedX = that.speed*Math.cos(driftAngle) + itemBoost*Math.cos(that.angle)
-            , itemSpeedY = that.speed*Math.sin(driftAngle) + itemBoost*Math.sin(that.angle)
-            , itemSpeed = Math.sqrt(Math.pow(itemSpeedX, 2) + Math.pow(itemSpeedY, 2));
-
-          Game.addObject(new Game.Missile({
-            x: that.x + 0.5*that.height,
-            y: that.y,
-            angle: that.angle,
-            speed: itemSpeed
-          }));
+      keyup: function() {
+        if (controlStates.thrust) {
+          controlStates.thrust = false;
+          that.sprite = spriteNormal;
         }
       }
-    };
+    });
+
+    Game.InputHandler.addKeyInput('left', {
+      keydown: function() {
+        if (!controlStates.turnLeft) {
+          controlStates.turnLeft = true;
+        }
+      },
+      keyup: function() {
+        if (controlStates.turnLeft) {
+          controlStates.turnLeft = false;
+        }
+      }
+    });
+
+    Game.InputHandler.addKeyInput('right', {
+      keydown: function() {
+        if (!controlStates.turnRight) {
+          controlStates.turnRight = true;
+        }
+      },
+      keyup: function() {
+        if (controlStates.turnRight) {
+          controlStates.turnRight = false;
+        }
+      }
+    });
+
+    Game.InputHandler.addKeyInput('space', {
+      keydown: function() {
+        if (Game.Player.items.length <= 0) { return; }
+
+        var itemBoost = 3
+          , itemSpeedX = that.speed*Math.cos(driftAngle) + itemBoost*Math.cos(that.angle)
+          , itemSpeedY = that.speed*Math.sin(driftAngle) + itemBoost*Math.sin(that.angle)
+          , itemSpeed = Math.sqrt(Math.pow(itemSpeedX, 2) + Math.pow(itemSpeedY, 2))
+          , item, weapon;
+
+        item = Game.Player.items.pop();
+        Weapon = Game.Arsenal.getConstructor(item.itemType);
+
+        Game.addObject(new Weapon({
+          x: that.x + 0.5*that.height,
+          y: that.y,
+          angle: that.angle,
+          speed: itemSpeed
+        }));
+      }
+    });
 
     controlStates = {
       thrust: false,
@@ -147,10 +163,10 @@ var Game = (function(Game) {
         return that.health <= 0;
       },
       action: function() {
-        Game.lives--;
+        Game.Player.lives--;
         that.blowUp();
         setTimeout(function() {
-          Game.respawn();
+          Game.Player.respawn();
         }, 2000);
       }
     })

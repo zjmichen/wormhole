@@ -28,7 +28,14 @@ var Game = (function(Game) {
         buf.height = img.height;
 
         ctx.clearRect(0, 0, buf.width, buf.height);
-        ctx.drawImage(img, 0, 0);
+        try {
+          ctx.drawImage(img, 0, 0);
+        } catch (e) {
+          console.log(e);
+          ctx.fillStye = 'red';
+          ctx.fillRect(0, 0, buf.width, buf.height);
+          console.log(buf);
+        }
       }
 
       return buf;

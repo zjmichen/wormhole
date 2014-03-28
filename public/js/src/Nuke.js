@@ -1,20 +1,17 @@
 var Game = (function(Game) {
-  var missileImg1 = new Image()
-    , missileImg2 = new Image()
+  var nukeImg = new Image()
     , itemImg = new Image();
 
-  missileImg1.src = '/images/missile1.png';
-  missileImg2.src = '/images/missile2.png';
-  itemImg.src = '/images/item_missile.png';
+  nukeImg.src = '/images/nuke.png';
+  itemImg.src = '/images/item_nuke.png';
 
-  Game.Missile = function(I) {
+  Game.Nuke = function(I) {
     I = I || {};
 
     var that = this;
 
     this.sprite = new Game.Sprite(5);
-    this.sprite.addImage(missileImg1);
-    this.sprite.addImage(missileImg2);
+    this.sprite.addImage(nukeImg);
 
     this.x = I.x || 0;
     this.y = I.y || 0;
@@ -22,10 +19,10 @@ var Game = (function(Game) {
     this.scale = I.scale || 1;
     this.speed = I.speed || 1;
     this.from = I.from || undefined;
-    this.damage = I.damage || 10;
     this.ttl = 500;
     this.type = 'weapon';
-    this.weaponType = 'missile';
+    this.weaponType = 'nuke';
+    this.payload = 100;
 
     Object.defineProperty(this, 'width', {
       get: function() { return this.sprite.width; }
@@ -40,17 +37,6 @@ var Game = (function(Game) {
       }
     };
 
-    this.interactWith = function(obj) {
-      if (this.from === undefined || obj.type !== 'ship') { return; }
-
-      if (this.distanceTo(obj) < 40) {
-        Game.Player.health -= this.damage;
-        this.blowUp();
-      } else if (this.distanceTo(obj) < 500) {
-        this.turnToward(obj, 0.1);
-      }
-    };
-
     this.addTrigger({
       condition: function() {
         return that.ttl <= 0;
@@ -60,13 +46,28 @@ var Game = (function(Game) {
       }
     });
 
+    this.blowUp = function() {
+      var i, x, y, dist, theta;
+
+      for (i = 0; i < this.payload; i++) {
+        theta = Math.random() * 2 * Math.PI;
+        dist = Math.random() * 250;
+        x = (this.x + dist*Math.cos(theta)) % Game.Canvas.width;
+        y = (this.y + dist*Math.sin(theta)) % Game.Canvas.height;
+
+        Game.addObject(new Game.Explosion({ x: x, y: y }));
+      }
+
+      Game.removeObject(this);
+    };
+
   };
 
   Game.Arsenal.addType({
-    name: 'missile',
+    name: 'nuke',
     img: itemImg,
-    prob: 0.4,
-    constructor: Game.Missile
+    prob: 0.1,
+    constructor: Game.Nuke
   });
 
   return Game;

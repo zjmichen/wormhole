@@ -1,7 +1,17 @@
 var Game = (function(Game) {
+  var codes = {
+    'space': 32,
+    'left': 37,
+    'up': 38,
+    'right': 39
+  };
 
-  Game.InputHandler = function() {
-    this.addKeyInput = function(keyCode, controls) {
+  Game.InputHandler = {
+    addKeyInput: function(keyCode, controls) {
+      if (isNaN(parseInt(keyCode))) {
+        keyCode = codes[keyCode];
+      }
+
       for (var evtType in controls) {
         document.addEventListener(evtType, function(e) {
           if (e.keyCode === parseInt(keyCode)) {
@@ -9,15 +19,15 @@ var Game = (function(Game) {
           }
         });
       }
-    };
+    },
 
-    this.addMouseInput = function(controls) {
+    addInput: function(controls) {
       for (var evtType in controls) {
         document.addEventListener(evtType, function(e) {
           controls[e.type](e);
         });
       }
-    };
+    }
   };
 
   return Game;
