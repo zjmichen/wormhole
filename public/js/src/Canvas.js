@@ -49,6 +49,10 @@ var Game = (function(Game) {
       }
     },
 
+    clearMessage: function() {
+      message = {};
+    },
+
     clear: function() {
       ctx.fillStyle = 'black';
       ctx.fillRect(0, 0, Game.Canvas.width, Game.Canvas.height);

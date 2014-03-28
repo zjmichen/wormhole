@@ -50,7 +50,7 @@ var Game = (function(Game) {
           Game.Canvas.showMessage('Paused');
           draw();
         } else {
-          message = {};
+          Game.Canvas.clearMessage();
         }
       }
     });
