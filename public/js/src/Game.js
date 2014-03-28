@@ -77,7 +77,7 @@ var Game = (function(Game) {
     Game.playing = true;
     console.log('Game started.');
 
-    Game.Canvas.showMessage('Wormhole', 'Move with arrow keys, shoot with space.', 6);
+    Game.Canvas.showMessage('Wormhole', 'Move with arrow keys. Pick up floating objects and shoot them into your opponents\' wormholes with space.', 6);
   };
 
   Game.addPlayer = function(id) {
