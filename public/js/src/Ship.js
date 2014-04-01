@@ -91,6 +91,8 @@ var Game = (function(Game) {
 
     Game.InputHandler.addKeyInput('up', {
       keydown: function() {
+        console.log('Up was pressed.');
+        console.log(controlStates);
         if (!controlStates.thrust) {
           controlStates.thrust = true;
           that.sprite = spriteThrusting;
