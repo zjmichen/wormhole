@@ -6,7 +6,8 @@ var Game = (function(Game) {
     , gameObjects = []
     , backgroundObjects = []
     , wormholes = {}
-    , message = {};
+    , message = {}
+    , InputHandler;
 
   Game.playing = false;
   Game.frame = 0;
@@ -41,13 +42,15 @@ var Game = (function(Game) {
     Game.Player.respawn();
     Game.Player.lives = 3;
 
-    Game.InputHandler.addKeyInput('p', {
+    inputHandler = new Game.InputHandler();
+
+    inputHandler.addKeyInput('p', {
       keyup: function(e) {
         Game.pause();
       }
     });
 
-    Game.InputHandler.addKeyInput('n', {
+    inputHandler.addKeyInput('n', {
       keydown: function(e) {
         if (Game.paused) {
           update();
@@ -106,7 +109,11 @@ var Game = (function(Game) {
   };
 
   Game.removeObject = function(obj) {
+    if (obj.inputHandler !== undefined) {
+      obj.inputHandler.removeHandlers();
+    }
     gameObjects.splice(gameObjects.indexOf(obj), 1);
+    delete obj;
   };
 
   Game.sendObject = function(obj, playerId) {

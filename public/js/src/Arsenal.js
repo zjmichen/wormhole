@@ -10,6 +10,7 @@ var Game = (function(Game) {
   Game.Arsenal = {
 
     getRandomType: function() {
+      return 'nuke';
       var r = Math.random()
         , probSum = 0
         , threshhold = 0;

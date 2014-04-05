@@ -28,6 +28,7 @@ var Game = (function(Game) {
     this.y = y;
     this.type = 'ship';
     this.reach = 50;
+    this.inputHandler = new Game.InputHandler();
 
     Object.defineProperty(this, 'health', {
       get: function() { return Game.Player.health; },
@@ -89,10 +90,8 @@ var Game = (function(Game) {
       Game.removeObject(item);
     };
 
-    Game.InputHandler.addKeyInput('up', {
+    this.inputHandler.addKeyInput('up', {
       keydown: function() {
-        console.log('Up was pressed.');
-        console.log(controlStates);
         if (!controlStates.thrust) {
           controlStates.thrust = true;
           that.sprite = spriteThrusting;
@@ -106,7 +105,7 @@ var Game = (function(Game) {
       }
     });
 
-    Game.InputHandler.addKeyInput('left', {
+    this.inputHandler.addKeyInput('left', {
       keydown: function() {
         if (!controlStates.turnLeft) {
           controlStates.turnLeft = true;
@@ -119,7 +118,7 @@ var Game = (function(Game) {
       }
     });
 
-    Game.InputHandler.addKeyInput('right', {
+    this.inputHandler.addKeyInput('right', {
       keydown: function() {
         if (!controlStates.turnRight) {
           controlStates.turnRight = true;
@@ -132,27 +131,30 @@ var Game = (function(Game) {
       }
     });
 
-    Game.InputHandler.addKeyInput('space', {
-      keydown: function() {
-        if (Game.Player.items.length <= 0) { return; }
-
-        var itemBoost = 3
-          , itemSpeedX = that.speed*Math.cos(driftAngle) + itemBoost*Math.cos(that.angle)
-          , itemSpeedY = that.speed*Math.sin(driftAngle) + itemBoost*Math.sin(that.angle)
-          , itemSpeed = Math.sqrt(Math.pow(itemSpeedX, 2) + Math.pow(itemSpeedY, 2))
-          , item, weapon;
-
-        item = Game.Player.items.pop();
-        Weapon = Game.Arsenal.getConstructor(item.itemType);
-
-        Game.addObject(new Weapon({
-          x: that.x + 0.5*that.height,
-          y: that.y,
-          angle: that.angle,
-          speed: itemSpeed
-        }));
-      }
+    this.inputHandler.addKeyInput('space', {
+      keydown: this.shoot
     });
+
+    this.shoot = function() {
+      if (Game.Player.items.length <= 0) { return; }
+
+      var itemBoost = 3
+        , itemSpeedX = this.speed*Math.cos(driftAngle) + itemBoost*Math.cos(this.angle)
+        , itemSpeedY = this.speed*Math.sin(driftAngle) + itemBoost*Math.sin(this.angle)
+        , itemSpeed = Math.sqrt(Math.pow(itemSpeedX, 2) + Math.pow(itemSpeedY, 2))
+        , item, weapon;
+
+      item = Game.Player.items.pop();
+      Weapon = Game.Arsenal.getConstructor(item.itemType);
+
+      console.log(this.x + ', ' + this.y);
+      Game.addObject(new Weapon({
+        x: this.x + 0.5*this.height,
+        y: this.y,
+        angle: this.angle,
+        speed: itemSpeed
+      }));
+    };
 
     controlStates = {
       thrust: false,
@@ -165,7 +167,6 @@ var Game = (function(Game) {
         return that.health <= 0;
       },
       action: function() {
-        Game.Player.lives--;
         that.blowUp();
         setTimeout(function() {
           Game.Player.respawn();
