@@ -1,23 +1,165 @@
 var Game = (function(Game) {
 
-  var that = this
-    , canvas, ctx
-    , frameRate = 60
-    , gameObjects = []
-    , backgroundObjects = []
-    , wormholes = {}
-    , message = {};
+  Game.Game = function(id) {
+    this.canvas = new Game.Canvas(id);
+    this.player = new Game.Player();
+    this.arsenal = new Game.Arsenal();
+    this.input = new Game.InputHandler();
 
-  Game.playing = false;
-  Game.frame = 0;
-  Game.debug = {
-    drawOutlines: false,
-    inverted: true
+    this.playing = false;
+    this.paused = false;
+    this.frame = 0;
+    this.debug = {
+      drawOutlines: false,
+      inverted: false
+    };
+    this.objects = {
+      background: [],
+      foreground: []
+    }
   };
 
-  Game.init = function(id) {
-    var i, x, y, dist;
+  Game.Game.prototype.init = function(id) {
+    var x, y, i, dist;
 
+    if (this.debug.inverted) {
+      Game.Star.changeColor('black');
+    }
+
+    for (i = 0; i < 0.0005*this.canvas.width*this.canvas.height; i++) {
+      x = Math.random()*this.canvas.width;
+      y = Math.random()*this.canvas.height;
+      dist = 3 + Math.random() * 5;
+
+      this.objects.background.push(new Game.Star(x, y, dist));
+    }
+
+    this.input.addKeyInput('p', {
+      keyup: this.pause
+    });
+
+    this.input.addKeyInput('n', {
+      keydown: function(e) {
+        if (this.paused) {
+          this.update();
+          this.draw();
+        }
+      }
+    });
+  };
+
+  Game.Game.prototype.pause = function() {
+    this.paused = !this.paused;
+
+    if (this.paused) {
+      this.canvas.showMessage('Paused');
+      this.draw();
+    } else {
+      this.canvas.clearMessage();
+    }
+
+    return this.paused;
+  };
+
+  Game.Game.prototype.start = function() {
+    requestAnimationFrame(gameLoop);
+    this.playing = true;
+    this.canvas.showMessage('Wormhole', 'Move with arrow keys. Pick up floating objects and shoot them into your opponents\' wormholes with space.', 6);
+    console.log('Game started.');
+  };
+
+  Game.Game.prototype.lose = function() {
+    console.log('You lose!');
+    this.canvas.showMessage('You lose!', 0);
+  };
+
+  Game.Game.prototype.update = function() {
+    if (Math.random() < 0.001 || this.frame < 4) {
+      this.addObject(new Game.Item({
+        itemType: this.arsenal.getRandomType(),
+        angle: Math.random() * 2*Math.PI,
+        x: 0,
+        y: 0,
+        ttl: 800
+      }));
+    }
+
+    this.objects.background.forEach(function(obj) {
+      obj.update();
+    });
+
+    for (var id in this.wormholes) {
+      this.wormholes[id].update(this.objects.foreground);
+    }
+
+    this.objects.foreground.forEach(function(obj) {
+      obj.update(this.objects.foreground);
+    });
+
+    this.frame++;
+  };
+
+  Game.Game.prototype.draw = function() {
+    this.canvas.clear();
+    this.canvas.drawSimple(this.objects.background);
+    this.canvas.drawComplex(this.objects.foreground);
+    this.canvas.drawHUD(this.player);
+    this.canvas.drawFrameCount(this.frame);
+  };
+
+  Game.Game.prototype.gameLoop = function() {
+    if (!this.paused) {
+      this.update();
+      this.draw();
+    }
+
+    if (this.playing) {
+      requestAnimationFrame(this.gameLoop);
+    }
+  };
+
+  Game.Game.prototype.addPlayer = function(id) {
+    var x = Math.random()*this.canvas.width
+      , y = Math.random()*this.canvas.height;
+
+    this.wormholes[id] = new Game.Wormhole(x, y, id);
+    this.objects.foreground.push(this.wormholes[id]);
+  };
+
+  Game.Game.prototype.removePlayer = function(id) {
+    this.wormholes[id].scaleTo(0, function() {
+      this.objects.foreground.splice(this.objects.foreground.indexOf(this.wormholes[id]), 1);
+      delete this.wormholes[id];
+    });
+  };
+
+  Game.Game.prototype.addObject = function(obj) {
+    this.objects.foreground.push(obj);
+  };
+
+  Game.Game.prototype.removeObject = function(obj) {
+    this.objects.foreground.splice(this.objects.foreground.indexOf(obj), 1);
+  };
+
+  Game.Game.prototype.sendObject = function(obj, playerId) {
+    Sockman.send(obj, playerId);
+  };
+
+  Game.Game.prototype.receiveObject = function(obj, wormholeId) {
+    obj = JSON.parse(obj);
+    var Weapon = this.arsenal.getConstructor(obj.weaponType);
+
+    obj.from = wormholeId;
+    obj.x = this.wormholes[wormholeId].x;
+    obj.y = this.wormholes[wormholeId].y;
+
+    this.objects.push(new Weapon(obj));
+  };
+
+  return Game;
+})(Game || {});
+
+/*
     // set up prototype chain here to avoid parallel loading bug
     Game.Explosion.prototype = Game.GameObject;
     Game.Ship.prototype = Game.GameObject;
@@ -26,154 +168,4 @@ var Game = (function(Game) {
     Game.Wormhole.prototype = Game.GameObject;
     Game.Item.prototype = Game.GameObject;
     Game.Mine.prototype = Game.GameObject;
-
-    canvas = document.getElementById(id);
-    Game.Canvas.init(canvas);
-
-    for (i = 0; i < 0.0005*canvas.width*canvas.height; i++) {
-      x = Math.random()*canvas.width;
-      y = Math.random()*canvas.height;
-      dist = 3 + Math.random() * 5;
-
-      backgroundObjects.push(new Game.Star(x, y, dist));
-    }
-
-    Game.Player.respawn();
-    Game.Player.lives = 3;
-
-    Game.InputHandler.addKeyInput('p', {
-      keyup: function(e) {
-        Game.pause();
-      }
-    });
-
-    Game.InputHandler.addKeyInput('n', {
-      keydown: function(e) {
-        if (Game.paused) {
-          update();
-          draw();
-        }
-      }
-    });
-
-    Game.paused = false;
-
-    update();
-    draw();
-
-  };
-
-  Game.start = function() {
-    requestAnimationFrame(gameLoop);
-
-    Game.playing = true;
-    console.log('Game started.');
-
-    Game.Canvas.showMessage('Wormhole', 'Move with arrow keys. Pick up floating objects and shoot them into your opponents\' wormholes with space.', 6);
-  };
-
-  Game.pause = function() {
-    Game.paused = !Game.paused;
-
-    if (Game.paused) {
-      Game.Canvas.showMessage('Paused');
-      draw();
-    } else {
-      Game.Canvas.clearMessage();
-    }
-
-    return Game.paused;
-  };
-
-  Game.addPlayer = function(id) {
-    var x = Math.random()*canvas.width
-      , y = Math.random()*canvas.height;
-
-    wormholes[id] = new Game.Wormhole(x, y, id);
-    gameObjects.push(wormholes[id]);
-  };
-
-  Game.removePlayer = function(id) {
-    wormholes[id].scaleTo(0, function() {
-      gameObjects.splice(gameObjects.indexOf(wormholes[id]), 1);
-      delete wormholes[id];
-      console.log('Wormhole removed.');
-    });
-  };
-
-  Game.addObject = function(obj) {
-    gameObjects.push(obj);
-  };
-
-  Game.removeObject = function(obj) {
-    gameObjects.splice(gameObjects.indexOf(obj), 1);
-  };
-
-  Game.sendObject = function(obj, playerId) {
-    Sockman.send(obj, playerId);
-  };
-
-  Game.receiveObject = function(obj, wormholeId) {
-    obj = JSON.parse(obj);
-    var Weapon = Game.Arsenal.getConstructor(obj.weaponType);
-
-    obj.from = wormholeId;
-    obj.x = wormholes[wormholeId].x;
-    obj.y = wormholes[wormholeId].y;
-
-    gameObjects.push(new Weapon(obj));
-  };
-
-  Game.lose = function() {
-    console.log('You lose!');
-    Game.Canvas.showMessage('You lose!', 0);
-  };
-
-  function gameLoop(ts) {
-    if (!Game.paused) {
-      update();
-      draw();
-    }
-
-    if (Game.playing) {
-      requestAnimationFrame(gameLoop);
-    }
-  }
-
-  function update() {
-    if (Math.random() < 0.001 || Game.frame < 4) {
-      Game.addObject(new Game.Item({
-        itemType: Game.Arsenal.getRandomType(),
-        angle: Math.random() * 2 * Math.PI,
-        x: Game.Canvas.width + 10,
-        y: Game.Canvas.height + 10,
-        ttl: 800
-      }));
-    }
-
-    backgroundObjects.forEach(function(obj) {
-      obj.update();
-    });
-
-    for (var id in wormholes) {
-      wormholes[id].update(gameObjects);
-    }
-
-    gameObjects.forEach(function(obj) {
-      obj.update(gameObjects);
-    });
-
-    Game.frame++;
-  }
-
-  function draw() {
-    Game.Canvas.clear();
-    Game.Canvas.drawSimple(backgroundObjects);
-    Game.Canvas.drawComplex(gameObjects);
-    Game.Canvas.drawHUD(Game.Player);
-    Game.Canvas.drawFrameCount(Game.frame);
-
-  }
-
-  return Game;
-})(Game || {});
+    */

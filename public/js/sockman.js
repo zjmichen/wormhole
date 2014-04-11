@@ -42,19 +42,21 @@ var Sockman = (function(Sockman) {
 
   socket.on('startGame', function() {
     $('canvas#wormhole').fadeIn();
-    Game.init('wormhole');
+
+    window.game = new Game.Game('wormhole');
+    window.game.init();
 
     socket.emit('getPlayers');
 
     socket.on('playerList', function(players) {
       players.forEach(function(playerid) {
         if (playerid !== socket.socket.sessionid) {
-          Game.addPlayer(playerid);
+          window.game.addPlayer(playerid);
         }
       });
     });
 
-    Game.start();
+    window.game.start();
   });
 
   socket.on('wormhole', function(msg) {
