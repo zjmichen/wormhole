@@ -1,4 +1,4 @@
-var Game = (function(Game) {
+var W = (function(W) {
   var codes, alphabet, keyListeners;
 
   codes = {
@@ -15,7 +15,7 @@ var Game = (function(Game) {
 
   keyListeners = {};
 
-  Game.InputHandler = {
+  W.InputHandler = {
     addKeyInput: function(keyCode, controls) {
       console.log('Adding key input for ' + keyCode);
       if (isNaN(parseInt(keyCode))) {
@@ -53,5 +53,5 @@ var Game = (function(Game) {
     });
   }
 
-  return Game;
-})(Game || {});
+  return W;
+})(W || {});

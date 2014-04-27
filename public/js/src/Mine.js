@@ -1,4 +1,4 @@
-var Game = (function(Game) {
+var W = (function(W) {
   var mineImg1 = new Image()
     , mineImg2 = new Image()
     , mineImg3 = new Image()
@@ -9,11 +9,11 @@ var Game = (function(Game) {
   mineImg3.src = '/images/mine3.png';
   itemImg.src = '/images/item_mine.png';
 
-  Game.Mine = function(I) {
+  W.Mine = function(I) {
     I = I || {};
 
     var that = this;
-    this.sprite = new Game.Sprite(5);
+    this.sprite = new W.Sprite(5);
     this.sprite.addImage(mineImg1);
 
     this.x = I.x || 0;
@@ -48,19 +48,19 @@ var Game = (function(Game) {
       if (obj.type !== 'ship') { return; }
 
       if (this.distanceTo(obj) < 40) {
-        Game.Player.health -= this.damage;
+        W.Player.health -= this.damage;
         this.blowUp();
       }
     };
 
   };
 
-  Game.Arsenal.addType({
+  W.Arsenal.addType({
     name: 'mine',
     img: itemImg,
     prob: 0.4,
-    constructor: Game.Mine
+    constructor: W.Mine
   });
 
-  return Game;
-})(Game || {});
+  return W;
+})(W || {});

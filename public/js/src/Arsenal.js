@@ -1,13 +1,13 @@
-var Game = (function(Game) {
+var W = (function(W) {
   var types = {
     'none': {
       prob: 0,
       img: new Image(),
-      constructor: Game.Explosion
+      constructor: W.Explosion
     }
   };
 
-  Game.Arsenal = {
+  W.Arsenal = {
 
     getRandomType: function() {
       var r = Math.random()
@@ -49,5 +49,5 @@ var Game = (function(Game) {
 
   };
 
-  return Game;
-})(Game || {});
+  return W;
+})(W || {});

@@ -1,4 +1,4 @@
-var Game = (function(Game) {
+var W = (function(W) {
   var starImg = document.createElement('canvas')
     , ctx = starImg.getContext('2d');
 
@@ -7,25 +7,25 @@ var Game = (function(Game) {
   ctx.fillStyle = 'white';
   ctx.fillRect(0, 0, starImg.width, starImg.height);
 
-  Game.Star = function(x, y, dist) {
+  W.Star = function(x, y, dist) {
     this.dist = dist;
     this.x = x;
     this.y = y;
   };
 
-  Game.Star.changeColor = function(color) {
+  W.Star.changeColor = function(color) {
     ctx.fillStyle = color;
     ctx.fillRect(0, 0, starImg.width, starImg.height);
   };
 
-  Game.Star.prototype.update = function() {
+  W.Star.prototype.update = function() {
     this.x -= 1/this.dist;
     this.y -= 0.5/this.dist;
   };
 
-  Game.Star.prototype.render = function() {
+  W.Star.prototype.render = function() {
     return starImg;
   };
 
-  return Game;
-})(Game || {});
+  return W;
+})(W || {});

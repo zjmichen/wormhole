@@ -1,16 +1,16 @@
-var Game = (function(Game) {
+var W = (function(W) {
   var nukeImg = new Image()
     , itemImg = new Image();
 
   nukeImg.src = '/images/nuke.png';
   itemImg.src = '/images/item_nuke.png';
 
-  Game.Nuke = function(I) {
+  W.Nuke = function(I) {
     I = I || {};
 
     var that = this;
 
-    this.sprite = new Game.Sprite(5);
+    this.sprite = new W.Sprite(5);
     this.sprite.addImage(nukeImg);
 
     this.x = I.x || 0;
@@ -52,23 +52,23 @@ var Game = (function(Game) {
       for (i = 0; i < this.payload; i++) {
         theta = Math.random() * 2 * Math.PI;
         dist = Math.random() * 250;
-        x = (this.x + dist*Math.cos(theta)) % Game.Canvas.width;
-        y = (this.y + dist*Math.sin(theta)) % Game.Canvas.height;
+        x = (this.x + dist*Math.cos(theta)) % W.Canvas.width;
+        y = (this.y + dist*Math.sin(theta)) % W.Canvas.height;
 
-        Game.addObject(new Game.Explosion({ x: x, y: y }));
+        W.addObject(new W.Explosion({ x: x, y: y }));
       }
 
-      Game.removeObject(this);
+      W.removeObject(this);
     };
 
   };
 
-  Game.Arsenal.addType({
+  W.Arsenal.addType({
     name: 'nuke',
     img: itemImg,
     prob: 0.1,
-    constructor: Game.Nuke
+    constructor: W.Nuke
   });
 
-  return Game;
-})(Game || {});
+  return W;
+})(W || {});

@@ -1,8 +1,8 @@
-var Game = (function(Game) {
+var W = (function(W) {
   var buf = document.createElement('canvas')
     , ctx = buf.getContext('2d');
 
-  Game.GameObject = {
+  W.GameObject = {
     x: 0,
     y: 0,
     width: 0,
@@ -121,15 +121,15 @@ var Game = (function(Game) {
     blowUp: function() {
       var that = this;
 
-      Game.addObject(new Game.Explosion({
+      W.addObject(new W.Explosion({
         x: that.x,
         y: that.y
       }));
 
-      Game.removeObject(this);
+      W.removeObject(this);
     },
 
   };
 
-  return Game;
-})(Game || {});
+  return W;
+})(W || {});

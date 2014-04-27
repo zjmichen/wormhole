@@ -1,16 +1,16 @@
-var Game = (function(Game) {
+var W = (function(W) {
   var img1 = new Image()
     , img2 = new Image();
 
   img1.src = '/images/explosion1.png';
   img2.src = '/images/explosion2.png';
 
-  Game.Explosion = function(I) {
+  W.Explosion = function(I) {
     I = I || {};
 
     var that = this;
 
-    this.sprite = new Game.Sprite(5);
+    this.sprite = new W.Sprite(5);
     this.sprite.addImage(img1);
     this.sprite.addImage(img2);
 
@@ -47,12 +47,12 @@ var Game = (function(Game) {
       },
       action: function() {
         that.scaleTo(0, function() {
-          Game.removeObject(that);
+          W.removeObject(that);
         });
       }
     });
 
   };
 
-  return Game;
-})(Game || {});
+  return W;
+})(W || {});

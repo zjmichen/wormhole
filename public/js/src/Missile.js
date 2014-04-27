@@ -1,4 +1,4 @@
-var Game = (function(Game) {
+var W = (function(W) {
   var missileImg1 = new Image()
     , missileImg2 = new Image()
     , itemImg = new Image();
@@ -7,12 +7,12 @@ var Game = (function(Game) {
   missileImg2.src = '/images/missile2.png';
   itemImg.src = '/images/item_missile.png';
 
-  Game.Missile = function(I) {
+  W.Missile = function(I) {
     I = I || {};
 
     var that = this;
 
-    this.sprite = new Game.Sprite(5);
+    this.sprite = new W.Sprite(5);
     this.sprite.addImage(missileImg1);
     this.sprite.addImage(missileImg2);
 
@@ -44,7 +44,7 @@ var Game = (function(Game) {
       if (this.from === undefined || obj.type !== 'ship') { return; }
 
       if (this.distanceTo(obj) < 40) {
-        Game.Player.health -= this.damage;
+        W.Player.health -= this.damage;
         this.blowUp();
       } else if (this.distanceTo(obj) < 500) {
         this.turnToward(obj, 0.1);
@@ -62,12 +62,12 @@ var Game = (function(Game) {
 
   };
 
-  Game.Arsenal.addType({
+  W.Arsenal.addType({
     name: 'missile',
     img: itemImg,
     prob: 0.4,
-    constructor: Game.Missile
+    constructor: W.Missile
   });
 
-  return Game;
-})(Game || {});
+  return W;
+})(W || {});

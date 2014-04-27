@@ -1,15 +1,15 @@
-var Game = (function(Game) {
+var W = (function(W) {
   var img = new Image()
-    , sprite = new Game.Sprite();
+    , sprite = new W.Sprite();
 
   img.addEventListener('load', function() {
     sprite.addImage(img);
   });
-  img.src = (Game.debug.inverted) ?
+  img.src = (W.debug.inverted) ?
     '/images/wormhole_inverted.png' :
     '/images/wormhole.png';
 
-  Game.Wormhole = function(x, y, id) {
+  W.Wormhole = function(x, y, id) {
     var that = this;
 
     this.angle = 0;
@@ -36,8 +36,8 @@ var Game = (function(Game) {
           obj.to = id;
           obj.scaleSpeed = 0.03*obj.speed;
           obj.scaleTo(0, function() {
-            Game.sendObject(JSON.stringify(obj), id);
-            Game.removeObject(obj);
+            W.sendObject(JSON.stringify(obj), id);
+            W.removeObject(obj);
           });
         }
       }
@@ -54,5 +54,5 @@ var Game = (function(Game) {
     };
   };
 
-  return Game;
-})(Game || {});
+  return W;
+})(W || {});

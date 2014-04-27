@@ -1,11 +1,11 @@
-var Game = (function(Game) {
+var W = (function(W) {
   var ctx
     , message = {}
     , lifeImg = new Image();
 
   lifeImg.src = '/images/ship_normal.png';
 
-  Game.Canvas = {
+  W.Canvas = {
     init: function(canvas) {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
@@ -16,11 +16,11 @@ var Game = (function(Game) {
         canvas.height = window.innerHeight;
       };
 
-      Object.defineProperty(Game.Canvas, 'width', {
+      Object.defineProperty(W.Canvas, 'width', {
         get: function() { return canvas.width; }
       });
 
-      Object.defineProperty(Game.Canvas, 'height', {
+      Object.defineProperty(W.Canvas, 'height', {
         get: function() { return canvas.height; }
       });
     },
@@ -54,8 +54,8 @@ var Game = (function(Game) {
     },
 
     clear: function() {
-      ctx.fillStyle = (Game.debug.inverted) ? 'white' : 'black';
-      ctx.fillRect(0, 0, Game.Canvas.width, Game.Canvas.height);
+      ctx.fillStyle = (W.debug.inverted) ? 'white' : 'black';
+      ctx.fillRect(0, 0, W.Canvas.width, W.Canvas.height);
     },
 
     drawSimple: function(objects) {
@@ -64,8 +64,8 @@ var Game = (function(Game) {
           , x = obj.x || 0
           , y = obj.y || 0;
 
-        x = ((x % Game.Canvas.width) + Game.Canvas.width) % Game.Canvas.width;
-        y = ((y % Game.Canvas.height) + Game.Canvas.height) % Game.Canvas.height;
+        x = ((x % W.Canvas.width) + W.Canvas.width) % W.Canvas.width;
+        y = ((y % W.Canvas.height) + W.Canvas.height) % W.Canvas.height;
 
         ctx.drawImage(img, x, y);
       });
@@ -82,8 +82,8 @@ var Game = (function(Game) {
           , sy = obj.scale || 1
           , angle = obj.angle || 0;
 
-        obj.x = ((x % Game.Canvas.width) + Game.Canvas.width) % Game.Canvas.width;
-        obj.y = ((y % Game.Canvas.height) + Game.Canvas.height) % Game.Canvas.height;
+        obj.x = ((x % W.Canvas.width) + W.Canvas.width) % W.Canvas.width;
+        obj.y = ((y % W.Canvas.height) + W.Canvas.height) % W.Canvas.height;
         obj.angle = ((angle % (2*Math.PI)) + (2*Math.PI)) % (2*Math.PI);
 
         ctx.save();
@@ -94,11 +94,11 @@ var Game = (function(Game) {
         try {
           ctx.drawImage(img, 0, 0);
         } catch (e) {
-          Game.removeObject(obj);
+          W.removeObject(obj);
           console.log(e);
         }
 
-        if (Game.debug.drawOutlines) {
+        if (W.debug.drawOutlines) {
           ctx.strokeStyle = '#ff0';
           ctx.lineWidth = 2;
           ctx.strokeRect(0, 0, w, h);
@@ -113,7 +113,7 @@ var Game = (function(Game) {
 
       drawHealth(player.ship.health, 30, 60, 100, 10);
       drawLives(player.lives, 0, 0, 0.5);
-      drawItems(player.items, Game.Canvas.width, 20, 0.75);
+      drawItems(player.items, W.Canvas.width, 20, 0.75);
 
       if (message.title !== undefined) {
         drawMessage();
@@ -121,7 +121,7 @@ var Game = (function(Game) {
     },
 
     drawFrameCount: function(frame) {
-      ctx.fillStyle = (Game.debug.inverted) ? 'black' : 'white';
+      ctx.fillStyle = (W.debug.inverted) ? 'black' : 'white';
       ctx.font = '10px Arial';
       ctx.textAlign = 'left';
       ctx.fillText(frame, 0, 10);
@@ -160,8 +160,8 @@ var Game = (function(Game) {
   }
 
   function drawMessage() {
-    var centerX = 0.5*Game.Canvas.width
-      , centerY = 0.5*Game.Canvas.height
+    var centerX = 0.5*W.Canvas.width
+      , centerY = 0.5*W.Canvas.height
       , boxHeight = 60;
 
     if (message.detail !== '') {
@@ -169,7 +169,7 @@ var Game = (function(Game) {
     }
 
     ctx.fillStyle = 'rgba(50, 50, 50, 0.5)';
-    ctx.fillRect(0, centerY - 34, Game.Canvas.width, boxHeight);
+    ctx.fillRect(0, centerY - 34, W.Canvas.width, boxHeight);
 
     ctx.fillStyle = 'white';
     ctx.font = '48px Arial';
@@ -181,5 +181,5 @@ var Game = (function(Game) {
     ctx.fillText(message.detail, centerX, centerY + 48);
   }
 
-  return Game;
-})(Game || {});
+  return W;
+})(W || {});

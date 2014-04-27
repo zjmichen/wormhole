@@ -1,4 +1,4 @@
-var Game = (function(Game) {
+var W = (function(W) {
   var shipNormalImg = new Image()
     , shipFire1 = new Image()
     , shipFire2 = new Image()
@@ -9,10 +9,10 @@ var Game = (function(Game) {
   shipFire2.src = '/images/ship_fire2.png';
   shipFire3.src = '/images/ship_fire3.png';
 
-  Game.Ship = function(x, y) {
+  W.Ship = function(x, y) {
     var that = this
-      , spriteThrusting = new Game.Sprite(5)
-      , spriteNormal = new Game.Sprite()
+      , spriteThrusting = new W.Sprite(5)
+      , spriteNormal = new W.Sprite()
       , controlStates
       , speed = 0
       , driftAngle = 0;
@@ -30,8 +30,8 @@ var Game = (function(Game) {
     this.reach = 50;
 
     Object.defineProperty(this, 'health', {
-      get: function() { return Game.Player.health; },
-      set: function(h) { Game.Player.health = h; }
+      get: function() { return W.Player.health; },
+      set: function(h) { W.Player.health = h; }
     });
 
     Object.defineProperty(this, 'width', {
@@ -85,11 +85,11 @@ var Game = (function(Game) {
     this.pickUp = function(item) {
       if (item.type !== 'item') { return; }
 
-      Game.Player.items.push(new Game.Item(item));
-      Game.removeObject(item);
+      W.Player.items.push(new W.Item(item));
+      W.removeObject(item);
     };
 
-    Game.InputHandler.addKeyInput('up', {
+    W.InputHandler.addKeyInput('up', {
       keydown: function() {
         console.log('Up was pressed.');
         console.log(controlStates);
@@ -106,7 +106,7 @@ var Game = (function(Game) {
       }
     });
 
-    Game.InputHandler.addKeyInput('left', {
+    W.InputHandler.addKeyInput('left', {
       keydown: function() {
         if (!controlStates.turnLeft) {
           controlStates.turnLeft = true;
@@ -119,7 +119,7 @@ var Game = (function(Game) {
       }
     });
 
-    Game.InputHandler.addKeyInput('right', {
+    W.InputHandler.addKeyInput('right', {
       keydown: function() {
         if (!controlStates.turnRight) {
           controlStates.turnRight = true;
@@ -132,9 +132,9 @@ var Game = (function(Game) {
       }
     });
 
-    Game.InputHandler.addKeyInput('space', {
+    W.InputHandler.addKeyInput('space', {
       keydown: function() {
-        if (Game.Player.items.length <= 0) { return; }
+        if (W.Player.items.length <= 0) { return; }
 
         var itemBoost = 3
           , itemSpeedX = that.speed*Math.cos(driftAngle) + itemBoost*Math.cos(that.angle)
@@ -142,10 +142,10 @@ var Game = (function(Game) {
           , itemSpeed = Math.sqrt(Math.pow(itemSpeedX, 2) + Math.pow(itemSpeedY, 2))
           , item, weapon;
 
-        item = Game.Player.items.pop();
-        Weapon = Game.Arsenal.getConstructor(item.itemType);
+        item = W.Player.items.pop();
+        Weapon = W.Arsenal.getConstructor(item.itemType);
 
-        Game.addObject(new Weapon({
+        W.addObject(new Weapon({
           x: that.x + 0.5*that.height,
           y: that.y,
           angle: that.angle,
@@ -165,14 +165,14 @@ var Game = (function(Game) {
         return that.health <= 0;
       },
       action: function() {
-        Game.Player.lives--;
+        W.Player.lives--;
         that.blowUp();
         setTimeout(function() {
-          Game.Player.respawn();
+          W.Player.respawn();
         }, 2000);
       }
     });
   };
 
-  return Game;
-})(Game || {});
+  return W;
+})(W || {});

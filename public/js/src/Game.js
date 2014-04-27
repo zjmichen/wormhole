@@ -1,10 +1,10 @@
-var Game = (function(Game) {
+var W = (function(W) {
 
-  Game.Game = function(id) {
-    this.canvas = new Game.Canvas(id);
-    this.player = new Game.Player();
-    this.arsenal = new Game.Arsenal();
-    this.input = new Game.InputHandler();
+  W.Game = function(id) {
+    this.canvas = new W.Canvas(id);
+    this.player = new W.Player();
+    this.arsenal = new W.Arsenal();
+    this.input = new W.InputHandler();
 
     this.playing = false;
     this.paused = false;
@@ -19,11 +19,11 @@ var Game = (function(Game) {
     }
   };
 
-  Game.Game.prototype.init = function(id) {
+  W.Game.prototype.init = function(id) {
     var x, y, i, dist;
 
     if (this.debug.inverted) {
-      Game.Star.changeColor('black');
+      W.Star.changeColor('black');
     }
 
     for (i = 0; i < 0.0005*this.canvas.width*this.canvas.height; i++) {
@@ -31,7 +31,7 @@ var Game = (function(Game) {
       y = Math.random()*this.canvas.height;
       dist = 3 + Math.random() * 5;
 
-      this.objects.background.push(new Game.Star(x, y, dist));
+      this.objects.background.push(new W.Star(x, y, dist));
     }
 
     this.input.addKeyInput('p', {
@@ -48,7 +48,7 @@ var Game = (function(Game) {
     });
   };
 
-  Game.Game.prototype.pause = function() {
+  W.Game.prototype.pause = function() {
     this.paused = !this.paused;
 
     if (this.paused) {
@@ -61,21 +61,21 @@ var Game = (function(Game) {
     return this.paused;
   };
 
-  Game.Game.prototype.start = function() {
+  W.Game.prototype.start = function() {
     requestAnimationFrame(gameLoop);
     this.playing = true;
     this.canvas.showMessage('Wormhole', 'Move with arrow keys. Pick up floating objects and shoot them into your opponents\' wormholes with space.', 6);
     console.log('Game started.');
   };
 
-  Game.Game.prototype.lose = function() {
+  W.Game.prototype.lose = function() {
     console.log('You lose!');
     this.canvas.showMessage('You lose!', 0);
   };
 
-  Game.Game.prototype.update = function() {
+  W.Game.prototype.update = function() {
     if (Math.random() < 0.001 || this.frame < 4) {
-      this.addObject(new Game.Item({
+      this.addObject(new W.Item({
         itemType: this.arsenal.getRandomType(),
         angle: Math.random() * 2*Math.PI,
         x: 0,
@@ -99,7 +99,7 @@ var Game = (function(Game) {
     this.frame++;
   };
 
-  Game.Game.prototype.draw = function() {
+  W.Game.prototype.draw = function() {
     this.canvas.clear();
     this.canvas.drawSimple(this.objects.background);
     this.canvas.drawComplex(this.objects.foreground);
@@ -107,7 +107,7 @@ var Game = (function(Game) {
     this.canvas.drawFrameCount(this.frame);
   };
 
-  Game.Game.prototype.gameLoop = function() {
+  W.Game.prototype.gameLoop = function() {
     if (!this.paused) {
       this.update();
       this.draw();
@@ -118,34 +118,34 @@ var Game = (function(Game) {
     }
   };
 
-  Game.Game.prototype.addPlayer = function(id) {
+  W.Game.prototype.addPlayer = function(id) {
     var x = Math.random()*this.canvas.width
       , y = Math.random()*this.canvas.height;
 
-    this.wormholes[id] = new Game.Wormhole(x, y, id);
+    this.wormholes[id] = new W.Wormhole(x, y, id);
     this.objects.foreground.push(this.wormholes[id]);
   };
 
-  Game.Game.prototype.removePlayer = function(id) {
+  W.Game.prototype.removePlayer = function(id) {
     this.wormholes[id].scaleTo(0, function() {
       this.objects.foreground.splice(this.objects.foreground.indexOf(this.wormholes[id]), 1);
       delete this.wormholes[id];
     });
   };
 
-  Game.Game.prototype.addObject = function(obj) {
+  W.Game.prototype.addObject = function(obj) {
     this.objects.foreground.push(obj);
   };
 
-  Game.Game.prototype.removeObject = function(obj) {
+  W.Game.prototype.removeObject = function(obj) {
     this.objects.foreground.splice(this.objects.foreground.indexOf(obj), 1);
   };
 
-  Game.Game.prototype.sendObject = function(obj, playerId) {
+  W.Game.prototype.sendObject = function(obj, playerId) {
     Sockman.send(obj, playerId);
   };
 
-  Game.Game.prototype.receiveObject = function(obj, wormholeId) {
+  W.Game.prototype.receiveObject = function(obj, wormholeId) {
     obj = JSON.parse(obj);
     var Weapon = this.arsenal.getConstructor(obj.weaponType);
 
@@ -156,8 +156,8 @@ var Game = (function(Game) {
     this.objects.push(new Weapon(obj));
   };
 
-  return Game;
-})(Game || {});
+  return W;
+})(W || {});
 
 /*
     // set up prototype chain here to avoid parallel loading bug

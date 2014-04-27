@@ -1,5 +1,5 @@
-var Game = (function(Game) {
-  Game.Sprite = function(frameRate) {
+var W = (function(W) {
+  W.Sprite = function(frameRate) {
     var images = []
       , curFrame = 0
       , frameRate = frameRate || 1
@@ -62,5 +62,5 @@ var Game = (function(Game) {
 
   };
 
-  return Game;
-})(Game || {});
+  return W;
+})(W || {});

@@ -1,5 +1,5 @@
-var Game = (function(Game) {
-  Game.Player = {
+var W = (function(W) {
+  W.Player = {
     lives: 3,
     items: [],
     health: 100,
@@ -7,19 +7,19 @@ var Game = (function(Game) {
 
     respawn: function() {
       if (this.lives <= 0) {
-        Game.lose();
+        W.lose();
         return;
       }
 
-      this.ship = new Game.Ship(0.5*Game.Canvas.width, 0.5*Game.Canvas.height);
+      this.ship = new W.Ship(0.5*W.Canvas.width, 0.5*W.Canvas.height);
 
       this.lives--;
       this.health = 100;
       this.items = [];
 
-      Game.addObject(this.ship);
+      W.addObject(this.ship);
     }
   };
 
-  return Game;
-})(Game || {});
+  return W;
+})(W || {});

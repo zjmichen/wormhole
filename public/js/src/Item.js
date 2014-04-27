@@ -1,9 +1,9 @@
-var Game = (function(Game) {
-  Game.Item = function(I) {
+var W = (function(W) {
+  W.Item = function(I) {
     I = I || {};
 
     var that = this
-      , sprite = new Game.Sprite();
+      , sprite = new W.Sprite();
 
 
     this.x = I.x || 0;
@@ -15,7 +15,7 @@ var Game = (function(Game) {
     this.type = 'item';
     this.ttl = I.ttl || 1000;
 
-    sprite.addImage(Game.Arsenal.getImage(this.itemType));
+    sprite.addImage(W.Arsenal.getImage(this.itemType));
 
     Object.defineProperty(this, 'width', {
       get: function() { return sprite.width; }
@@ -45,11 +45,11 @@ var Game = (function(Game) {
         return that.ttl <= 0;
       },
       action: function() {
-        Game.removeObject(that);
+        W.removeObject(that);
       }
     });
 
   };
 
-  return Game;
-})(Game || {});
+  return W;
+})(W || {});
