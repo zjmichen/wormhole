@@ -37,7 +37,7 @@ if ('production' == app.get('env')) {
 
   credentials.redisHost = redisUrl.hostname;
   credentials.redisPort = redisUrl.port;
-  credentials.redisPass = redisUrl.auth.split(':')[1];
+  credentials.redisPass = 'asdf';//redisUrl.auth.split(':')[1];
 }
 
 redisClient = redis.createClient(credentials.redisPort, credentials.redisHost);
