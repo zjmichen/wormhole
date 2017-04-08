@@ -33,11 +33,11 @@ if ('development' == app.get('env')) {
 if ('production' == app.get('env')) {
   console.log("Running in production environment");
 
-  redisUrl = url.parse(process.env.REDISCLOUD_URL);
+  redisUrl = url.parse(process.env.REDISTOGO_URL);
 
   credentials.redisHost = redisUrl.hostname;
   credentials.redisPort = redisUrl.port;
-  credentials.redisPass = 'asdf';//redisUrl.auth.split(':')[1];
+  credentials.redisPass = redisUrl.auth.split(':')[1];
 }
 
 redisClient = redis.createClient(credentials.redisPort, credentials.redisHost);
