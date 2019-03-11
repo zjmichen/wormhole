@@ -22,11 +22,5 @@
     "socket.io": "0.9.x",
     "stylus": "*"
   },
-  "subdomain": "wormhole",
-  "engines": {
-    "node": "0.8.x"
-  },
-  "engines": {
-    "node": "0.10.x"
-  }
+  "subdomain": "wormhole"
 }
